@@ -33,6 +33,9 @@ class Chat {
     });
   }
 
+  createMessage(text){
+    return Message.createMessage(this._id, text);
+  }
   // add people from private chat?
 
   static createChat(type = 'private', title = '', members = []){
@@ -81,15 +84,21 @@ Meteor.methods({
   },
   [`${Chat.prefix}/joinChat`]: function joinChat(chatId, member){
     check(chatId, String);
-    check(member, Object);
+    check(member, Array);
     let chat = ChatCollection.findOne({_id: chatId});
     return chat.joinChat(member);
   },
   [`${Chat.prefix}/leaveChat`]: function leaveChat(chatId, member){
     check(chatId, String);
-    check(member, Object);
+    check(member, Array);
     let chat = ChatCollection.findOne({_id: chatId});
     return chat.leaveChat(member);
+  },
+  [`${Chat.prefix}/createMessage`]: function createMessage(chatId, text){
+    check(chatId, String);
+    check(text, String);
+    let chat = ChatCollection.findOne({_id: chatId});
+    return chat.createMessage(text);
   },
   [`${Chat.prefix}/createChat`]: function createChat(type, title, members){
     check(type, String);

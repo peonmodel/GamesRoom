@@ -24,6 +24,12 @@ class Chat {
     Meteor.call(`${Chat.prefix}/leaveChat`, this._id, member, callback);
   }
 
+  createMessage(text, callback = ()=>{}){
+    check(text, String);
+    check(callback, Function);
+    Meteor.call(`${Chat.prefix}/createMessage`, this._id, text, callback);
+  }
+
   static createChat(type = 'private', title = '', members = [], callback = ()=>{}){
     check(type, String);
     check(title, String);
