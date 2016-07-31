@@ -18,7 +18,8 @@ Package.onUse(function(api) {
     'check',
     'underscore',
   ]);
-  api.mainModule('chatmessages.js');
+  api.mainModule('chatmessages-server.js', 'server');
+  api.mainModule('chatmessages-client.js', 'client');
 });
 
 Package.onTest(function(api) {
