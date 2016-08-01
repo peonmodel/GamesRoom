@@ -3,8 +3,6 @@ import { Mongo } from 'meteor/mongo';
 import { check, /*Match*/ } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 
-/* global MessageCollection: true */
-
 class Message {
 
   constructor(item){
@@ -17,7 +15,7 @@ class Message {
    * @returns {number}  1 if succeeded, 0 otherwise
    */
   deleteMessage(){
-    return MessageCollection.remove({_id: this._id});
+    return Message.collection.remove({_id: this._id});
   }
 
   /**
@@ -27,7 +25,7 @@ class Message {
    * @returns {number}  1 if succeeded, 0 otherwise
    */
   editMessage(text){
-    return MessageCollection.update(this._id, {
+    return Message.collection.update(this._id, {
       $set: {text: text, editAt: new Date()}
     });
   }
@@ -53,7 +51,7 @@ class Message {
   static createMessage(chatId, text, replyTo){
     // TODO: filter replyTo object to contain only essentials
     let filteredReply = !!replyTo ? _.pick(replyTo, ['_id', 'from', 'text', 'timestamp']) : undefined;
-    return MessageCollection.insert({
+    return Message.collection.insert({
       chatId,
       from: {}, // TODO: filter Meteor.user chat name somehow
       text,
@@ -107,32 +105,32 @@ Message.schema = {
 // compound indices are still faster and is preferred
 // put high cardinality fields first and progressively lower up to 31
 // compound indices also work for its prefixes, i.e. {a, b, c} works for {a, b} too
-MessageCollection = new Mongo.Collection(`${Message.prefix}Collection`, {
+Message.collection = new Mongo.Collection(`${Message.prefix}Collection`, {
   transform: function(item){
     return new Message(item);
   },
   defineMutationMethods: false,  // need to publish this but dont let direct edit
 });
 // sort index only matter when both fields need to be sorted
-MessageCollection._ensureIndex({chatId: 1, timestamp: 1});
+Message.collection._ensureIndex({chatId: 1, timestamp: 1});
 
 // defines the mutation meteor methods DMMM
 Meteor.methods({
   [`${Message.prefix}/deleteMessage`]: function deleteMessage(messageId){
     check(messageId, String);
-    let message = MessageCollection.findOne({_id: messageId});
+    let message = Message.collection.findOne({_id: messageId});
     return message.deleteMessage();
   },
   [`${Message.prefix}/editMessage`]: function editMessage(messageId, text){
     check(messageId, String);
     check(text, String);
-    let message = MessageCollection.findOne({_id: messageId});
+    let message = Message.collection.findOne({_id: messageId});
     return message.editMessage(text);
   },
   [`${Message.prefix}/replyMessage`]: function replyMessage(messageId, text){
     check(messageId, String);
     check(text, String);
-    let message = MessageCollection.findOne({_id: messageId});
+    let message = Message.collection.findOne({_id: messageId});
     return message.replyMessage(text);
   },
   [`${Message.prefix}/createMessage`]: function createMessage(chatId, text, replyTo){
@@ -143,4 +141,4 @@ Meteor.methods({
   },
 });
 
-export { Message, MessageCollection };
+export { Message };

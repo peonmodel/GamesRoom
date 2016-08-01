@@ -69,11 +69,10 @@ Message.schema = {
 };
 Message.prefix = `freelancecourtyard:Message`;
 
-/* global MessageCollection: true*/
-MessageCollection = new Mongo.Collection(`${Message.prefix}Collection`, {
+Message.collection = new Mongo.Collection(`${Message.prefix}Collection`, {
   transform: function(item){
     return new Message(item);
   },
 });
 
-export { Message, MessageCollection };
+export { Message };

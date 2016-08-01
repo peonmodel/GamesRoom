@@ -3,9 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { check, /*Match*/ } from 'meteor/check';
 // import { _ } from 'meteor/underscore';
 
-import { Message, MessageCollection } from './message-server.js';
-
-/* global ChatCollection: true */
+import { Message } from './message-server.js';
 
 class Chat {
   // NOTE: a different chat is created for each room, game, teams
@@ -14,21 +12,21 @@ class Chat {
   }
 
   deleteChat(){
-    MessageCollection.remove({chatId: this._id});
-    return ChatCollection.remove({_id: this._id});
+    Message.collection.remove({chatId: this._id});
+    return Chat.collection.remove({_id: this._id});
   }
 
   joinChat(member){
     // rather than just adding current user, allow current members to add others
     // TODO: some function get user/displayName from Meteor.user object
-    return ChatCollection.update(this._id, {
+    return Chat.collection.update(this._id, {
       $push: {members: member},
     });
   }
 
   leaveChat(member){
     // similarly, allow kicking
-    return ChatCollection.update(this._id, {
+    return Chat.collection.update(this._id, {
       $pull: {members: member},
     });
   }
@@ -39,7 +37,7 @@ class Chat {
   // add people from private chat?
 
   static createChat(type = 'private', title = '', members = []){
-    let chatId = ChatCollection.insert({
+    let chatId = Chat.collection.insert({
       type,
       title,
       members,
@@ -52,11 +50,11 @@ class Chat {
     // if chatQuery changes, it is a new subscription and chatIds will be remapped
     // publish composite is only needed if messages depends on a field that is editable by Chat
     // such that chat cursor didnt change but messages cursor suppose to change
-    let chatCursor = ChatCollection.find(chatQuery);
+    let chatCursor = Chat.collection.find(chatQuery);
     let chatIds = chatCursor.fetch().map(o=>o._id);
     let chatLimited = Object.assign(messageQuery, {chatId: {$in: chatIds}});
     return [
-      MessageCollection.find(chatLimited),
+      Message.collection.find(chatLimited),
       chatCursor,
     ];
   }
@@ -69,7 +67,7 @@ Chat.schema = {
   members: [String],  // of user
 };
 
-ChatCollection = new Mongo.Collection(`${Chat.prefix}Collection`, {
+Chat.collection = new Mongo.Collection(`${Chat.prefix}Collection`, {
   transform: function(item){
     return new Chat(item);
   },
@@ -79,25 +77,25 @@ ChatCollection = new Mongo.Collection(`${Chat.prefix}Collection`, {
 Meteor.methods({
   [`${Chat.prefix}/deleteChat`]: function deleteChat(chatId){
     check(chatId, String);
-    let chat = ChatCollection.findOne({_id: chatId});
+    let chat = Chat.collection.findOne({_id: chatId});
     return chat.deleteChat();
   },
   [`${Chat.prefix}/joinChat`]: function joinChat(chatId, member){
     check(chatId, String);
     check(member, Array);
-    let chat = ChatCollection.findOne({_id: chatId});
+    let chat = Chat.collection.findOne({_id: chatId});
     return chat.joinChat(member);
   },
   [`${Chat.prefix}/leaveChat`]: function leaveChat(chatId, member){
     check(chatId, String);
     check(member, Array);
-    let chat = ChatCollection.findOne({_id: chatId});
+    let chat = Chat.collection.findOne({_id: chatId});
     return chat.leaveChat(member);
   },
   [`${Chat.prefix}/createMessage`]: function createMessage(chatId, text){
     check(chatId, String);
     check(text, String);
-    let chat = ChatCollection.findOne({_id: chatId});
+    let chat = Chat.collection.findOne({_id: chatId});
     return chat.createMessage(text);
   },
   [`${Chat.prefix}/createChat`]: function createChat(type, title, members){
@@ -108,4 +106,4 @@ Meteor.methods({
   },
 });
 
-export { Chat, ChatCollection };
+export { Chat };

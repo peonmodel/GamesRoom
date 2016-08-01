@@ -1,3 +1,3 @@
 import './publication.js';
-export { Message, MessageCollection } from './message-server.js';
-export { Chat, ChatCollection } from './chat-server.js';
+export { Message } from './message-server.js';
+export { Chat } from './chat-server.js';

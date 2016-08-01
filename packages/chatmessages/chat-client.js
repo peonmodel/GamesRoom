@@ -46,11 +46,10 @@ Chat.schema = {
   members: [String],  // of user
 };
 
-/* global ChatCollection: true*/
-ChatCollection = new Mongo.Collection(`${Chat.prefix}Collection`, {
+Chat.collection = new Mongo.Collection(`${Chat.prefix}Collection`, {
   transform: function(item){
     return new Chat(item);
   },
 });
 
-export { Chat, ChatCollection };
+export { Chat };
