@@ -11,7 +11,8 @@ class Message {
 
   /**
    * constructor - instantiate Message instance
-   * see schema
+   * used to transform Message.collection items
+   * also see schema
    *
    * @param  {object} item object stored in collection
    */

@@ -11,7 +11,8 @@ class Chat {
 
   /**
    * constructor - instantiate Chat instance
-   * see schema
+   * used to transform Chat.collection items
+   * also see schema
    *
    * @param  {object} item object stored in collection
    */

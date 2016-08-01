@@ -5,17 +5,40 @@ import { check, /*Match*/ } from 'meteor/check';
 
 import { Message } from './message-server.js';
 
+/**
+ * class representing a chat instance,
+ * may create a new chat instance for each room/game/team
+ *
+ */
 class Chat {
-  // NOTE: a different chat is created for each room, game, teams
+
+  /**
+   * constructor - instantiate Chat instance
+   * used to transform Chat.collection items
+   * also see schema
+   *
+   * @param  {object} item object stored in collection
+   */
   constructor(item){
     Object.assign(this, item);
   }
 
+  /**
+   * deleteChat - deletes this instance of Chat and related Messages from collection
+   *
+   * @returns {number}  1 if successful, 0 otherwise
+   */
   deleteChat(){
     Message.collection.remove({chatId: this._id});
     return Chat.collection.remove({_id: this._id});
   }
 
+  /**
+   * joinChat - add User/Player to chat
+   *
+   * @param  {object} member to add to chat
+   * @returns {number}        1 if successful, 0 otherwise
+   */
   joinChat(member){
     // rather than just adding current user, allow current members to add others
     // TODO: some function get user/displayName from Meteor.user object
@@ -24,6 +47,12 @@ class Chat {
     });
   }
 
+  /**
+   * leaveChat - remove User/Player from chat
+   *
+   * @param  {object} member to remove
+   * @returns {number}        1 if successful, 0 otherwise
+   */
   leaveChat(member){
     // similarly, allow kicking
     return Chat.collection.update(this._id, {
@@ -31,11 +60,25 @@ class Chat {
     });
   }
 
+  /**
+   * createMessage - add a Message instance to chat
+   *
+   * @param  {string} text content of message
+   * @returns {string}      id of Message instance in collection
+   */
   createMessage(text){
     return Message.createMessage(this._id, text);
   }
   // add people from private chat?
 
+  /**
+   * createChat - add an instance of Chat into collection
+   *
+   * @param  {string} type = 'private' type of chat
+   * @param  {string} title = ''       title of chat
+   * @param  {array} members = []     members in chat
+   * @returns {string}                  id of chat added to collection
+   */
   static createChat(type = 'private', title = '', members = []){
     let chatId = Chat.collection.insert({
       type,
@@ -45,6 +88,14 @@ class Chat {
     Message.createMessage(chatId);
   }
 
+  /**
+   * publishChat - helper function to publish both Chat collection and Message collection
+   * publishes chat by id and messages related to published chats
+   *
+   * @param  {object} chatQuery    mongo query object for Chat collection
+   * @param  {object} messageQuery mongo query object for Message collection
+   * @returns {array}              array of collection cursors to publish
+   */
   static publishChat(chatQuery, messageQuery){
     // NOTE: no need to publish composite as chatId aint going to change for a given subscription
     // if chatQuery changes, it is a new subscription and chatIds will be remapped

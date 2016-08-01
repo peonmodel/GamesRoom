@@ -3,8 +3,19 @@ import { Mongo } from 'meteor/mongo';
 import { check, /*Match*/ } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 
+/**
+ * class representing a message instance
+ * intended to be used in Chat
+ */
 class Message {
 
+  /**
+   * constructor - instantiate Message instance
+   * used to transform Message.collection items
+   * also see schema
+   *
+   * @param  {object} item object stored in collection
+   */
   constructor(item){
     Object.assign(this, item);
   }
