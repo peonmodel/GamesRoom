@@ -3,9 +3,14 @@ import { Mongo } from 'meteor/mongo';
 import { check, /*Match*/ } from 'meteor/check';
 
 /**
- * class representing a chat instance,
+ * Client-side.
+ * @namespace ClientSide
+ */
+
+/**
+ * Class representing a chat instance,
  * may create a new chat instance for each room/game/team
- *
+ * @memberof ClientSide
  */
 class Chat {
 

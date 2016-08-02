@@ -6,9 +6,43 @@ import { check, /*Match*/ } from 'meteor/check';
 import { Message } from './message-server.js';
 
 /**
- * class representing a chat instance,
+ * Server-side.
+ * @namespace ServerSide
+ */
+
+/**
+ * @typedef ChatSchema
+ * @type {Object}
+ * @property {string} _id - id of chat instance
+ * @property {'private'|'group'} type - type of chat TODO: more types
+ * @property {string} title - name of chat
+ * @property {Object[]} members - array of user/players object
+ */
+
+/**
+ * @typedef Member - TODO: create Member class
+ * @type {Object}
+ * @property {string} _id - id of member
+ * @property {string} displayName - display name
+ * players may have different display name for each chat as per game requirement
+ */
+
+/**
+ * @typedef MongoQuery - Mongo query object
+ * @type {Object}
+ * {@link https://docs.mongodb.com/manual/reference/operator/query/}
+ */
+
+/**
+ * @typedef MongoCursor - Mongo collection cursor
+ * @type {Object}
+ * {@link https://docs.meteor.com/api/collections.html#Mongo-Collection-find}
+ */
+
+/**
+ * Class representing a chat instance,
  * may create a new chat instance for each room/game/team
- *
+ * @memberof ServerSide
  */
 class Chat {
 
@@ -17,7 +51,7 @@ class Chat {
    * used to transform Chat.collection items
    * also see schema
    *
-   * @param  {object} item object stored in collection
+   * @param  {ChatSchema} item - object stored in collection
    */
   constructor(item){
     Object.assign(this, item);
@@ -36,7 +70,7 @@ class Chat {
   /**
    * joinChat - add User/Player to chat
    *
-   * @param  {object} member to add to chat
+   * @param  {Member} member - member to add to chat
    * @returns {number}        1 if successful, 0 otherwise
    */
   joinChat(member){
@@ -50,7 +84,7 @@ class Chat {
   /**
    * leaveChat - remove User/Player from chat
    *
-   * @param  {object} member to remove
+   * @param  {Member} member - member to remove
    * @returns {number}        1 if successful, 0 otherwise
    */
   leaveChat(member){
@@ -63,7 +97,7 @@ class Chat {
   /**
    * createMessage - add a Message instance to chat
    *
-   * @param  {string} text content of message
+   * @param  {string} text - content of message
    * @returns {string}      id of Message instance in collection
    */
   createMessage(text){
@@ -74,9 +108,9 @@ class Chat {
   /**
    * createChat - add an instance of Chat into collection
    *
-   * @param  {string} type = 'private' type of chat
-   * @param  {string} title = ''       title of chat
-   * @param  {array} members = []     members in chat
+   * @param  {string} [type = 'private'] - type of chat
+   * @param  {string} [title = '']       - title of chat
+   * @param  {Member[]} [members = []]   - members in chat
    * @returns {string}                  id of chat added to collection
    */
   static createChat(type = 'private', title = '', members = []){
@@ -92,9 +126,9 @@ class Chat {
    * publishChat - helper function to publish both Chat collection and Message collection
    * publishes chat by id and messages related to published chats
    *
-   * @param  {object} chatQuery    mongo query object for Chat collection
-   * @param  {object} messageQuery mongo query object for Message collection
-   * @returns {array}              array of collection cursors to publish
+   * @param  {MongoQuery} chatQuery    - mongo query object for Chat collection
+   * @param  {MongoQuery} messageQuery - mongo query object for Message collection
+   * @returns {MongoCursor[]}              array of collection cursors to publish
    */
   static publishChat(chatQuery, messageQuery){
     // NOTE: no need to publish composite as chatId aint going to change for a given subscription
@@ -115,7 +149,7 @@ Chat.schema = {
   _id: String, // chatId
   type: String,
   title: String,
-  members: [String],  // of user
+  members: [Object],  // of user
 };
 
 Chat.collection = new Mongo.Collection(`${Chat.prefix}Collection`, {
@@ -126,12 +160,25 @@ Chat.collection = new Mongo.Collection(`${Chat.prefix}Collection`, {
 });
 
 Meteor.methods({
+  /**
+   * deleteChat - Meteor method to delete chat
+   *
+   * @param  {string} chatId - id of chat to delete
+   * @returns {number}        1 if successful, 0 otherwise
+   */
   [`${Chat.prefix}/deleteChat`]: function deleteChat(chatId){
     check(chatId, String);
     this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.deleteChat();
   },
+  /**
+   * joinChat - Meteor method to join chat
+   *
+   * @param  {string} chatId - id of chat to join
+   * @param  {Member} member - User/Player object
+   * @returns {number}        1 if successful, 0 otherwise
+   */
   [`${Chat.prefix}/joinChat`]: function joinChat(chatId, member){
     check(chatId, String);
     check(member, Array);
@@ -139,6 +186,13 @@ Meteor.methods({
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.joinChat(member);
   },
+  /**
+   * leaveChat - Meteor method to leave chat
+   *
+   * @param  {string} chatId - id of chat to join
+   * @param  {Member} member - User/Player object
+   * @returns {number}        1 if successful, 0 otherwise
+   */
   [`${Chat.prefix}/leaveChat`]: function leaveChat(chatId, member){
     check(chatId, String);
     check(member, Array);
@@ -146,6 +200,13 @@ Meteor.methods({
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.leaveChat(member);
   },
+  /**
+   * createMessage - Meteor method to create message
+   *
+   * @param  {string} chatId - id of chat to join
+   * @param  {string} text - content of message
+   * @returns {string}        id of created message
+   */
   [`${Chat.prefix}/createMessage`]: function createMessage(chatId, text){
     check(chatId, String);
     check(text, String);
@@ -153,6 +214,14 @@ Meteor.methods({
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.createMessage(text);
   },
+  /**
+   * createChat - Meteor method to create chat
+   *
+   * @param  {string} [type = 'private'] - type of chat
+   * @param  {string} [title = '']       - title of chat
+   * @param  {Member[]} [members = []]   - members in chat
+   * @returns {string}                  id of chat added to collection
+   */
   [`${Chat.prefix}/createChat`]: function createChat(type, title, members){
     check(type, String);
     check(title, String);
