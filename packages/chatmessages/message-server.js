@@ -129,18 +129,21 @@ Message.collection._ensureIndex({chatId: 1, timestamp: 1});
 Meteor.methods({
   [`${Message.prefix}/deleteMessage`]: function deleteMessage(messageId){
     check(messageId, String);
+    this.unblock();
     let message = Message.collection.findOne({_id: messageId});
     return message.deleteMessage();
   },
   [`${Message.prefix}/editMessage`]: function editMessage(messageId, text){
     check(messageId, String);
     check(text, String);
+    this.unblock();
     let message = Message.collection.findOne({_id: messageId});
     return message.editMessage(text);
   },
   [`${Message.prefix}/replyMessage`]: function replyMessage(messageId, text){
     check(messageId, String);
     check(text, String);
+    this.unblock();
     let message = Message.collection.findOne({_id: messageId});
     return message.replyMessage(text);
   },
@@ -148,6 +151,7 @@ Meteor.methods({
     check(chatId, String);
     check(text, String);
     check(replyTo, Object);
+    this.unblock();
     return Message.createMessage(chatId, text, replyTo);
   },
 });

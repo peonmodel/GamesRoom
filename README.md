@@ -6,6 +6,7 @@
 * ~~create client-side class for chat~~
 * ~~add publication for chat~~
 * ~~add collection as part of class static variable~~
+* ~~add unblock to method calls~~
 * add documentation for chat package
 * test chat package
 * create define methods for room class

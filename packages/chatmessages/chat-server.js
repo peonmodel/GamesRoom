@@ -128,24 +128,28 @@ Chat.collection = new Mongo.Collection(`${Chat.prefix}Collection`, {
 Meteor.methods({
   [`${Chat.prefix}/deleteChat`]: function deleteChat(chatId){
     check(chatId, String);
+    this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.deleteChat();
   },
   [`${Chat.prefix}/joinChat`]: function joinChat(chatId, member){
     check(chatId, String);
     check(member, Array);
+    this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.joinChat(member);
   },
   [`${Chat.prefix}/leaveChat`]: function leaveChat(chatId, member){
     check(chatId, String);
     check(member, Array);
+    this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.leaveChat(member);
   },
   [`${Chat.prefix}/createMessage`]: function createMessage(chatId, text){
     check(chatId, String);
     check(text, String);
+    this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
     return chat.createMessage(text);
   },
@@ -153,6 +157,7 @@ Meteor.methods({
     check(type, String);
     check(title, String);
     check(members, Array);
+    this.unblock();
     return Chat.createChat(type, title, members);
   },
 });
