@@ -23,8 +23,19 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function(api) {
-  api.use('ecmascript');
-  api.use('tinytest');
+  // utility
+  api.use([
+    'ecmascript',
+    // 'underscore',
+    'mongo',
+  ]);
+  // test engine
+  api.use([
+    'practicalmeteor:mocha',
+    'practicalmeteor:chai',
+    // 'practicalmeteor:sinon',
+  ]);
+  // package to test
   api.use('freelancecourtyard:chatmessages');
-  api.mainModule('chatmessages-tests.js');
+  api.mainModule('tests/chat-server-spec.js', 'server');
 });
