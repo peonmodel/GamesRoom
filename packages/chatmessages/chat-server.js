@@ -119,7 +119,8 @@ class Chat {
       title,
       members,
     });
-    Message.createMessage(chatId);
+    Message.createMessage(chatId, 'chat created');
+    return chatId;
   }
 
   /**
