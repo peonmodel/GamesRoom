@@ -10,9 +10,9 @@ Package.describe({
   documentation: 'README.md'
 });
 
-Npm.depends({
-  'lodash': '4.14.1',
-});
+// Npm.depends({
+//   'lodash': '4.14.1',
+// });
 
 Package.onUse(function(api) {
   api.versionsFrom('1.4');
@@ -20,19 +20,33 @@ Package.onUse(function(api) {
     'ecmascript',
     'mongo',
     'check',
+    'random',
     'accounts-password',
   ]);
-
   api.imply([
     'accounts-password',
   ]);
+  api.use([
+    'freelancecourtyard:chatmessages',
+  ]);
 
-  api.mainModule('gamesroom.js');
+  api.mainModule('gamesroom.js', 'server');
 });
 
 Package.onTest(function(api) {
-  api.use('ecmascript');
-  api.use('tinytest');
+  // utility
+  api.use([
+    'ecmascript',
+    // 'underscore',
+    'mongo',
+  ]);
+  // test engine
+  api.use([
+    'practicalmeteor:mocha',
+    'practicalmeteor:chai',
+    // 'practicalmeteor:sinon',
+  ]);
+  // package to test
   api.use('freelancecourtyard:gamesroom');
-  api.mainModule('gamesroom-tests.js');
+  api.mainModule('tests/gamesroom-tests.js');
 });

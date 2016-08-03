@@ -1,67 +1,85 @@
-// import { Meteor } from 'meteor/meteor';
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check, Match } from 'meteor/check';
+import { Match } from 'meteor/check';
+import { Random } from 'meteor/random';
+import { Chat } from 'meteor/freelancecourtyard:chatmessages';
 // import { _ } from 'lodash';
-// TODO: chat should be a separate package
 
 class Room {
 
-  constructor(schema){
-    check(schema, Object);
-    Object.assign(this, schema);
-    // NOTE: check whether on server-side can have multiple new Mongo(same id)
-    // this.games = new Mongo.Collection(`Room:${this._id}:Games`);
-    // room chat and games chat
-    // this.roomChat =  ChatsCollection.createChat(this._id);
+  constructor(item){
+    Object.assign(this, item);
   }
-
-  get schema(){
-    return {
-      _id: String,
-      accessCode: String,  // for access to private room, also server as shortened id
-      isPublic: Boolean,
-      capacity: Match.Integer,
-      occupacy: Match.Integer,
-      users: [String],
-      games: [String],
-    };
+  joinRoom(member){
+    return Room.collection.update(this._id, {
+      $push: {members: member},
+      // $inc: {occupacy: 1},
+    });
   }
-
-  defineMethods(){
-    //
-  }
-
-  leaveRoom(){}
-
-  clearRoom(){
-    // will be called before deleting room
-  }
-
-  joinRoom(){}
-
-}
-
-export class RoomCollection {
-
-  constructor(){
-    this.collection = new Mongo.Collection('GamesRoom', {
-      transform: function (item){
-        return new Room(item);
-      },
+  leaveRoom(member){
+    return Room.collection.update(this._id, {
+      $pull: {members: member},
+      // $inc: {occupacy: 1},
     });
   }
 
-  defineMethods(){}
-
-  createRoom(){}
-
-  deleteRoom(roomId){
-    console.log(roomId);
+  clearRoom(){
+    // will be called before deleting room
+    // TODO: clear members
+    // TODO: clear games
+    // clear room chat
+    let chat = Chat.collection.findOne({_id: this.chatId});
+    chat.deleteChat();
+    return Room.collection.remove({_id: this._id});
   }
 
-  joinRoom(roomId){
-    console.log(roomId);
-    // get room, then call room.joinRoom() on current user
+  static createRoom(){
+    let title = `Room-${Random.id(4)}`;
+    let members = [];
+    let roomId = Room.collection.insert({
+      title,
+      accessCode: Random.id(6),
+      isPublic: false,
+      capacity: 15,
+      members,
+      games: [],
+      chatId: Chat.createChat('group', `Chat for ${title}`, members),
+    });
+    return roomId;
+  }
+
+  static publishRoom(roomQuery, chatQuery, messageQuery){
+    let roomCursor = Room.collection.find(roomQuery);
+    let chatIds = roomCursor.fetch().map(o=>o.chatId);
+    let roomLimited = Object.assign(chatQuery, {_id: {$in: chatIds}});
+    let chatmessageCursors = Chat.publishChat(roomLimited, messageQuery);
+    return [
+      ...chatmessageCursors,
+      roomCursor,
+    ];
   }
 
 }
+Room.prefix = `freelancecourtyard:Room`;
+Room.schema = {
+  _id: String,
+  title: String,
+  accessCode: String,  // for access to private room, also server as shortened id
+  isPublic: Boolean,
+  capacity: Match.Integer,
+  // occupacy: Match.Integer,  // is just members.length
+  members: [String],
+  games: [String],
+  chatId: String,
+};
+Room.collection = new Mongo.Collection(`${Room.prefix}Collection`, {
+  transform: function(item){
+    return new Room(item);
+  },
+  defineMutationMethods: false,
+});
+Meteor.methods({
+  [`${Room.prefix}/`]: function(){},
+});
+
+export { Room };
