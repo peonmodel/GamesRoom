@@ -76,6 +76,7 @@ class Chat {
   joinChat(member){
     // rather than just adding current user, allow current members to add others
     // TODO: some function get user/displayName from Meteor.user object
+    this.members.push(member);
     return Chat.collection.update(this._id, {
       $push: {members: member},
     });
@@ -88,7 +89,9 @@ class Chat {
    * @returns {number}        1 if successful, 0 otherwise
    */
   leaveChat(member){
-    // similarly, allow kicking
+    // similarly, allow kicking,
+    // TODO: it should first do a find before removing
+    pull(this.members, member);
     return Chat.collection.update(this._id, {
       $pull: {members: member},
     });
@@ -119,6 +122,7 @@ class Chat {
       title,
       members,
     });
+    // TODO: change to system message metadata
     Message.createMessage(chatId, 'chat created');
     return chatId;
   }
@@ -131,7 +135,7 @@ class Chat {
    * @param  {MongoQuery} messageQuery - mongo query object for Message collection
    * @returns {MongoCursor[]}              array of collection cursors to publish
    */
-  static publishChat(chatQuery, messageQuery){
+  static publishChat(chatQuery = {}, messageQuery = {}){
     // NOTE: no need to publish composite as chatId aint going to change for a given subscription
     // if chatQuery changes, it is a new subscription and chatIds will be remapped
     // publish composite is only needed if messages depends on a field that is editable by Chat
@@ -231,5 +235,16 @@ Meteor.methods({
     return Chat.createChat(type, title, members);
   },
 });
+
+function pull(array, ...elements){
+  let removeCount = 0;
+  elements.forEach((element)=>{
+    let idx = array.indexOf(element);
+    if (idx === -1){return;}
+    array.splice(idx, 1);
+    removeCount += 1;
+  });
+  return removeCount;
+}
 
 export { Chat };

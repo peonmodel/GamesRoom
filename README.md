@@ -16,3 +16,5 @@
 * add documentation for room package
 * test room package
 * create players/users package
+* update Chat tests when players/users package is written
+* add client-side collection for simulation

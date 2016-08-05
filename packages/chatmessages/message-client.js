@@ -73,6 +73,9 @@ class Message {
 }
 Message.schema = {
   _id: String,  // id of message
+  // roomId: String,
+  // gameId: String,
+  // teamId: String,
   chatId: String,  // id of chat it belongs to
   from: {
     // user
