@@ -6,7 +6,7 @@
 // import { Mongo } from 'meteor/mongo';
 
 import { chai } from 'meteor/practicalmeteor:chai';
-import { describe, it, xdescribe, xit, after } from 'meteor/practicalmeteor:mocha';
+import { describe, it, xdescribe, xit, after, before } from 'meteor/practicalmeteor:mocha';
 // import { sinon } from 'meteor/practicalmeteor:sinon';
 import { Chat, Message } from 'meteor/freelancecourtyard:chatmessages';
 
@@ -57,7 +57,12 @@ describe('Chat', function(){
 
   });
 
-  xdescribe('Chat#publishChat static', function(){
+  describe('Chat#publishChat static', function(){
+    // TODO: write more tests for different query types
+    before(function(){
+      Chat.collection.remove({});
+      Message.collection.remove({});
+    });
 
     it('should publish Chat and Message cursors', function(){
       let chatId = Chat.createChat();
@@ -66,7 +71,17 @@ describe('Chat', function(){
       let decoy = Chat.collection.findOne(decoyId);
       chat.createMessage('first');
       decoy.createMessage('fake');
-      Chat.publishChat();
+      let [msgs, chats] = Chat.publishChat({_id: chatId});
+      expect(msgs.count()).to.equal(2);
+      expect(chats.count()).to.equal(1);
+
+      let [decoymsgs, decoychats] = Chat.publishChat({_id: decoyId});
+      expect(decoymsgs.count()).to.equal(2);
+      expect(decoychats.count()).to.equal(1);
+
+      let [allmsgs, allchats] = Chat.publishChat();
+      expect(allmsgs.count()).to.equal(4);
+      expect(allchats.count()).to.equal(2);
     });
 
   });
@@ -104,7 +119,7 @@ describe('Chat', function(){
     });
   });
 
-  xdescribe('Chat#leaveChat', function(){
+  describe('Chat#leaveChat', function(){
 
     it('should remove member from chat members array', function(){
       let chatId = Chat.createChat();

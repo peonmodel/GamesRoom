@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, /*Match*/ } from 'meteor/check';
-// import { _ } from 'meteor/underscore';
+import { _ } from 'meteor/underscore';
 
 import { Message } from './message-server.js';
 
@@ -91,6 +91,7 @@ class Chat {
   leaveChat(member){
     // similarly, allow kicking,
     // TODO: it should first do a find before removing
+    // TODO: change to find by id of member string instead of _.isEqual
     pull(this.members, member);
     return Chat.collection.update(this._id, {
       $pull: {members: member},
@@ -140,6 +141,10 @@ class Chat {
     // if chatQuery changes, it is a new subscription and chatIds will be remapped
     // publish composite is only needed if messages depends on a field that is editable by Chat
     // such that chat cursor didnt change but messages cursor suppose to change
+    // TODO: validate queries and restrict them
+    // NOTE: not accepting id string as query as it should
+    // be the job of the actual Meteor.publish
+    // function to make the query object from string
     let chatCursor = Chat.collection.find(chatQuery);
     let chatIds = chatCursor.fetch().map(o=>o._id);
     let chatLimited = Object.assign(messageQuery, {chatId: {$in: chatIds}});
@@ -239,7 +244,7 @@ Meteor.methods({
 function pull(array, ...elements){
   let removeCount = 0;
   elements.forEach((element)=>{
-    let idx = array.indexOf(element);
+    let idx = array.findIndex((val)=>_.isEqual(element, val));
     if (idx === -1){return;}
     array.splice(idx, 1);
     removeCount += 1;
