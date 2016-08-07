@@ -60,7 +60,7 @@ class Room {
   }
 
 }
-Room.prefix = `freelancecourtyard:Room`;
+Room.prefix = `freelancecourtyard:room`;
 Room.schema = {
   _id: String,
   title: String,

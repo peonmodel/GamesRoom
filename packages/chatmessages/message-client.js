@@ -107,7 +107,7 @@ Message.schema = {
   // contact: Object,
   // location: Object,
 };
-Message.prefix = `freelancecourtyard:Message`;
+Message.prefix = `freelancecourtyard:message`;
 
 Message.collection = new Mongo.Collection(`${Message.prefix}Collection`, {
   transform: function(item){

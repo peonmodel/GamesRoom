@@ -88,7 +88,7 @@ class Chat {
     Meteor.call(`${Chat.prefix}/createChat`, type, title, members, callback);
   }
 }
-Chat.prefix = `freelancecourtyard:Chat`;
+Chat.prefix = `freelancecourtyard:chat`;
 Chat.schema = {
   _id: String, // chatId
   type: String,

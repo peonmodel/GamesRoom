@@ -44,7 +44,7 @@ import { Message } from './message-server.js';
  * may create a new chat instance for each room/game/team
  * @memberof ServerSide
  */
-class Chat {
+export class Chat {
 
   /**
    * constructor - instantiate Chat instance
@@ -55,6 +55,15 @@ class Chat {
    */
   constructor(item){
     Object.assign(this, item);
+  }
+
+  /**
+   * updateChat - update this instance of Chat and related Messages into collection
+   *
+   * @returns {number}  1 if successful, 0 otherwise
+   */
+  updateChat(){
+    return Chat.collection.update(this._id, this);
   }
 
   /**
@@ -71,15 +80,13 @@ class Chat {
    * joinChat - add User/Player to chat
    *
    * @param  {Member} member - member to add to chat
-   * @returns {number}        1 if successful, 0 otherwise
+   * @returns {number}        new length of array
    */
   joinChat(member){
-    // rather than just adding current user, allow current members to add others
+    // TODO: rather than just adding current user, allow current members to add others
+    // TODO: check for member already present, do unique check 
     // TODO: some function get user/displayName from Meteor.user object
-    this.members.push(member);
-    return Chat.collection.update(this._id, {
-      $push: {members: member},
-    });
+    return this.members.push(member);
   }
 
   /**
@@ -92,10 +99,7 @@ class Chat {
     // similarly, allow kicking,
     // TODO: it should first do a find before removing
     // TODO: change to find by id of member string instead of _.isEqual
-    pull(this.members, member);
-    return Chat.collection.update(this._id, {
-      $pull: {members: member},
-    });
+    return pull(this.members, member);
   }
 
   /**
@@ -154,7 +158,7 @@ class Chat {
     ];
   }
 }
-Chat.prefix = `freelancecourtyard:Chat`;
+Chat.prefix = `freelancecourtyard:chat`;
 Chat.schema = {
   _id: String, // chatId
   type: String,
@@ -180,7 +184,8 @@ Meteor.methods({
     check(chatId, String);
     this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
-    return chat.deleteChat();
+    chat.deleteChat();
+    return chat.updateChat();
   },
   /**
    * joinChat - Meteor method to join chat
@@ -194,7 +199,8 @@ Meteor.methods({
     check(member, Array);
     this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
-    return chat.joinChat(member);
+    chat.joinChat(member);
+    return chat.updateChat();
   },
   /**
    * leaveChat - Meteor method to leave chat
@@ -208,7 +214,11 @@ Meteor.methods({
     check(member, Array);
     this.unblock();
     let chat = Chat.collection.findOne({_id: chatId});
-    return chat.leaveChat(member);
+    if (chat.leaveChat(member)){
+      return chat.updateChat();
+    } else {
+      return 0;
+    }
   },
   /**
    * createMessage - Meteor method to create message
@@ -251,5 +261,3 @@ function pull(array, ...elements){
   });
   return removeCount;
 }
-
-export { Chat };

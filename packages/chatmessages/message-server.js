@@ -72,7 +72,7 @@ class Message {
   }
 
 }
-Message.prefix = `freelancecourtyard:Message`;
+Message.prefix = `freelancecourtyard:message`;
 
 // NOTE: https://core.telegram.org/bots/api#message
 Message.schema = {
