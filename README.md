@@ -10,6 +10,7 @@
 * ~~add documentation for chat-server package~~
 * add documentation for chat-client package
 * add documentation for message package
+* split Chat and Message package
 * test chat package
 * create define methods for room class
 * create client-side class for room
@@ -18,3 +19,4 @@
 * create players/users package
 * update Chat tests when players/users package is written
 * add client-side collection for simulation
+* consider add lodash
