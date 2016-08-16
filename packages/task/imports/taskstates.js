@@ -1,4 +1,4 @@
-import _ from 'meteor/underscore';
+import { _ } from 'meteor/underscore';
 
 const taskStates = {
 	isCancelled: {code: 0, text: 'cancelled'},

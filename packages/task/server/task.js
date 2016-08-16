@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
-import _ from 'meteor/underscore';
+import { _ } from 'meteor/underscore';
 
-import { taskStates, taskStatesArray } from './imports/taskstates.js';
+import { taskStates, taskStatesArray } from '../imports/taskstates.js';
 
 // private scoped variable
 const registeredPackages = {
