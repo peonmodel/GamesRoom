@@ -1,56 +1,54 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Match } from 'meteor/check';
 import { Random } from 'meteor/random';
 import { Chat } from 'meteor/freelancecourtyard:chatmessages';
 // import { _ } from 'lodash';
 
-class Room {
+export class Room {
 
 	constructor(item) {
 		Object.assign(this, item);
 	}
-	joinRoom(member) {
-	  return Room.collection.update(this._id, {
-	    $push: {members: member},
-	    // $inc: {occupacy: 1},
-	  });
-	}
-	leaveRoom(member) {
-	  return Room.collection.update(this._id, {
-	    $pull: {members: member},
-	    // $inc: {occupacy: 1},
+
+	joinRoom(user) {
+	  return Room.collection.update({ _id: this._id }, {
+	    $push: { members: user._id },
 	  });
 	}
 
-	clearRoom() {
-	  // will be called before deconsting room
+	leaveRoom(user) {
+	  return Room.collection.update({ _id: this._id, members: user._id }, {
+	    $pull: {members: user._id},
+	  });
+	}
+
+	clear() {
+	  // will be called before deconstructing room
 	  // TODO: clear members
 	  // TODO: clear games
 	  // clear room chat
 		const chat = Chat.collection.findOne({_id: this.chatId});
-	  chat.deconsteChat();
+	  chat.clear();
 	  return Room.collection.remove({_id: this._id});
 	}
 
-	static createRoom() {
+	static createRoom(user, isPrivate) {
 	  const title = `Room-${Random.id(4)}`;
-	  const members = [];
-	  const roomId = Room.collection.insert({
+		const members = [user._id];
+	  return Room.collection.insert({
 	    title,
 	    accessCode: Random.id(6),
-	    isPublic: false,
+	    isPublic: !isPrivate,
 	    capacity: 15,
-	    members,
+	    members: members,
 	    games: [],
 	    chatId: Chat.createChat('group', `Chat for ${title}`, members),
 	  });
-	  return roomId;
 	}
 
 	static publishRoom(roomQuery, chatQuery, messageQuery) {
 	  const roomCursor = Room.collection.find(roomQuery);
-	  const chatIds = roomCursor.fetch().map(o => o.chatId);
+	  const chatIds = roomCursor.map(o => o.chatId);
 	  const roomLimited = Object.assign(chatQuery, {_id: {$in: chatIds}});
 	  const chatmessageCursors = Chat.publishChat(roomLimited, messageQuery);
 	  return [
@@ -67,7 +65,6 @@ Room.schema = {
 	accessCode: String,  // for access to private room, also server as shortened id
 	isPublic: Boolean,
 	capacity: Match.Integer,
-	// occupacy: Match.Integer,  // is just members.length
 	members: [String],
 	games: [String],
 	chatId: String,
@@ -78,8 +75,3 @@ Room.collection = new Mongo.Collection(`${Room.prefix}Collection`, {
 	},
 	defineMutationMethods: false,
 });
-Meteor.methods({
-	[`${Room.prefix}/`]: function() {},
-});
-
-export { Room };

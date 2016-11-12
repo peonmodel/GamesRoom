@@ -4,7 +4,7 @@
 // 		type: String,
 // 		label: 'room id',
 // 	},
-// 	is_public: {
+// 	isPublic: {
 // 		type: Boolean,
 // 		label: 'Is this room public accessible',
 // 		defaultValue: true

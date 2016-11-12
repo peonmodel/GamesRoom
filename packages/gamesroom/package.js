@@ -29,8 +29,8 @@ Package.onUse((api) => {
 	api.use([
 	  'freelancecourtyard:chatmessages',
 	]);
-
-	api.mainModule('gamesroom.js', 'server');
+	api.mainModule('gamesroom-client.js', 'client');
+	api.mainModule('gamesroom-server.js', 'server');
 });
 
 Package.onTest((api) => {
