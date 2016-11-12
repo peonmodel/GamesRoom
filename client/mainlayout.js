@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
+// import { ReactiveVar } from 'meteor/reactive-var';
 import { _ } from 'meteor/underscore';
 import { Connection } from 'meteor/freelancecourtyard:connection';
 import { sAlert } from 'meteor/juliancwirko:s-alert';
@@ -60,9 +60,6 @@ Template.RegisterOrLogin.events({
 	'click .js-login': async function login() {
 		try {
 			const instance = Template.instance();
-			if (Meteor.user()) {
-				return sAlert.error('already-logged-in');
-			}
 			// create account
 			const username = instance.find('input.username').value;
 			const password = instance.find('input.password').value;
@@ -75,21 +72,17 @@ Template.RegisterOrLogin.events({
 	'click .js-register': async function register() {
 		try {
 			const instance = Template.instance();
-			if (Meteor.user()) {
-				return sAlert.error('already-logged-in');
-			}
 			// create account
 			const username = instance.find('input.username').value;
 			const password = instance.find('input.password').value;
 			const user = Meteor.user();
-			if (!!user && user.profile.isRegistered === false) {
-				// when logged in as guest, registerGuest instead
-				// change username & password, keep account otherwise
-				await Connection.registerGuest(username, password);
-			} else {
+			if (!user) {
 				// when not logged in and try to register, create new account
-				await Connection.createUser(username, password);
+				return await Connection.createUser(username, password);
 			}
+			// when logged in as guest, registerGuest instead
+			// change username & password, keep account otherwise
+			return await Connection.registerGuest(username, password);
 		} catch (error) {
 			console.error(error);
 			sAlert.error(error);

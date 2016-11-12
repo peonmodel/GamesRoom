@@ -1,18 +1,21 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
+import { Room } from 'meteor/freelancecourtyard:gamesroom';
+import { sAlert } from 'meteor/juliancwirko:s-alert';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
 Template.Lobby.onRendered(() => {
-	// let instance = this;
+	// const instance = this;
 	// instance.subscribe('Rooms');
 	// instance.subscribe('Messages', 'public');
 });
 
 Template.Lobby.helpers({
 	rooms: function() {
-		// return Room.collection.find({is_public: true});
+		return Room.collection.find({isPublic: true});
 	},
 	privateRooms: function() {
-		// return Room.collection.find({is_public: false});
+		return Room.collection.find({isPublic: false});
 	},
 	messages: function() {
 		// return Message.collection.find({room_id: 'public'});
@@ -36,70 +39,40 @@ Template.Lobby.helpers({
 });
 
 Template.Lobby.events({
-	'click .js-createRoom': function(event) {
-		if (!!Meteor.user()) {
-			Meteor.call('rooms/add', true, 7, (err, res) => {
-				if (err) {
-					console.error(err);
-				} else {
-					sAlert.success(`Room created, redirecting to room: ${res}`);
-					// redirect to newly created room
-					Meteor.call('rooms/join', res, (error, result) => {
-						if (error) {
-							console.log(error);
-						} else {
-							FlowRouter.go('room', {accesscode: res});
-						}
-					});
-				}
-			});
-		} else {
-			sAlert.error(`log in required to join room, try login as guest or register an account`);
+	'click .js-createRoom': async function createRoom() {
+		try {
+			const roomId = await Room.createRoom(false);
+			sAlert.success(`Room created, redirecting to room: ${roomId}`);
+			FlowRouter.go('room', {accesscode: roomId});
+		} catch (error) {
+			sAlert.error(error);
 		}
 	},
-	'click .js-createPrivateRoom' (event) {
-		if (!!Meteor.user()) {
-			Meteor.call('rooms/add', false, 7, (err, roomId) => {
-				if (err) {
-					console.error(err);
-				} else {
-					sAlert.success(`Room created, redirecting to room: ${roomId}`);
-					// redirect to newly created room
-					Meteor.call('rooms/join', roomId, (error, result) => {
-						if (error) {
-							console.log(error);
-						} else {
-							FlowRouter.go('room', {accesscode: roomId});
-						}
-					});
-				}
-			});
-		} else {
-			sAlert.error(`log in required to join room, try login as guest or register an account`);
+	'click .js-createPrivateRoom': async function createPrivateRoom() {
+		try {
+			const roomId = await Room.createRoom();
+			sAlert.success(`Room created, redirecting to room: ${roomId}`);
+			FlowRouter.go('room', {accesscode: roomId});
+		} catch (error) {
+			sAlert.error(error);
 		}
 	},
 	// TODO: to be removed, for testing only
-	'click .js-clearAll' (event) {
-		event.preventDefault();
-		Meteor.call('rooms/removeAll', {}, (err, res) => {
-			if (err) {
-				console.log(err);
-			} else {
-				sAlert.success('Rooms cleared');
-			}
-		});
-		/*Rooms.find().fetch().map(({_id}) => {
-			Rooms.remove(_id);
-		});*/
+	'click .js-clearAll': async function clear() {
+		console.log('not used');
 	},
-	'click .js-join' (event) {
-		if (!Meteor.user()) {
-			sAlert.error(`log in required to join room, try login as guest or register an account`);
-			return;
-		}
-		let instance = Template.instance();
-		let accesscode = $(instance.find('.accesscode')).val();
-		let target = Room.collection.findOne({_id: accesscode});
+	'click .js-join': async function join(event, instance) {
+		console.log('instance', instance, Template.instance())
+		// try {
+		// 	// instance.data.room.join();
+		// } catch (error) {
+		// 	sAlert.error(error);
+		// 	console.error(error);
+		// }
+
+		// const instance = Template.instance();
+		const accesscode = $(instance.find('.accesscode')).val();
+		const target = Room.collection.findOne({_id: accesscode});
 		if (!target) {
 			sAlert.error('Room not found');
 			return;
@@ -120,9 +93,4 @@ Template.Lobby.events({
 			sAlert.error('Room is full');
 		}
 	},
-//	'change input.username' (event) {
-//		let user = $(event.target).val();
-//		Session.set('session', user);  // problem, what if duplicate?
-//
-//	},
 });
