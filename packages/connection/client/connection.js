@@ -38,6 +38,16 @@ export class Connection {
 		return promiseCall(Meteor.loginWithPassword, username, password);
 	}
 
+
+	/**
+	 * logoutUser - static async function, just a promisified wrapper for logout
+	 *
+	 * @returns {Promise}  resolve if success
+	 */
+	static async logoutUser() {
+		return promiseCall(Meteor.logout);
+	}
+
 	static async createGuest(username) {
 		// declaring this function to be async conveniently wraps all returns and throws
 		// as a promise resolve/reject
