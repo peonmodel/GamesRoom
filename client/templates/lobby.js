@@ -1,20 +1,21 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 
-Template.Lobby.onRendered(function() {
-	let instance = this;
-	instance.subscribe('Rooms');
-	instance.subscribe('Messages', 'public');
+Template.Lobby.onRendered(() => {
+	// let instance = this;
+	// instance.subscribe('Rooms');
+	// instance.subscribe('Messages', 'public');
 });
 
 Template.Lobby.helpers({
 	rooms: function() {
-		return Room.collection.find({is_public: true});
+		// return Room.collection.find({is_public: true});
 	},
 	privateRooms: function() {
-		return Room.collection.find({is_public: false});
+		// return Room.collection.find({is_public: false});
 	},
 	messages: function() {
-		return Message.collection.find({room_id: 'public'});
+		// return Message.collection.find({room_id: 'public'});
 	},
 //	defaultusertext() {
 //		console.log('user', Meteor.user())
@@ -35,7 +36,7 @@ Template.Lobby.helpers({
 });
 
 Template.Lobby.events({
-	'click .js-createRoom' (event) {
+	'click .js-createRoom': function(event) {
 		if (!!Meteor.user()) {
 			Meteor.call('rooms/add', true, 7, (err, res) => {
 				if (err) {

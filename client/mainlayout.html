@@ -1,0 +1,48 @@
+<template name="MainLayout">
+	<div class="ui container">
+		{{> sAlert}}
+		<br/>
+		{{#if currentUser}}
+			{{#unless currentUser.profile.is_registered}}
+				Logged in as Guest {{currentUser.username}}
+				<a class="ui button js-logout">Log out</a>
+				{{> RegisterOrLogin}}
+			{{else}}
+				Logged in as {{currentUser.username}}
+				<a class="ui button js-logout">Log out</a>
+			{{/unless}}
+
+		{{else}}
+			{{#if loggingIn}}
+				Logging in...
+			{{else}}
+				{{> RegisterOrLogin}}
+			{{/if}}
+		{{/if}}
+		<hr>
+		{{> Template.dynamic template=content}}
+	</div>
+</template>
+
+<template name="RegisterOrLogin">
+	{{#if toggled}}
+		<div class="ui input">
+			<input type="text" class="username" placeholder="{{tempName}}">
+		</div>
+<!--
+		<div class="ui input">
+			<input type="text" class="email" placeholder="optional">
+		</div>
+-->
+		<div class="ui input">
+			<input type="password" class="password">
+		</div>
+	{{/if}}
+	<a class="ui button js-login">Login</a>
+	<a class="ui button js-register">Register</a>
+	{{> GuestLogIn tempName=tempName}}
+</template>
+
+<template name="GuestLogIn">
+	<a class="ui button js-guestlogin">Guest login</a>
+</template>
