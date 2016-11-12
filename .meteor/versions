@@ -31,6 +31,7 @@ flemay:less-autoprefixer@1.2.0
 fourseven:scss@3.10.1
 freelancecourtyard:chatmessages@0.0.1
 freelancecourtyard:connection@0.0.1
+freelancecourtyard:gamesroom@0.0.1
 freelancecourtyard:genericgame@0.0.1
 geojson-utils@1.0.10
 hot-code-push@1.0.4
