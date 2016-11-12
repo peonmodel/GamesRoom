@@ -1,5 +1,39 @@
 # GamesRoom
 
+pattern for template events using async-await
+```javascript
+events({
+	[`click`]: async function clickSomething(event, instance) {
+		// note the use of 'async' keyword is required for 'await',
+		// use a try-catch block to wrap every await, since every await may fail 
+		try {
+			// asyncPromiseFn is a prototype method on the various classes and returns a promise
+			var result = await instance.data.item.asyncPromiseFn();  
+			// var is used deliberately to be not scoped to within the try block
+		} catch (e) {
+			console.error(e)
+		} finally {
+			// clean up
+		}
+		console.log(result)
+		// other stuff
+	},
+	[`click .another`]: async function clickAnother(event, instance) {
+		try {
+			// Promise.all / Promise.race can be used
+			var [result1, result2] = await Promise.all([instance.data.item.asyncPromiseFn(), anotherPromise()]);  
+			// var is used deliberately to be not scoped to within the try block
+		} catch (e) {
+			console.error(e)
+		} finally {
+			// clean up
+		}
+		console.log(result1, result2)
+		// other stuff
+	},
+});
+```
+
 ## TODO:
 * ~~create define methods for chat class~~
 * ~~split chat & message js file~~

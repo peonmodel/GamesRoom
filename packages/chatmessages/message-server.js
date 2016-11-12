@@ -16,7 +16,7 @@ class Message {
    *
    * @param  {object} item object stored in collection
    */
-  constructor(item){
+  constructor(item) {
     Object.assign(this, item);
   }
 
@@ -25,7 +25,7 @@ class Message {
    *
    * @returns {number}  1 if succeeded, 0 otherwise
    */
-  deleteMessage(){
+  deleteMessage() {
     return Message.collection.remove({_id: this._id});
   }
 
@@ -35,7 +35,7 @@ class Message {
    * @param {string} text edited text
    * @returns {number}  1 if succeeded, 0 otherwise
    */
-  editMessage(text){
+  editMessage(text) {
     return Message.collection.update(this._id, {
       $set: {text: text, editAt: new Date()}
     });
@@ -47,7 +47,7 @@ class Message {
    * @param {string} text reply content
    * @returns {string}  id of new reply message
    */
-  replyMessage(text){
+  replyMessage(text) {
     return Message.createMessage(this.chatId, text, this);
   }
 
@@ -59,7 +59,7 @@ class Message {
    * @param  {object} replyTo optional Message object that is being replied to
    * @returns {string}         id of created message
    */
-  static createMessage(chatId, text, replyTo){
+  static createMessage(chatId, text, replyTo) {
     // TODO: filter replyTo object to contain only essentials
     let filteredReply = !!replyTo ? _.pick(replyTo, ['_id', 'from', 'text', 'timestamp']) : undefined;
     return Message.collection.insert({
@@ -117,7 +117,7 @@ Message.schema = {
 // put high cardinality fields first and progressively lower up to 31
 // compound indices also work for its prefixes, i.e. {a, b, c} works for {a, b} too
 Message.collection = new Mongo.Collection(`${Message.prefix}Collection`, {
-  transform: function(item){
+  transform: function(item) {
     return new Message(item);
   },
   defineMutationMethods: false,  // need to publish this but dont let direct edit
@@ -127,27 +127,27 @@ Message.collection._ensureIndex({chatId: 1, timestamp: 1});
 
 // defines the mutation meteor methods DMMM
 Meteor.methods({
-  [`${Message.prefix}/deleteMessage`]: function deleteMessage(messageId){
+  [`${Message.prefix}/deleteMessage`]: function deleteMessage(messageId) {
     check(messageId, String);
     this.unblock();
     let message = Message.collection.findOne({_id: messageId});
     return message.deleteMessage();
   },
-  [`${Message.prefix}/editMessage`]: function editMessage(messageId, text){
+  [`${Message.prefix}/editMessage`]: function editMessage(messageId, text) {
     check(messageId, String);
     check(text, String);
     this.unblock();
     let message = Message.collection.findOne({_id: messageId});
     return message.editMessage(text);
   },
-  [`${Message.prefix}/replyMessage`]: function replyMessage(messageId, text){
+  [`${Message.prefix}/replyMessage`]: function replyMessage(messageId, text) {
     check(messageId, String);
     check(text, String);
     this.unblock();
     let message = Message.collection.findOne({_id: messageId});
     return message.replyMessage(text);
   },
-  [`${Message.prefix}/createMessage`]: function createMessage(chatId, text, replyTo){
+  [`${Message.prefix}/createMessage`]: function createMessage(chatId, text, replyTo) {
     check(chatId, String);
     check(text, String);
     check(replyTo, Object);

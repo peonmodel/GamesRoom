@@ -17,10 +17,17 @@ standard-minifier-js@1.2.1    # JS minifier run for production mode
 es5-shim@4.6.15                # ECMAScript 5 compatibility for older browsers.
 ecmascript@0.5.9              # Enable ECMAScript2015+ syntax in app code
 
+# debug stuff
+meteortoys:allthings
 #autopublish@1.0.7             # Publish all data to the clients (for prototyping)
 #insecure@1.0.7                # Allow all DB writes from clients (for prototyping)
 
 accounts-password
+
+kadira:flow-router
+kadira:blaze-layout
+juliancwirko:s-alert
+semantic:ui
 
 freelancecourtyard:chatmessages
 freelancecourtyard:connection

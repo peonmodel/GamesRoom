@@ -16,7 +16,7 @@ class Message {
    *
    * @param  {object} item object stored in collection
    */
-  constructor(item){
+  constructor(item) {
     Object.assign(this, item);
   }
 
@@ -25,7 +25,7 @@ class Message {
    *
    * @param {function} callback function to call when meteor method returns
    */
-  deleteMessage(callback = ()=>{}){
+  deleteMessage(callback = () => {}) {
     check(callback, Function);
     Meteor.call(`${Message.prefix}/deleteMessage`, this._id, callback);
   }
@@ -36,7 +36,7 @@ class Message {
    * @param {string} text new content of Message
    * @param {function} callback function to call when meteor method returns
    */
-  editMessage(text, callback = ()=>{}){
+  editMessage(text, callback = () => {}) {
     check(text, String);
     check(callback, Function);
     Meteor.call(`${Message.prefix}/editMessage`, this._id, text, callback);
@@ -48,7 +48,7 @@ class Message {
    * @param {string} text content of reply Message
    * @param {function} callback function to call when meteor method returns
    */
-  replyMessage(text, callback = ()=>{}){
+  replyMessage(text, callback = () => {}) {
     check(text, String);
     check(callback, Function);
     Meteor.call(`${Message.prefix}/replyMessage`, this._id, text, callback);
@@ -63,7 +63,7 @@ class Message {
    * @param {Message} replyTo Message object that is being replied to
    * @param {function} callback function to call when meteor method returns
    */
-  static createMessage(chatId, text, replyTo, callback = ()=>{}){
+  static createMessage(chatId, text, replyTo, callback = () => {}) {
     check(chatId, String);
     check(text, String);
     check(replyTo, Object);
@@ -110,7 +110,7 @@ Message.schema = {
 Message.prefix = `freelancecourtyard:message`;
 
 Message.collection = new Mongo.Collection(`${Message.prefix}Collection`, {
-  transform: function(item){
+  transform: function(item) {
     return new Message(item);
   },
 });

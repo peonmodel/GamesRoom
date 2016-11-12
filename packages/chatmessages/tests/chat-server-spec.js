@@ -12,28 +12,28 @@ import { Chat, Message } from 'meteor/freelancecourtyard:chatmessages';
 
 let expect = chai.expect;
 chai.config.truncateThreshold = 0;
-xdescribe('x', function(){});  // just to ignore the jshint not used error
-xit('x', function(){});
+xdescribe('x', function() {});  // just to ignore the jshint not used error
+xit('x', function() {});
 
-describe('Chat', function(){
+describe('Chat', function() {
 
-  after(function(){
+  after(function() {
     Chat.collection.remove({});
     Message.collection.remove({});
   });
 
-  describe('Chat#constructor', function(){
+  describe('Chat#constructor', function() {
 
-    it('should assign object to this', function(){
+    it('should assign object to this', function() {
       let item = new Chat({test: 1});
       expect(item.test).to.equal(1);
     });
 
   });
 
-  describe('Chat#createChat static', function(){
+  describe('Chat#createChat static', function() {
 
-    it('should add chat to collection and return chatId', function(){
+    it('should add chat to collection and return chatId', function() {
       Chat.collection.remove({});
       Message.collection.remove({});
       expect(Chat.collection.find().count()).to.equal(0);
@@ -57,14 +57,14 @@ describe('Chat', function(){
 
   });
 
-  describe('Chat#publishChat static', function(){
+  describe('Chat#publishChat static', function() {
     // TODO: write more tests for different query types
-    before(function(){
+    before(function() {
       Chat.collection.remove({});
       Message.collection.remove({});
     });
 
-    it('should publish Chat and Message cursors', function(){
+    it('should publish Chat and Message cursors', function() {
       let chatId = Chat.createChat();
       let decoyId = Chat.createChat();  // decoy, should not get this
       let chat = Chat.collection.findOne(chatId);
@@ -86,9 +86,9 @@ describe('Chat', function(){
 
   });
 
-  describe('Chat#deleteChat', function(){
+  describe('Chat#deleteChat', function() {
 
-    it('should remove messages and chat of id from collection', function(){
+    it('should remove messages and chat of id from collection', function() {
       let chatId = Chat.createChat();
       let chat = Chat.collection.findOne(chatId);
       expect(Message.collection.find({chatId: chat._id}).count()).to.equal(1);
@@ -99,9 +99,9 @@ describe('Chat', function(){
 
   });
 
-  describe('Chat#joinChat', function(){
+  describe('Chat#joinChat', function() {
 
-    it('should add member to chat members array', function(){
+    it('should add member to chat members array', function() {
       let chatId = Chat.createChat();
       let chat = Chat.collection.findOne(chatId);
       expect(chat.members).to.deep.equal([]);
@@ -119,9 +119,9 @@ describe('Chat', function(){
     });
   });
 
-  describe('Chat#leaveChat', function(){
+  describe('Chat#leaveChat', function() {
 
-    it('should remove member from chat members array', function(){
+    it('should remove member from chat members array', function() {
       let chatId = Chat.createChat();
       let chat = Chat.collection.findOne(chatId);
       chat.joinChat({id: '1', displayName: 'test'});
@@ -137,9 +137,9 @@ describe('Chat', function(){
     });
   });
 
-  describe('Chat#createMessage', function(){
+  describe('Chat#createMessage', function() {
 
-    it('should remove member from chat members array', function(){
+    it('should remove member from chat members array', function() {
       let chatId = Chat.createChat();
       let chat = Chat.collection.findOne(chatId);
       let messageCursor = Message.collection.find({chatId});
