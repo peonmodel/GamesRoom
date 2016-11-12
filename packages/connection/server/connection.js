@@ -77,8 +77,11 @@ Accounts.onLogin(({
 Accounts.onLogout(({user, connection}) => {
 	// when browser closed when logged in, it trigger onClose but not onLogout
 	// will trigger login when browser reconnected
+	if (!user.profile.isRegistered) {
+		// delete guest users
+		Accounts.users.remove({ _id: user._id }, () => {});
+	}
 	Connection.collection.update({ connectionId: connection.id }, {
 	  $set: { userId: null },
 	}, () => {});
-	console.log('onLogout', user, connection);
 });
