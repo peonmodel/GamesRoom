@@ -35,6 +35,7 @@ export class Connection {
 	static async loginUser(username, password) {
 		check(username, String);
 		check(password, String);
+		if (!Meteor.user()) { throw new Meteor.Error('already-logged-in'); }
 		return promiseCall(Meteor.loginWithPassword, username, password);
 	}
 
@@ -59,21 +60,21 @@ export class Connection {
 	static async registerGuest(username, password) {
 		check(username, String);
 		check(password, String);
-		if (username.length < 6) {
-			throw new Meteor.Error('username-too-short', 'username is too short < 6');
-		}
-		if (password.length < 10) {
-			throw new Meteor.Error('password-too-short', 'password is too short < 10');
-		}
+		// if (username.length < 6) {
+		// 	throw new Meteor.Error('username-too-short', 'username is too short < 6');
+		// }
+		// if (password.length < 10) {
+		// 	throw new Meteor.Error('password-too-short', 'password is too short < 10');
+		// }
 		// creating proper account from guest
 		const user = Meteor.user();
 		if (!user) {
 			throw new Meteor.Error('not-logged-in', 'user is not logged in', 'only logged-in guest user can register');
 		}
 		if (user.profile.isRegistered) {
-			throw new Meteor.Error('not-guest', 'user is not a guest user', 'only guest user needs can register');
+			throw new Meteor.Error('user-already-registered', 'user is not a guest user', 'only guest user needs can register');
 		}
-		const hashed = Accounts._hashPassword(password);
+		const hashed = Accounts._hashPassword(password).digest;
 		const result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;
@@ -82,19 +83,19 @@ export class Connection {
 	static async createUser(username, password) {
 		check(username, String);
 		check(password, String);
-		if (username.length < 6) {
-			throw new Meteor.Error('username-too-short', 'username is too short < 6');
-		}
-		if (password.length < 10) {
-			throw new Meteor.Error('password-too-short', 'password is too short < 10');
-		}
-		const hashed = Accounts._hashPassword(password);
+		// if (username.length < 6) {
+		// 	throw new Meteor.Error('username-too-short', 'username is too short < 6');
+		// }
+		// if (password.length < 10) {
+		// 	throw new Meteor.Error('password-too-short', 'password is too short < 10');
+		// }
+		const hashed = Accounts._hashPassword(password).digest;
 		const result = await promiseCall(Meteor.call, `${Connection.prefix}/createUser`, username, hashed);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;
 	}
 }
-Connection.collection = new Mongo.Collection('Connections', {
+Connection.collection = new Mongo.Collection(`${Connection.prefix}Collection`, {
 	transform: function(item) {
 		return new Connection(item);
 	},

@@ -37,7 +37,7 @@ export class Connection {
 	}
 }
 Connection.prefix = 'freelancecourtyard:connection';
-Connection.collection = new Mongo.Collection('Connections', {
+Connection.collection = new Mongo.Collection(`${Connection.prefix}Collection`, {
 	transform: function(item) {
 		return new Connection(item);
 	},
