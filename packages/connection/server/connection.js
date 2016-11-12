@@ -13,19 +13,27 @@ export class Connection {
 			password: username,  // TODO: change to no password + loginWithToken
 			profile: {
 				isRegistered: false,  // is guest user
-				lastActiveAt: new Date(),
 			},
 		});
 	}
 
 	static registerGuest(user, username, hashed) {
 		// creating proper account from guest
-		Accounts.setUsername(user._id, username);
+		Accounts.setUsername(user._id, username);  // may fail due to conflict with other usernames
 		Accounts.setPassword(user._id, hashed);
+		return Accounts.users.update({ _id: user }, {
+			$set: { 'profile.isRegistered': true }
+		}, () => {});
 	}
 
-	static createUser() {
-
+	static createUser(username, hashed) {
+		return Accounts.createUser({
+			username: username,
+			password: hashed,
+			profile: {
+				isRegistered: true,
+			},
+		});
 	}
 }
 Connection.prefix = 'freelancecourtyard:connection';
@@ -65,6 +73,9 @@ Accounts.onLogin(({
   type, allowed, methodName, methodArguments, user, connection
 }) => {
 	console.log('logged in', connection.id, 'userId', user._id);
+	Accounts.users.update({ _id: user._id }, {
+		$set: { 'profile.lastActiveAt': new Date() },
+	}, () => {});
 	Connection.collection.update(connection.id, {
 		$set: {userId: user._id},
 	}, () => {});
@@ -78,7 +89,7 @@ Accounts.onLogout(({user, connection}) => {
 	// when browser closed when logged in, it trigger onClose but not onLogout
 	// will trigger login when browser reconnected
 	if (!user.profile.isRegistered) {
-		// delete guest users
+		// delete guest users, event only trigger if user explictly logout
 		Accounts.users.remove({ _id: user._id }, () => {});
 	}
 	Connection.collection.update({ connectionId: connection.id }, {

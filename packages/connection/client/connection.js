@@ -38,7 +38,6 @@ export class Connection {
 		return promiseCall(Meteor.loginWithPassword, username, password);
 	}
 
-
 	/**
 	 * logoutUser - static async function, just a promisified wrapper for logout
 	 *
@@ -52,7 +51,7 @@ export class Connection {
 		// declaring this function to be async conveniently wraps all returns and throws
 		// as a promise resolve/reject
 		check(username, String);
-		var result = await promiseCall(Meteor.call, `${Connection.prefix}/createGuest`, username);  // eslint-disable-line no-var
+		const result = await promiseCall(Meteor.call, `${Connection.prefix}/createGuest`, username);
 		await promiseCall(Meteor.loginWithPassword, username, username);
 		return result;
 	}
@@ -75,7 +74,7 @@ export class Connection {
 			throw new Meteor.Error('not-guest', 'user is not a guest user', 'only guest user needs can register');
 		}
 		const hashed = Accounts._hashPassword(password);
-		var result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed);  // eslint-disable-line no-var
+		const result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;
 	}
@@ -83,6 +82,16 @@ export class Connection {
 	static async createUser(username, password) {
 		check(username, String);
 		check(password, String);
+		if (username.length < 6) {
+			throw new Meteor.Error('username-too-short', 'username is too short < 6');
+		}
+		if (password.length < 10) {
+			throw new Meteor.Error('password-too-short', 'password is too short < 10');
+		}
+		const hashed = Accounts._hashPassword(password);
+		const result = await promiseCall(Meteor.call, `${Connection.prefix}/createUser`, username, hashed);
+		await promiseCall(Meteor.loginWithPassword, username, password);
+		return result;
 	}
 }
 Connection.collection = new Mongo.Collection('Connections', {

@@ -12,4 +12,9 @@ Meteor.methods({
 		check(hashed, String);
 		return Connection.registerGuest(Meteor.user(), username, hashed);
 	},
+	[`${Connection.prefix}/createUser`]: function(username, hashed) {
+		check(username, String);
+		check(hashed, String);
+		return Connection.createUser(username, hashed);
+	},
 });

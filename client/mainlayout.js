@@ -29,10 +29,10 @@ Template.MainLayout.events({
 	'click .js-logout': async function logout() {
 		try {
 			await Connection.logoutUser();
-			// console.log(`logged out`);
+			console.log(`logged out`);
 			sAlert.success(`logged out`);
-		} catch (e) {
-			// console.error(`error logging out`);
+		} catch (error) {
+			console.error(`error logging out`);
 			sAlert.error(`error logging out`);
 		}
 	},
@@ -43,9 +43,9 @@ Template.GuestLogIn.events({
 		const username = instance.data.tempName;
 		try {
 			await Connection.createGuest(username);
-		} catch (err) {
-			// console.error(`error logging in`, e);
-			sAlert.error(`error logging in: ${err.reason || err}`);
+		} catch (error) {
+			console.error(`error logging in`, error);
+			sAlert.error(`error logging in: ${error.reason || error}`);
 		}
 		// const userId = await Connection.createGuest(username);
 	},
@@ -60,21 +60,22 @@ Template.RegisterOrLogin.events({
 	'click .js-login': async function login() {
 		try {
 			const instance = Template.instance();
-			if (Meteor.user) {
+			if (Meteor.user()) {
 				return sAlert.error('already-logged-in');
 			}
 			// create account
 			const username = instance.find('input.username').value;
 			const password = instance.find('input.password').value;
 			await Connection.loginUser(username, password);
-		} catch (e) {
-			sAlert.error(e);
+		} catch (error) {
+			console.error(error);
+			sAlert.error(error);
 		}
 	},
 	'click .js-register': async function register() {
 		try {
 			const instance = Template.instance();
-			if (Meteor.user) {
+			if (Meteor.user()) {
 				return sAlert.error('already-logged-in');
 			}
 			// create account
@@ -90,6 +91,7 @@ Template.RegisterOrLogin.events({
 				await Connection.createUser(username, password);
 			}
 		} catch (error) {
+			console.error(error);
 			sAlert.error(error);
 		}
 	},
