@@ -3,7 +3,7 @@
 		{{> sAlert}}
 		<br/>
 		{{#if currentUser}}
-			{{#unless currentUser.profile.is_registered}}
+			{{#unless currentUser.profile.isRegistered}}
 				Logged in as Guest {{currentUser.username}}
 				<a class="ui button js-logout">Log out</a>
 				{{> RegisterOrLogin}}

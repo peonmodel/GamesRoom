@@ -16,8 +16,8 @@ Package.onUse((api) => {
 		'ecmascript',
 		'accounts-base',
 	]);
-	api.mainModule('client/connection.js', 'client');
-	api.mainModule('server/connection.js', 'server');
+	api.mainModule('connection-client.js', 'client');
+	api.mainModule('connection-server.js', 'server');
 });
 
 Package.onTest((api) => {

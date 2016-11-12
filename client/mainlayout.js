@@ -1,106 +1,29 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { Accounts } from 'meteor/accounts-base';
 import { _ } from 'meteor/underscore';
+import { Connection } from 'meteor/freelancecourtyard:connection';
+import { sAlert } from 'meteor/juliancwirko:s-alert';
 import './main.html';
 
-function createGuest(username) {
-	Accounts.createUser({
-		username: username,
-		// email: '',
-		// set guest password to username so easy to retrieve and remember
-		password: username,
-		profile: {
-			is_registered: false,  // is guest user
-			date_created: new Date(),
-			last_active: new Date(),
-		},
-	}, (err) => {
-		if (err) {
-			console.error(err);
-			// sAlert.error(`unable to create temporary account`);
-		}
-	});
-}
-
 function createRandomName() {
-	function pickFromArray(items) {
-		return items[Math.floor(Math.random() * items.length)];
-	}
 	const colorArray = [
-		'Pink',
-		'Blue',
-		'Orange',
-		'Green',
-		'Yellow',
-		'Fuchsia',
-		'Red',
-		'Golden',
-		'Silver',
-		'Brown'
+		'Pink', 'Blue', 'Orange', 'Green', 'Yellow', 'Fuchsia', 'Red', 'Golden', 'Silver', 'Brown'
 	];
 	const sizeArray = [
-		'Little',
-		'Small',
-		'Big',
-		'Fat',
-		'Tiny',
-		'Huge',
-		'Mini',
+		'Little', 'Small', 'Big', 'Fat', 'Tiny', 'Huge', 'Mini'
 	];
 	const emotionArray = [
-		'Happy',
-		'Sad',
-		'Depressed',
-		'Excited',
-		'Angry',
-		'Motivated',
-		'Scared',
-		'Energized',
-		'Surprised',
-		'Tired',
+		'Happy', 'Sad', 'Depressed', 'Excited', 'Angry', 'Motivated', 'Scared', 'Energized', 'Surprised', 'Tired'
 	];
 	const nounArray = [
-		'Diamond',
-		'JetPack',
-		'Cruiser',
-		'Bunny',
-		'Lambini',
-		'Bird',
-		'Elephant',
-		'Frog',
-		'Player',
-		'Lover',
-		'Guest',
-		'User',
-		'Cow',
-		'Mustang',
-		'Student',
-		'Driver',
-		'Hawker',
-		'Villager',
-		'Explorer',
-		'Dancer',
-		'Stranger',
-		'Farmer',
-		'Boat',
-		'Car',
-		'Chicken',
-		'Machine',
-		'Thing',
+		'Diamond', 'JetPack', 'Cruiser', 'Bunny', 'Lambini', 'Bird', 'Elephant', 'Frog', 'Player', 'Lover', 'Guest',
+		'User', 'Cow', 'Mustang', 'Student', 'Driver', 'Hawker', 'Villager', 'Explorer', 'Dancer', 'Stranger', 'Farmer', 'Boat', 'Car', 'Chicken', 'Machine', 'Thing'
 	];
 	const number = _.sample(_.range(10, 2110));
-	const tempName = pickFromArray(emotionArray) + pickFromArray(sizeArray) + pickFromArray(colorArray) + pickFromArray(nounArray) + number;
+	const tempName = _.sample(emotionArray) + _.sample(sizeArray) + _.sample(colorArray) + _.sample(nounArray) + number;
 	return tempName;
 }
-
-// Template.MainLayout.onCreated(function() {
-// 	if (!!Meteor.user() && !!Meteor.loggingIn()) {
-// 		// creates guest account upon reload if not already logged in
-// //		createGuest();
-// 	}
-// });
 
 Template.MainLayout.events({
 	'click .js-logout'() {
@@ -108,20 +31,26 @@ Template.MainLayout.events({
 //		let user_id = Meteor.userId();
 		Meteor.logout((err) => {
 			if (err) {
-				console.error(`error logging out`);
-				// sAlert.error(`error logging out`);
+				// console.error(`error logging out`);
+				sAlert.error(`error logging out`);
 			} else {
-				console.log(`logged out`);
-				// sAlert.success(`logged out`);
+				// console.log(`logged out`);
+				sAlert.success(`logged out`);
 			}
 		});
 	},
 });
 
 Template.GuestLogIn.events({
-	'click .js-guestlogin'(event, instance) {
+	'click .js-guestlogin': async function(event, instance) {
 		const username = instance.data.tempName;
-		createGuest(username);
+		try {
+			await Connection.createGuest(username);
+		} catch (err) {
+			// console.error(`error logging in`, e);
+			sAlert.error(`error logging in: ${err.reason || err}`);
+		}
+		// const userId = await Connection.createGuest(username);
 	},
 });
 
@@ -134,68 +63,46 @@ Template.RegisterOrLogin.onCreated(function() {
 });
 
 Template.RegisterOrLogin.events({
-	'click .js-login': function() {
-		const instance = Template.instance();
-		const toggled = instance.toggled.get();
-		console.log('toggled', toggled)
-
-		if (toggled) {
-			// create account
-			const username = $(instance.find('input.username')).val();
-			// if username is '', error
-			const password = $(instance.find('input.password')).val();
-			// if password is '', error or too short
-			// if already logged in as guest, change username & password instead
-
-			Meteor.loginWithPassword({username: username}, password, (err) => {
-				if (err) {
-					console.error(err.reason);
-					// sAlert.error(`error logging in: ${err.reason}`);
-				}
-			});
-		} else {
-			instance.toggled.set(!toggled);
+	'click .js-login': async function login() {
+		try {
+			const instance = Template.instance();
+			const toggled = instance.toggled.get();
+			console.log('toggled', toggled)
+			if (toggled) {
+				// create account
+				const username = instance.find('input.username').value;
+				const password = instance.find('input.password').value;
+				await Connection.loginUser(username, password);
+			} else {
+				instance.toggled.set(!toggled);
+			}
+		} catch (e) {
+			sAlert.error(e);
 		}
 	},
-	'click .js-register': function() {
-		const instance = Template.instance();
-		const toggled = instance.toggled.get();
-		console.log('toggled', toggled)
-		if (toggled) {
-			// create account
-			const username = $(instance.find('input.username')).val();
-			// if username is '', error
-			const password = $(instance.find('input.password')).val();
-			// if password is '', error or too short
-			// if already logged in as guest, change username & password instead
-
-			const user = Meteor.user();
-			let guestId = null;
-			if (!!user && user.profile.is_registered === false) {
-				guestId = user._id;
-			}
-				// not logged in at all
-			Accounts.createUser({
-				username: username,
-//				email: email,
-				password: password,
-				profile: {
-					is_registered: true,
-					date_created: new Date(),
-					last_active: new Date(),
-					guestId: guestId,
-				},
-			}, (err) => {
-				if (err) {
-					console.error(err);
-					// sAlert.error(`unable to create account: ${err.reason}`);
+	'click .js-register': async function register() {
+		try {
+			const instance = Template.instance();
+			const toggled = instance.toggled.get();
+			console.log('toggled', toggled)
+			if (toggled) {
+				// create account
+				const username = instance.find('input.username').value;
+				const password = instance.find('input.password').value;
+				const user = Meteor.user();
+				if (!!user && user.profile.isRegistered === false) {
+					// when logged in as guest, registerGuest instead
+					// change username & password, keep account otherwise
+					await Connection.registerGuest(username, password);
 				} else {
-					console.log(`account registered`);
-					// sAlert.success(`account registered`);
+					// when not logged in and try to register, create new account
+					await Connection.createUser(username, password);
 				}
-			});
-		} else {
-			instance.toggled.set(!toggled);
+			} else {
+				instance.toggled.set(!toggled);
+			}
+		} catch (error) {
+			sAlert.error(error);
 		}
 	},
 });
