@@ -1,4 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
+import { check } from 'meteor/check';
 
 import { genericGameSchema } from '../imports/schema.js';
 
@@ -10,26 +12,42 @@ export class Player {
 	}
 
 	updateAlias(alias) {
+		check(alias, String);
 		this.alias = alias;
-		return this.update();
+		return new Promise((resolve, reject) => {
+			Meteor.call(`${GenericGame.prefix}/updateAlias`, {  // eslint-disable-line no-use-before-define
+				gameId: this._game._id, alias
+			}, (err, res) => {
+				if (err) { reject(err); }
+				resolve(res);
+			});
+		});
 	}
 
 	updateTeam(team) {
+		check(team, String);
 		this.team = team;
-		return this.update();
+		return new Promise(function(resolve, reject) {
+			Meteor.call(`${GenericGame.prefix}/updateTeam`, {  // eslint-disable-line no-use-before-define
+				gameId: this._game._id, team
+			}, (err, res) => {
+				if (err) { reject(err); }
+				resolve(res);
+			});
+		});
 	}
 
 	updateRole(role) {
+		check(role, String);
 		this.role = role;
-		return this.update();
-	}
-
-	update() {
-		if (!this._game._suppressUpdate) {
-			return GenericGame.collection.update({ '_id': this._game._id, 'players.userId': this.userId }, {  // eslint-disable-line no-use-before-define
-				$set: { 'players.$': this },
+		return new Promise(function(resolve, reject) {
+			Meteor.call(`${GenericGame.prefix}/updateTeam`, {  // eslint-disable-line no-use-before-define
+				gameId: this._game._id, role
+			}, (err, res) => {
+				if (err) { reject(err); }
+				resolve(res);
 			});
-		}
+		});
 	}
 }
 
@@ -37,8 +55,6 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		this.players = this.players.map(o => { return new Player(o, this); });
-		this._suppressUpdate = false;
-		Object.defineProperty(this, '_suppressUpdate', { enumerable: false });
 	}
 
 	static createGame() {}
@@ -50,10 +66,6 @@ export class GenericGame {
 		return GenericGame.collection.update(this._id, {
 			$push: { players: player, log: logitem },
 		});
-	}
-
-	getPlayer(id) {
-		return this.players.find(o => o.userId === id);
 	}
 
 }
