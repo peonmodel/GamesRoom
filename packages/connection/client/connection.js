@@ -95,9 +95,9 @@ export class Connection {
 		return result;
 	}
 }
+Connection.prefix = 'freelancecourtyard:connection';
 Connection.collection = new Mongo.Collection(`${Connection.prefix}Collection`, {
 	transform: function(item) {
 		return new Connection(item);
 	},
 });
-Connection.prefix = 'freelancecourtyard:connection';
