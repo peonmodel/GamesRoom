@@ -25,10 +25,10 @@ export class Room {
 		Object.assign(this, item);
 	}
 
-	// async joinRoom(accessCode = '') {
-	// 	check(accessCode, String);
-	//   return promiseCall(Meteor.call, `${Room.prefix}/joinRoom`, this._id, accessCode);
-	// }
+	async joinRoom(accessCode = '') {
+		check(accessCode, String);
+	  return promiseCall(Meteor.call, `${Room.prefix}/joinRoom`, this._id, accessCode);
+	}
 
 	async leaveRoom() {
 	  return promiseCall(Meteor.call, `${Room.prefix}/leaveRoom`, this._id);
@@ -44,10 +44,11 @@ export class Room {
 	  return promiseCall(Meteor.call, `${Room.prefix}/createRoom`, isPrivate);
 	}
 
-	static async joinRoom(accessCode) {
-		check(accessCode, String);
+	static async findRoomsByCode(accessCode) {
+		check(accessCode, String);  // publication of rooms exclude access code, not possible to search on client side
 		if (!Meteor.user()) { throw new Meteor.Error(`user-not-logged-in`); }
-		return promiseCall(Meteor.call, `${Room.prefix}/createRoom`, accessCode);
+		const rooms = await promiseCall(Meteor.call, `${Room.prefix}/findRoomsByCode`, accessCode);
+		return rooms.map(room => { return new Room(room); });
 	}
 }
 Room.prefix = `freelancecourtyard:room`;

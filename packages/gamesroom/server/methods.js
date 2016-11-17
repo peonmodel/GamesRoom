@@ -24,4 +24,9 @@ Meteor.methods({
 		check(isPrivate, Boolean);
 		return Room.createRoom(Meteor.user(), isPrivate);
 	},
+	[`${Room.prefix}/findRoomsByCode`]: function(accessCode) {
+		check(accessCode, String);
+		// TODO: specifically rate limit this
+		return Room.findRoomsByCode(Meteor.user(), accessCode);
+	},
 });

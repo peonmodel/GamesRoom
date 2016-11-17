@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Match } from 'meteor/check';
 import { Random } from 'meteor/random';
@@ -11,12 +12,18 @@ export class Room {
 	}
 
 	joinRoom(user) {
+		if (this.capacity < this.members.length + 1) {
+			throw new Meteor.Error(`room-full`);
+		}
 	  return Room.collection.update({ _id: this._id }, {
 	    $push: { members: user._id },
 	  });
 	}
 
 	leaveRoom(user) {
+		if (this.members.length <= 1) {
+			return this.clear();  // clear room instead if last person left
+		}
 	  return Room.collection.update({ _id: this._id, members: user._id }, {
 	    $pull: {members: user._id},
 	  });
@@ -35,18 +42,20 @@ export class Room {
 	static createRoom(user, isPrivate) {
 	  const title = `Room-${Random.id(4)}`;
 		const members = [user._id];
-	  return Room.collection.insert({
-	    title,
+		return Room.collection.insert({
+	  	title,
 	    accessCode: Random.id(6),
 	    isPublic: !isPrivate,
 	    capacity: 15,
 	    members: members,
 	    games: [],
 	    chatId: Chat.createChat('group', `Chat for ${title}`, members),
+			createdAt: new Date(),
 	  });
 	}
 
 	static publishRoom(roomQuery, chatQuery, messageQuery) {
+		// publication of rooms exclude accessCode
 	  const roomCursor = Room.collection.find(roomQuery);
 	  const chatIds = roomCursor.map(o => o.chatId);
 	  const roomLimited = Object.assign(chatQuery, {_id: {$in: chatIds}});

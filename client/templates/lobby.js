@@ -20,22 +20,6 @@ Template.Lobby.helpers({
 	messages: function() {
 		// return Message.collection.find({room_id: 'public'});
 	},
-//	defaultusertext() {
-//		console.log('user', Meteor.user())
-//		uu = Meteor.user()
-//		if (!!Meteor.user()) {
-//			return Meteor.user().username;
-//		} else {
-//			return '';
-//		}
-//	},
-//	readonly() {
-//		if (!!Meteor.user()) {
-//			return 'readonly';
-//		} else {
-//			return '';
-//		}
-//	},
 });
 
 Template.Lobby.events({
@@ -57,21 +41,8 @@ Template.Lobby.events({
 			sAlert.error(error);
 		}
 	},
-	// TODO: to be removed, for testing only
-	'click .js-clearAll': async function clear() {
-		console.log('not used');
-	},
-	'click .js-join': async function join(event, instance) {
-		console.log('instance', instance, Template.instance())
-		// try {
-		// 	// instance.data.room.join();
-		// } catch (error) {
-		// 	sAlert.error(error);
-		// 	console.error(error);
-		// }
-
-		// const instance = Template.instance();
-		const accesscode = $(instance.find('.accesscode')).val();
+	'click .js-findRoom': async function join(event, instance) {
+		const accesscode = instance.find('.accesscode').value;
 		const target = Room.collection.findOne({_id: accesscode});
 		if (!target) {
 			sAlert.error('Room not found');
