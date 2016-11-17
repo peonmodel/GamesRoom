@@ -51,7 +51,7 @@ export class Room {
 		return rooms.map(room => { return new Room(room); });
 	}
 }
-Room.prefix = `freelancecourtyard:room`;
+Room.prefix = `freelancecourtyard:gamesroom`;
 Room.schema = {
 	_id: String,
 	title: String,

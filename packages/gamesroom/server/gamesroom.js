@@ -54,20 +54,20 @@ export class Room {
 	  });
 	}
 
-	static publishRoom(roomQuery, chatQuery, messageQuery) {
-		// publication of rooms exclude accessCode
-	  const roomCursor = Room.collection.find(roomQuery);
-	  const chatIds = roomCursor.map(o => o.chatId);
-	  const roomLimited = Object.assign(chatQuery, {_id: {$in: chatIds}});
-	  const chatmessageCursors = Chat.publishChat(roomLimited, messageQuery);
-	  return [
-	    ...chatmessageCursors,
-	    roomCursor,
-	  ];
-	}
+	// static publishRoom(roomQuery, chatQuery, messageQuery) {
+	// 	// publication of rooms exclude accessCode
+	//   const roomCursor = Room.collection.find(roomQuery);
+	//   const chatIds = roomCursor.map(o => o.chatId);
+	//   const roomLimited = Object.assign(chatQuery, {_id: {$in: chatIds}});
+	//   const chatmessageCursors = Chat.publishChat(roomLimited, messageQuery);
+	//   return [
+	//     ...chatmessageCursors,
+	//     roomCursor,
+	//   ];
+	// }
 
 }
-Room.prefix = `freelancecourtyard:room`;
+Room.prefix = `freelancecourtyard:gamesroom`;
 Room.schema = {
 	_id: String,
 	title: String,
