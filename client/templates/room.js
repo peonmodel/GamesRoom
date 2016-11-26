@@ -9,6 +9,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 Template.RoomWrapper.onCreated(() => {
 	const instance = Template.instance();
 	instance.roomId = FlowRouter.getParam('roomId');
+	console.log('RoomWrapper onCreated')
 	instance.subscribe('CurrentRoom', instance.roomId, {
 		onStop() {},
 		onReady() {
@@ -30,12 +31,14 @@ Template.RoomWrapper.helpers({
 
 Template.Room.onCreated(() => {
 	const instance = Template.instance();
+	console.log(instance)
 	instance.subscribe('RoomChat', instance.data.room.chatId);
 });
 
 Template.Room.helpers({
 	getChat() {
 		const instance = Template.instance();
+		console.log('getChat', instance)
 		return Chat.collection.findOne({ _id: instance.data.room.chatId });
 	},
 });

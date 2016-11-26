@@ -1,5 +1,9 @@
 <template name="RoomWrapper">
+  {{#if Template.subscriptionsReady}}
   {{> Room room=getRoom}}
+  {{else}}
+  Loading room...
+  {{/if}}
 </template>
 
 <template name="Room">
