@@ -1,0 +1,25 @@
+<template name="RoomWrapper">
+  {{> Room room=getRoom}}
+</template>
+
+<template name="Room">
+  {{#if room.isPublic}}Public{{else}}Private{{/if}} Room
+  <br/>
+  Room name: {{room.title}}
+  {{#unless room.isPublic}}
+  <br/>
+  Access code: {{room.accessCode}}
+  {{/unless}}
+  Chat: 
+  {{> Chat chat=getChat}}
+</template>
+
+<template name="Chat">
+  {{#each message in chat.messages}}
+    {{message._id}}
+  {{/each}}
+  <div class="ui fluid action input">
+    <input type="text" class="message" />
+    <a class="ui button js-sendMessage">Send</a>
+  </div>
+</template>

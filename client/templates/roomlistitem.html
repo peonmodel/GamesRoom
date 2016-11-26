@@ -1,0 +1,11 @@
+<template name="RoomListItem">
+  {{room.title}}
+  {{#if room.isPublic}}
+  <a class="ui button js-joinRoom">Join</a>
+  {{else}}
+  <div class="ui fluid action input">
+    <input type="text" class="accesscode" placeholder="Access Code" />
+    <a class="ui button js-joinRoomWithCode">Join Game</a>
+  </div>
+  {{/if}}
+</template>

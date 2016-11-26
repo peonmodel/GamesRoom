@@ -54,12 +54,20 @@ Template.GuestLogIn.events({
 Template.RegisterOrLogin.onCreated(function() {
 	const instance = this;
 	instance.data.tempName = createRandomName();
+	// instance.toggle = new ReactiveVar(true);  // show = true
+});
+
+Template.RegisterOrLogin.helpers({
+	// showTextBox() {
+	// 	const instance = Template.instance();
+	// 	return !Meteor.user() || instance.toggle.get();
+	// },
 });
 
 Template.RegisterOrLogin.events({
 	'click .js-login': async function login() {
+		const instance = Template.instance();
 		try {
-			const instance = Template.instance();
 			// create account
 			const username = instance.find('input.username').value;
 			const password = instance.find('input.password').value;

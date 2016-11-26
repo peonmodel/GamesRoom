@@ -26,8 +26,15 @@
 		<div class="ui form">
 			<div class="ui fluid action input">
 				<input type="text" class="accesscode" placeholder="Fill in the room code" />
-				<a class="ui button js-join">Join Game</a>
+				<a class="ui button js-findRooms">Find Room</a>
 			</div>
+		</div>
+		<div>
+			{{#each room in foundRooms}}
+				{{> RoomListItem room=room}}
+			{{else}}
+				No room found
+			{{/each}}
 		</div>
 		<!-- {{> Chat accesscode="public"}} -->
 	</div>

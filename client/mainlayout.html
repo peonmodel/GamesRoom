@@ -4,14 +4,10 @@
 		<br/>
 		{{#if currentUser}}
 			{{#unless currentUser.profile.isRegistered}}
-				Logged in as Guest {{currentUser.username}}
-				<a class="ui button js-logout">Log out</a>
-				{{> RegisterOrLogin}}
-			{{else}}
-				Logged in as {{currentUser.username}}
-				<a class="ui button js-logout">Log out</a>
+			Logged in as Guest {{currentUser.username}}
+			{{> RegisterOrLogin}}
 			{{/unless}}
-
+			<a class="ui button js-logout">Log out</a>
 		{{else}}
 			{{#if loggingIn}}
 				Logging in...
@@ -25,22 +21,24 @@
 </template>
 
 <template name="RegisterOrLogin">
-	{{#unless currentUser}}
-		<div class="ui input">
-			<input type="text" class="username" placeholder="{{tempName}}">
-		</div>
+	<div class="ui input">
+		<input type="text" class="username" placeholder="{{tempName}}">
+	</div>
 <!--
 		<div class="ui input">
 			<input type="text" class="email" placeholder="optional">
 		</div>
 -->
-		<div class="ui input">
-			<input type="password" class="password">
-		</div>
-	{{/unless}}
+	<div class="ui input">
+		<input type="password" class="password">
+	</div>
+	{{#unless currentUser}}
 	<a class="ui button js-login">Login</a>
-	<a class="ui button js-register">Register</a>
 	{{> GuestLogIn tempName=tempName}}
+	{{/unless}}
+	
+	<a class="ui button js-register">Register</a>
+	
 </template>
 
 <template name="GuestLogIn">
