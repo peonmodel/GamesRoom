@@ -39,6 +39,12 @@ export class Room {
 	  return Room.collection.remove({_id: this._id});
 	}
 
+	static findRoomsByCode(user, accessCode) {
+		return Room.collection.find({ accessCode }, { 
+			fields: { members: 0, accessCode: 0 } 
+		}).fetch();
+	}
+
 	static createRoom(user, isPrivate) {
 	  const title = `Room-${Random.id(4)}`;
 		const members = [user._id];
