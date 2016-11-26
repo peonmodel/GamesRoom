@@ -1,5 +1,7 @@
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { BlazeLayout } from 'meteor/kadira:blaze-layout';
+// import { Room } from 'meteor/freelancecourtyard:gamesroom';
+// import { sAlert } from 'meteor/juliancwirko:s-alert';
 
 FlowRouter.route('/', {
 	name: 'public',
@@ -11,17 +13,11 @@ FlowRouter.route('/', {
 	},
 });
 
-// FlowRouter.route('/room/:accesscode', {
-// 	name: 'room',
-// 	action(pathParams, queryParams) {
-// 		if (!Room.collection.findOne(pathParams.accesscode)) {
-// 			FlowRouter.go('public');
-// 			console.warn('room not found, redirecting to public lobby');
-// 			// sAlert.warning('room not found, redirecting to public lobby');
-// 			return;
-// 		}
-// 		BlazeLayout.render('MainLayout', {
-// 			content: 'Room',
-// 		});
-// 	},
-// });
+FlowRouter.route('/room/:roomId', {
+	name: 'room',
+	action(/* pathParams, queryParams */) {
+		BlazeLayout.render('MainLayout', {
+			content: 'RoomWrapper',
+		});
+	},
+});
