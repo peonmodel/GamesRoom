@@ -40,17 +40,18 @@ export class Room {
 	}
 
 	static findRoomsByCode(user, accessCode) {
+		if (!accessCode) { return []; }
 		return Room.collection.find({ accessCode }, { 
 			fields: { members: 0, accessCode: 0 } 
 		}).fetch();
 	}
 
-	static createRoom(user, isPrivate) {
+	static createRoom(user, isPrivate = false) {
 	  const title = `Room-${Random.id(4)}`;
 		const members = [user._id];
 		return Room.collection.insert({
 	  	title,
-	    accessCode: Random.id(6),
+	    accessCode: isPrivate ? Random.id(6) : '',
 	    isPublic: !isPrivate,
 	    capacity: 15,
 	    members: members,

@@ -7,8 +7,11 @@ Meteor.methods({
 		check(roomId, String);
 		check(accessCode, String);
 		const room = Room.collection.findOne({ _id: roomId });
-		if (!room || room.accessCode !== accessCode) {
+		if (!room) {
 			throw new Meteor.Error(`room-not-found`);
+		}
+		if (room.accessCode !== accessCode) {
+			throw new Meteor.Error(`incorrect-access-code`);
 		}
 		return room.joinRoom(Meteor.user());
 	},
