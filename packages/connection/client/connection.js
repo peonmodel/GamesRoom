@@ -19,9 +19,67 @@ function promiseCall(fn, ...params) {
 	});
 }
 
+class User {
+	/**
+	 * Creates an instance of User.
+	 *
+	 * @param {Object} item - Meteor user object
+	 *
+	 * @memberOf User
+	 */
+	constructor(item) {
+		Object.assign(this, item);
+	}
+
+	/**
+	 * status - getter whether user is away/online/busy/etc
+	 *
+	 * @readonly
+	 *
+	 * @memberOf User
+	 */
+	get status() {
+		// gets 'away' based on lastActiveAt and current time
+		if (!this.isOnline) { return 'offline'; }
+		if (new Date() - this.profile.public.lastActiveAt > 30 * 60 * 1000) {
+			return 'away';  // if undefined, its false
+		}
+		// check for busy etc
+		return 'online';
+	}
+
+	/**
+	 * isOnline - getter whether user is online
+	 *
+	 * @readonly
+	 *
+	 * @memberOf User
+	 */
+	get isOnline() {
+		return this.profile.public.isOnline;
+	}
+}
+
+Accounts.users._transform = function transformUser(user) {
+	return new User(user);
+};
+
 export class Connection {
 	constructor(item) {
 		Object.assign(this, item);
+		this._user = Accounts.users.findOne({ _id: this.userId });
+		Object.defineProperty(this, '_user', { enumerable: false });
+	}
+
+	/**
+	 * username - getter to get username
+	 *
+	 * @readonly
+	 *
+	 * @memberOf Connection
+	 */
+	get username() {
+		return this._user.username;
 	}
 
 	/**

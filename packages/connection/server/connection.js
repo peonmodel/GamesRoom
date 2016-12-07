@@ -2,6 +2,64 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Accounts } from 'meteor/accounts-base';
 
+class User {
+	/**
+	 * Creates an instance of User.
+	 *
+	 * @param {Object} item - Meteor user object
+	 *
+	 * @memberOf User
+	 */
+	constructor(item) {
+		Object.assign(this, item);
+	}
+
+	/**
+	 * status - getter whether user is away/online/busy/etc
+	 *
+	 * @readonly
+	 *
+	 * @memberOf User
+	 */
+	get status() {
+		// gets 'away' based on lastActiveAt and current time
+		if (!this.isOnline) { return 'offline'; }
+		if (new Date() - this.profile.public.lastActiveAt > 30 * 60 * 1000) {
+			return 'away';  // if undefined, its false
+		}
+		// check for busy etc
+		return 'online';
+	}
+
+	/**
+	 * isOnline - getter whether user is online
+	 *
+	 * @readonly
+	 *
+	 * @memberOf User
+	 */
+	get isOnline() {
+		return this.profile.public.isOnline;
+	}
+
+	/**
+	 * updateActive - updates user last active time
+	 *
+	 * @returns {undefined} - async update has no return value
+	 *
+	 * @memberOf User
+	 */
+	updateActive() {
+		return Accounts.users.update({ _id: this._id }, {
+			$currentDate: { 'profile.public.lastActiveAt': true },
+		}, () => {});
+	}
+}
+
+Accounts.users._transform = function transformUser(user) {
+	return new User(user);
+};
+
 export class Connection {
 	constructor(item) {
 		Object.assign(this, item);
@@ -30,10 +88,27 @@ export class Connection {
 		return Accounts.createUser({
 			username: username,
 			password: hashed,
-			profile: {
-				isRegistered: true,
+			profile: {  // stuff user can see itself
+				connections: [],
+				public: {  // stuff others can see user, can be further filtered
+					lastActiveAt: null,  // other may want to see is user is active
+					isRegistered: true,  // similarly, see if user is a anonymous temp user
+					isOnline: false,
+				},
 			},
 		});
+	}
+
+	disconnect() {
+		if (this.userId) {
+			const user = Accounts.users.findOne({ _id: this.userId });
+			const modifier = { $pull: { 'profile.connections': this._id } };
+			if (user.profile.connections.length >= 1) {
+				modifier.$set = { 'profile.public.isOnline': true };
+			}
+			Accounts.users.update({ _id: this.userId }, modifier, () => {});
+		}
+		return Connection.collection.remove({ connectionId: this._id }, () => {});
 	}
 }
 Connection.prefix = 'freelancecourtyard:connection';
@@ -41,7 +116,7 @@ Connection.collection = new Mongo.Collection(`${Connection.prefix}Collection`, {
 	transform: function(item) {
 		return new Connection(item);
 	},
-	defineMutationMethods: false,  // TODO: ensureindex
+	defineMutationMethods: false,  // TODO: ensureindex on userId
 });
 
 Accounts.config({
@@ -53,9 +128,7 @@ Accounts.config({
 Meteor.onConnection(({
 	id, onClose, httpHeaders
 }) => {
-  // TODO: remove this
   // console.log(id, close, onClose, clientAddress, httpHeaders);
-	console.log('connected id', id);
 	Connection.collection.insert({
 	  connectionId: id,
 	  client: httpHeaders['user-agent'],
@@ -63,21 +136,26 @@ Meteor.onConnection(({
 	}, () => {});
 	onClose(() => {
 	  // NOTE: can keep track on some sort of client usage statistic, but lets not go there... yet
-	  // TODO: call some kind of user/player onDisconnect
-		console.log('connection closed', id);
-	  Connection.collection.remove({ connectionId: id }, () => {});
+		const connection = Connection.collection.findOne({ connectionId: id });
+		return connection.disconnect();
 	});
 });
 
 Accounts.onLogin(({
   type, allowed, methodName, methodArguments, user, connection
 }) => {
-	console.log('logged in', connection.id, 'userId', user._id);
+	// console.log('logged in', connection.id, 'userId', user._id);
 	Accounts.users.update({ _id: user._id }, {
-		$set: { 'profile.lastActiveAt': new Date() },
+		$set: {
+			'profile.public.lastActiveAt': new Date(),
+			'profile.public.isOnline': true,
+		},
+		$push: {
+			'profile.connections': connection.id,
+		},
 	}, () => {});
-	Connection.collection.update(connection.id, {
-		$set: {userId: user._id},
+	Connection.collection.update({ connectionId: connection.id }, {
+		$set: { userId: user._id },
 	}, () => {});
 });
 
