@@ -2,14 +2,15 @@
 import { Template } from 'meteor/templating';
 import { Room } from 'meteor/freelancecourtyard:gamesroom';
 import { Chat } from 'meteor/freelancecourtyard:chatmessages';
+import { Connection } from 'meteor/freelancecourtyard:connection';
 import { sAlert } from 'meteor/juliancwirko:s-alert';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { _ } from 'meteor/underscore';
 // import { ReactiveVar } from 'meteor/reactive-var';
 
 Template.RoomWrapper.onCreated(() => {
 	const instance = Template.instance();
 	instance.roomId = FlowRouter.getParam('roomId');
-	console.log('RoomWrapper onCreated')
 	instance.subscribe('CurrentRoom', instance.roomId, {
 		onStop() {},
 		onReady() {
@@ -38,7 +39,6 @@ Template.Room.onCreated(() => {
 Template.Room.helpers({
 	getChat() {
 		const instance = Template.instance();
-		console.log('getChat', instance)
 		return Chat.collection.findOne({ _id: instance.data.room.chatId });
 	},
 });
@@ -53,5 +53,19 @@ Template.Chat.events({
 			console.error(error);
 			sAlert.error(error);
 		}
+	},
+});
+
+Template.RoomOccupants.onCreated(() => {
+	const instance = Template.instance();
+	instance.subscribe('ClientConnection', instance.data.occupants);
+});
+
+Template.RoomOccupants.helpers({
+	getOccupants() {
+		// const instance = Template.instance();
+		const occupants = Connection.collection.find().fetch();
+		
+		return occupants;
 	},
 });

@@ -14,16 +14,35 @@
   <br/>
   Access code: {{room.accessCode}}
   {{/unless}}
+  <br/>
   Chat: 
+  <br/>
   {{> Chat chat=getChat}}
+  <br/>
+  {{> RoomOccupants occupants=room.members}}
 </template>
 
 <template name="Chat">
+  Chat title: {{chat.title}}
+  <br/>
   {{#each message in chat.messages}}
-    {{message._id}}
+    {{message.text}} - at {{message.timestamp}}
+    <br/>
   {{/each}}
   <div class="ui fluid action input">
     <input type="text" class="message" />
     <a class="ui button js-sendMessage">Send</a>
   </div>
+</template>
+
+<template name="RoomOccupants">
+  {{#if Template.subscriptionsReady}}
+  {{#each occupant in getOccupants}}
+    {{occupant.username}}
+  {{else}}
+  No occupant
+  {{/each}}
+  {{else}}
+  Loading...
+  {{/if}}
 </template>

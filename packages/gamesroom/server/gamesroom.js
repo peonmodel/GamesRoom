@@ -15,6 +15,7 @@ export class Room {
 		if (this.capacity < this.members.length + 1) {
 			throw new Meteor.Error(`room-full`);
 		}
+		if (this.members.includes(user._id)) { return 1; }  // already inside
 	  return Room.collection.update({ _id: this._id }, {
 	    $push: { members: user._id },
 	  });
