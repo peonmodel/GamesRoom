@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import './main.html';
+// import './main.html';
 
 import { Chat, Message } from 'meteor/freelancecourtyard:chatmessages';
 import { Connection } from 'meteor/freelancecourtyard:connection';

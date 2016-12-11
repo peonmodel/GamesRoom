@@ -22,9 +22,10 @@
   "parserOptions": {
     "ecmaVersion": 2017,
     "sourceType": "module",
-    "allowImportExportEverywhere": true
+    "allowImportExportEverywhere": true,
+    "jsx": true
   },
-  "plugins": ["meteor"],
+  "plugins": ["meteor", "react"],
 
   "env": {
     "browser": true,
@@ -51,7 +52,8 @@
     "jsx": true,
   },
   "rules": {
-
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
 /**
  * Meteor Specific
  */
@@ -245,7 +247,7 @@
     "no-spaced-func": 2,             // http://eslint.org/docs/rules/no-spaced-func
     "no-trailing-spaces": 1,         // http://eslint.org/docs/rules/no-trailing-spaces
     // "no-extra-parens": 2,            // http://eslint.org/docs/rules/no-extra-parens
-    "no-extra-parens": ["error", "all", {
+    "no-extra-parens": [0, "all", {
         "conditionalAssign": false,
         "returnAssign": false,
         "nestedBinaryExpressions": false,

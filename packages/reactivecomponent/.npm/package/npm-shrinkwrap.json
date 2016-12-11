@@ -1,0 +1,64 @@
+{
+  "dependencies": {
+    "babel-runtime": {
+      "version": "6.20.0",
+      "resolved": "https://registry.npmjs.org/babel-runtime/-/babel-runtime-6.20.0.tgz",
+      "from": "babel-runtime@>=6.11.6 <7.0.0"
+    },
+    "core-js": {
+      "version": "2.4.1",
+      "resolved": "https://registry.npmjs.org/core-js/-/core-js-2.4.1.tgz",
+      "from": "core-js@>=2.4.0 <3.0.0"
+    },
+    "hoist-non-react-statics": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz",
+      "from": "hoist-non-react-statics@>=1.2.0 <2.0.0"
+    },
+    "lodash._getnative": {
+      "version": "3.9.1",
+      "resolved": "https://registry.npmjs.org/lodash._getnative/-/lodash._getnative-3.9.1.tgz",
+      "from": "lodash._getnative@>=3.0.0 <4.0.0"
+    },
+    "lodash.isarguments": {
+      "version": "3.1.0",
+      "resolved": "https://registry.npmjs.org/lodash.isarguments/-/lodash.isarguments-3.1.0.tgz",
+      "from": "lodash.isarguments@>=3.0.0 <4.0.0"
+    },
+    "lodash.isarray": {
+      "version": "3.0.4",
+      "resolved": "https://registry.npmjs.org/lodash.isarray/-/lodash.isarray-3.0.4.tgz",
+      "from": "lodash.isarray@>=3.0.0 <4.0.0"
+    },
+    "lodash.keys": {
+      "version": "3.1.2",
+      "resolved": "https://registry.npmjs.org/lodash.keys/-/lodash.keys-3.1.2.tgz",
+      "from": "lodash.keys@>=3.1.2 <4.0.0"
+    },
+    "lodash.pick": {
+      "version": "4.4.0",
+      "resolved": "https://registry.npmjs.org/lodash.pick/-/lodash.pick-4.4.0.tgz",
+      "from": "lodash.pick@>=4.4.0 <5.0.0"
+    },
+    "react-komposer": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/react-komposer/-/react-komposer-2.0.0.tgz",
+      "from": "react-komposer@2.0.0"
+    },
+    "react-stubber": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/react-stubber/-/react-stubber-1.0.0.tgz",
+      "from": "react-stubber@>=1.0.0 <2.0.0"
+    },
+    "regenerator-runtime": {
+      "version": "0.10.1",
+      "resolved": "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.10.1.tgz",
+      "from": "regenerator-runtime@>=0.10.0 <0.11.0"
+    },
+    "shallowequal": {
+      "version": "0.2.2",
+      "resolved": "https://registry.npmjs.org/shallowequal/-/shallowequal-0.2.2.tgz",
+      "from": "shallowequal@>=0.2.2 <0.3.0"
+    }
+  }
+}

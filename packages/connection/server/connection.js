@@ -59,6 +59,10 @@ class User {
 Accounts.users._transform = function transformUser(user) {
 	return new User(user);
 };
+Accounts.config({
+	forbidClientAccountCreation: true,
+});
+// TODO: ensureIndex on users Accounts to remove temp acc
 
 export class Connection {
 	constructor(item) {
@@ -118,12 +122,6 @@ Connection.collection = new Mongo.Collection(`${Connection.prefix}Collection`, {
 	},
 	defineMutationMethods: false,  // TODO: ensureindex on userId
 });
-
-Accounts.config({
-	forbidClientAccountCreation: true,
-});
-
-// TODO: ensureIndex on users Accounts to remove temp acc
 
 Meteor.onConnection(({
 	id, onClose, httpHeaders
