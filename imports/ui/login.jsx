@@ -6,7 +6,7 @@ import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 
-class GuestLogIn extends Component {
+class GuestLogin extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -68,6 +68,10 @@ class GuestLogIn extends Component {
 	}
 }
 
+class UserLogin extends Component {}
+
+class RegisterUser extends Component {}
+
 class Logout extends Component {
 	constructor(props) {
 		super(props);
@@ -84,12 +88,12 @@ class Logout extends Component {
 
 	render() {
 		const username = _.get(this.props.user, 'username') || '';
-		const isGuest = !_.get(this.props.user, 'profile.isRegistered');
+		const isRegistered = _.get(this.props.user, 'profile.isRegistered');
 		return (
 			<Container>
 				<Label>
 					{username}
-					<Label.Detail>{isGuest ? 'Guest' : 'User'}</Label.Detail>
+					<Label.Detail>{isRegistered ? 'User' : 'Guest'}</Label.Detail>
 				</Label>
 				<Button onClick={this.handleClick.bind(this)}>Log out</Button>
 			</Container>
@@ -107,11 +111,11 @@ export class Login extends Component {
 		const isRegistered = !!_.get(this.props.user, 'profile.isRegistered');
 		let selectiveLogin = null;
 		if (!loggedIn) {
-			selectiveLogin = (<GuestLogIn />);
+			selectiveLogin = (<GuestLogin />);  // UserLogin & RegisterUser
 		} else if (!isRegistered) {
-			selectiveLogin = (<Logout user={this.props.user}/>);
+			selectiveLogin = (<Logout user={this.props.user} />);  // RegisterUser
 		} else {
-			selectiveLogin = (<Logout user={this.props.user}/>);
+			selectiveLogin = (<Logout user={this.props.user} />);
 		}
 		return (
 			<Container>
