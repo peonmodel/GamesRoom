@@ -50,7 +50,7 @@ class Message {
 	 * @param {string} text new content of Message
 	 * @returns {Promise} - resolve to 1 if update success
 	 */
-	async editMessage(text, ) {
+	async editMessage(text) {
 		check(text, String);
 		return promiseCall(Meteor.call, `${Message.prefix}/editMessage`, this._id, text);
 	}
@@ -61,7 +61,7 @@ class Message {
 	 * @param {string} text content of reply Message
 	 * @returns {Promise} - resolve to 1 if update success
 	 */
-	async replyMessage(text, ) {
+	async replyMessage(text) {
 		check(text, String);
 		return promiseCall(Meteor.call, `${Message.prefix}/replyMessage`, this._id, text);
 	}
@@ -75,7 +75,7 @@ class Message {
 	 * @param {Message} replyTo Message object that is being replied to
 	 * @returns {Promise} - resolve to 1 if update success
 	 */
-	static async createMessage(chatId, text, replyTo, ) {
+	static async createMessage(chatId, text, replyTo) {
 		check(chatId, String);
 		check(text, String);
 		check(replyTo, Object);

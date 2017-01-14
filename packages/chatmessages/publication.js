@@ -10,7 +10,7 @@ import { Message } from './message-server.js';
 // 	return Chat.publishChat(chatQuery, messageQuery);
 // });
 
-Meteor.publish('RoomChat', function publishRoomChat(chatId) {
+Meteor.publish('ActiveChat', function publishRoomChat(chatId) {
 	check(chatId, String);
 	return [
 		Chat.collection.find({ _id: chatId }),
