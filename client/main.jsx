@@ -6,6 +6,7 @@ import { render } from 'react-dom';
 import { Component } from 'react';
 import { LoginContainer } from '../imports/ui/login.jsx';
 import { LobbyContainer } from '../imports/ui/lobby.jsx';
+import { CurrentRoomContainer } from '../imports/ui/room.jsx';
 
 import { Router, Route, browserHistory, IndexRoute } from 'react-router';
 
@@ -20,11 +21,13 @@ class App extends Component {
 		);
 	}
 }
-
+// <Route path=":room" component={}>
+			// </Route>
 const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/" component={App}>
 			<IndexRoute component={LobbyContainer} />
+			<Route path="room/:roomId" component={CurrentRoomContainer}></Route>
     </Route>
   </Router>
 );
