@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Connection } from 'meteor/freelancecourtyard:connection';
 import React, { Component } from 'react';
-import { Container, Button, Form, Header, Message, Label } from 'semantic-ui-react';
+import { Container, Button, Form, Header, Message, Label, Input, Icon, Modal } from 'semantic-ui-react';
 import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
@@ -59,7 +59,7 @@ class GuestLogin extends Component {
 				<Header as='h4'>Log in as guest</Header>
 				<Form.Field>
 					<label>Username</label>
-					<input name="username" placeholder={this.state.placeholder} />
+					<Input name="username" placeholder={this.state.placeholder} />
 				</Form.Field>
 					<Message error header='Action Forbidden' content='username is used' />
 				<Button type='submit' loading={this.state.busy}>Guest Login</Button>
@@ -68,9 +68,118 @@ class GuestLogin extends Component {
 	}
 }
 
-class UserLogin extends Component {}
+// normal user login form
+class UserLogin extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			busy: false,
+			formData: {},
+		};
+	}
 
-class RegisterUser extends Component {}
+	async handleSubmit(event, { formData }) {
+		event.preventDefault();
+		this.setState({ busy: true });
+		try {
+			await Connection.loginUser(formData.username, formData.password);
+		} catch (e) {
+			console.error(e);
+			this.setState({ error: true, reason: e });
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	handleChange() {
+		this.setState({ error: false });
+	}
+
+	render() {
+		return (
+			<Form error={this.state.error} onSubmit={this.handleSubmit.bind(this)} onChange={this.handleChange.bind(this)}>
+				<Header as='h4'>Sign up</Header>
+				<Form.Field>
+					<label>Username</label>
+					<Form.Input name="username" />
+				</Form.Field>
+				<Form.Field>
+					<label>Password</label>
+					<Form.Input name="password" type="password" />
+				</Form.Field>
+				<Message error header='Action Forbidden' content='username/password combination not found' />
+				<Button type='submit' loading={this.state.busy}>Login</Button>
+			</Form>
+		);
+	}
+}
+
+// should ask to make existing user non-guest
+class RegisterUser extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			busy: false,
+			formData: {},
+			confirmPassword: '',
+			password: '',
+		};
+	}
+
+	async handleSubmit(event, { formData }) {
+		event.preventDefault();
+		this.setState({ busy: true });
+		try {
+			if (formData.password !== formData.confirmPassword) {
+				throw new Meteor.Error('password and password confirmation not the same');
+			}
+			await Connection.createGuest(formData.username, formData.password);
+		} catch (e) {
+			console.error(e);
+			this.setState({ error: true, reason: e });
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	handleChange() {
+		this.setState({ error: false });
+	}
+
+	handlePasswordChange(event, value) {
+		this.setState({ password: value.value });
+	}
+
+	handleConfirmPasswordChange(event, value) {
+		this.setState({ confirmPassword: value.value });
+	}
+
+	render() {
+		const isMatch = this.state.password === this.state.confirmPassword;
+		const isLong = this.state.password.length >= 10;  // check password for length & complexity
+		const passwordMatch = (this.state.password && isMatch) ? 'checkmark' : null;
+		const isValid = passwordMatch && isLong;
+		return (
+			<Form error={this.state.error} onSubmit={this.handleSubmit.bind(this)} onChange={this.handleChange.bind(this)}>
+				<Header as='h4'>Sign up</Header>
+				<Form.Field>
+					<label>Username</label>
+					<Form.Input name="username" placeholder={this.state.placeholder} />
+				</Form.Field>
+				<Form.Field>
+					<label>Password</label>
+					<Form.Input name="password" type="password" onChange={this.handlePasswordChange.bind(this)} icon={isLong}/>
+				</Form.Field>
+				<Form.Field>
+					<label>Confirm password</label>
+					<Form.Input name="confirmPassword" type="password" onChange={this.handleConfirmPasswordChange.bind(this)} error={!isMatch} icon={passwordMatch}/>
+				</Form.Field>
+				<Message error header='Action Forbidden' content='username is used' />
+				<Button type='submit' loading={this.state.busy} disabled={!isValid}>Sign up</Button>
+			</Form>
+		);
+	}
+}
 
 class Logout extends Component {
 	constructor(props) {
@@ -101,7 +210,7 @@ class Logout extends Component {
 	}
 }
 
-export class Login extends Component {
+class Login extends Component {
 	constructor(props) {
 		super(props);  // this.props is "reactive", the other this attributes are reused
 	}
@@ -111,16 +220,34 @@ export class Login extends Component {
 		const isRegistered = !!_.get(this.props.user, 'profile.isRegistered');
 		let selectiveLogin = null;
 		if (!loggedIn) {
-			selectiveLogin = (<GuestLogin />);  // UserLogin & RegisterUser
+			selectiveLogin = (
+				<div>
+				<GuestLogin />
+				<RegisterUser user={this.props.user}/>
+				<UserLogin/>
+				</div>
+			);  // UserLogin & RegisterUser
 		} else if (!isRegistered) {
 			selectiveLogin = (<Logout user={this.props.user} />);  // RegisterUser
 		} else {
 			selectiveLogin = (<Logout user={this.props.user} />);
 		}
 		return (
-			<Container>
-				{ selectiveLogin }
-			</Container>
+			<Modal trigger={<Button>Login</Button>} basic size='small'>
+				<Header icon='user' content='Login / Register' />
+				<Modal.Content>
+					<p>Log in to existing account or as a guest user</p>
+					{ selectiveLogin }
+				</Modal.Content>
+				<Modal.Actions>
+					<Button basic color='red' inverted>
+						<Icon name='remove' /> No
+					</Button>
+					<Button color='green' inverted>
+						<Icon name='checkmark' /> Yes
+					</Button>
+				</Modal.Actions>
+			</Modal>
 		);
 	}
 }

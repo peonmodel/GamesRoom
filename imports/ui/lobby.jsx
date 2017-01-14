@@ -5,11 +5,23 @@ import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { Room } from 'meteor/freelancecourtyard:gamesroom';
+import { browserHistory } from 'react-router';
 
 class RoomListItem extends Component {
 	constructor(props) {
 		super(props);
 	}
+
+	async join() {
+		try {
+			const room = this.props.room;
+			await room.joinRoom();
+			console.log(`Room created, redirecting to room: ${room._id}`);
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	render() {
 		return (
 			<Card>
@@ -23,7 +35,7 @@ class RoomListItem extends Component {
 				</Card.Content>
 				<Card.Content extra>
         <div className='ui two buttons'>
-          <Button basic color='green'>Join</Button>
+					<Button basic color='green' onClick={this.join.bind(this)}>Join</Button>
         </div>
 				</Card.Content>
 			</Card>
@@ -37,9 +49,9 @@ export class Lobby extends Component {
 	}
 
 	async createRoom() {
-		console.log(arguments)
 		try {
-			await Room.createRoom(false);
+			const roomId = await Room.createRoom(false);
+			browserHistory.push(`room/${roomId}`);
 		} catch (error) {
 			console.error(error);
 			// sAlert.error(error);
