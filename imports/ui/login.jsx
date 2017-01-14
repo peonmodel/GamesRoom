@@ -181,45 +181,25 @@ class RegisterUser extends Component {
 	}
 }
 
-class Logout extends Component {
-	constructor(props) {
-		super(props);
-	}
-
-	async handleClick() {
-		try {
-			await Connection.logoutUser();
-			console.log(`logged out`);
-		} catch (error) {
-			console.error(`error logging out`);
-		}
-	}
-
-	render() {
-		const username = _.get(this.props.user, 'username') || '';
-		const isRegistered = _.get(this.props.user, 'profile.isRegistered');
-		return (
-			<Container>
-				<Label>
-					{username}
-					<Label.Detail>{isRegistered ? 'User' : 'Guest'}</Label.Detail>
-				</Label>
-				<Button onClick={this.handleClick.bind(this)}>Log out</Button>
-			</Container>
-		);
-	}
-}
-
 class LogInOrRegisterModal extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			selected: 'back', // 'login', 'register', 'guestlogin'
+			modalOpen: !!props.user,
 		};
 	}
 
 	handleSelect(event, element) {
 		this.setState({ selected: element.name });
+	}
+
+	handleOpen() {
+		this.setState({ modalOpen: true });
+	}
+
+	handleClose() {
+		this.setState({ modalOpen: false });
 	}
 
 	render() {
@@ -253,7 +233,12 @@ class LogInOrRegisterModal extends Component {
 			),
 		};
 		return (
-			<Modal size="large" trigger={<Button size="mini">Login / Register</Button>} closeIcon='close'>
+			<Modal
+				size="large" 
+				trigger={<Button size="mini" onClick={this.handleOpen.bind(this)}>Login / Register</Button>} 
+				closeIcon='close'
+				onClose={this.handleClose.bind(this)}
+			>
 				<Header icon='user' content='Login / Register' />
 				<Modal.Content>
 					{ choices[this.state.selected] }
@@ -275,8 +260,17 @@ class Login extends Component {
 
 	handleClick() {}
 
+	async handleLogout() {
+		try {
+			await Connection.logoutUser();
+			console.log(`logged out`);
+		} catch (error) {
+			console.error(`error logging out`);
+		}
+	}
+
 	render() {
-		const user = !!this.props.user;
+		const user = this.props.user;
 		const isRegistered = !!_.get(user, 'profile.isRegistered');
 		let selectiveLogin = null;
 		if (!!user && isRegistered) {
@@ -284,9 +278,9 @@ class Login extends Component {
 				<Container>
 					<Label>
 						{user.profile.displayName || user.username}
-						<Label.Detail>registered user</Label.Detail>
+						<Label.Detail>registered</Label.Detail>
 					</Label>
-					<Button onClick={this.handleClick.bind(this)}>Log out</Button>
+					<Button onClick={this.handleLogout.bind(this)}>Log out</Button>
 				</Container>
 			);
 		}
@@ -298,13 +292,13 @@ class Login extends Component {
 						<Label.Detail>guest</Label.Detail>
 					</Label>
 					<Button onClick={this.handleClick.bind(this)}>Register</Button>
-					<Button onClick={this.handleClick.bind(this)}>Log out</Button>
+					<Button onClick={this.handleLogout.bind(this)}>Log out</Button>
 				</Container>
 			);
 		}
 		if (!user) {
 			selectiveLogin = (
-				<LogInOrRegisterModal/>
+				<LogInOrRegisterModal user={user}/>
 			);
 		}
 		// if (!loggedIn) {
