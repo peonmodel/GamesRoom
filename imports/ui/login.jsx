@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Connection } from 'meteor/freelancecourtyard:connection';
 import React, { Component } from 'react';
-import { Container, Button, Form, Header, Message, Label, Input, Icon, Modal } from 'semantic-ui-react';
+import { Container, Button, Form, Header, Message, Label, Input, Icon, Modal, Grid } from 'semantic-ui-react';
 import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
@@ -210,45 +210,139 @@ class Logout extends Component {
 	}
 }
 
+class LogInOrRegisterModal extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			selected: 'back', // 'login', 'register', 'guestlogin'
+		};
+	}
+
+	handleSelect(event, element) {
+		this.setState({ selected: element.name });
+	}
+
+	render() {
+		const choices = {
+			back: (
+				<Grid columns={3} divided>
+					<Grid.Row>
+						<Grid.Column>
+							<Header size="tiny">Login to an existing account</Header>
+							<Button size="tiny" name="login" onClick={this.handleSelect.bind(this)}>Login</Button>
+						</Grid.Column>
+						<Grid.Column>
+							<Header size="tiny">Register a new account</Header>
+							<Button size="tiny" name="register" onClick={this.handleSelect.bind(this)}>Register</Button>
+						</Grid.Column>
+						<Grid.Column>
+							<Header size="tiny">Login as a temporary guest user</Header>
+							<Button size="tiny" name="guestlogin" onClick={this.handleSelect.bind(this)}>Guest Login</Button>
+						</Grid.Column>
+					</Grid.Row>
+				</Grid>
+			),
+			login: (
+				<UserLogin/>
+			),
+			register: (
+				<RegisterUser/>
+			),
+			guestlogin: (
+				<GuestLogin/>
+			),
+		};
+		return (
+			<Modal size="large" trigger={<Button size="mini">Login / Register</Button>} closeIcon='close'>
+				<Header icon='user' content='Login / Register' />
+				<Modal.Content>
+					{ choices[this.state.selected] }
+				</Modal.Content>
+				<Modal.Actions>
+					<Button basic color='red' name="back" onClick={this.handleSelect.bind(this)}>
+						<Icon name='remove' /> Back
+					</Button>
+				</Modal.Actions>
+			</Modal>
+		);
+	}
+}
+
 class Login extends Component {
 	constructor(props) {
 		super(props);  // this.props is "reactive", the other this attributes are reused
 	}
 
+	handleClick() {}
+
 	render() {
-		const loggedIn = !!this.props.user;
-		const isRegistered = !!_.get(this.props.user, 'profile.isRegistered');
+		const user = !!this.props.user;
+		const isRegistered = !!_.get(user, 'profile.isRegistered');
 		let selectiveLogin = null;
-		if (!loggedIn) {
+		if (!!user && isRegistered) {
 			selectiveLogin = (
-				<div>
-				<GuestLogin />
-				<RegisterUser user={this.props.user}/>
-				<UserLogin/>
-				</div>
-			);  // UserLogin & RegisterUser
-		} else if (!isRegistered) {
-			selectiveLogin = (<Logout user={this.props.user} />);  // RegisterUser
-		} else {
-			selectiveLogin = (<Logout user={this.props.user} />);
+				<Container>
+					<Label>
+						{user.profile.displayName || user.username}
+						<Label.Detail>registered user</Label.Detail>
+					</Label>
+					<Button onClick={this.handleClick.bind(this)}>Log out</Button>
+				</Container>
+			);
 		}
+		if (!!user && !isRegistered) {
+			selectiveLogin = (
+				<Container>
+					<Label>
+						{user.profile.displayName || user.username}
+						<Label.Detail>guest</Label.Detail>
+					</Label>
+					<Button onClick={this.handleClick.bind(this)}>Register</Button>
+					<Button onClick={this.handleClick.bind(this)}>Log out</Button>
+				</Container>
+			);
+		}
+		if (!user) {
+			selectiveLogin = (
+				<LogInOrRegisterModal/>
+			);
+		}
+		// if (!loggedIn) {
+		// 	selectiveLogin = (
+		// 		<div>
+		// 		<GuestLogin />
+		// 		<RegisterUser user={this.props.user}/>
+		// 		<UserLogin/>
+		// 		</div>
+		// 	);  // UserLogin & RegisterUser
+		// } else if (!isRegistered) {
+		// 	selectiveLogin = (<Logout user={this.props.user} />);  // RegisterUser
+		// } else {
+		// 	selectiveLogin = (<Logout user={this.props.user} />);
+		// }
+		// if logged in registered, details & logout Button
+		// if guest logged in, details, register & logout Button
+		// if not logged in, log in / register button
 		return (
-			<Modal trigger={<Button>Login</Button>} basic size='small'>
-				<Header icon='user' content='Login / Register' />
-				<Modal.Content>
-					<p>Log in to existing account or as a guest user</p>
-					{ selectiveLogin }
-				</Modal.Content>
-				<Modal.Actions>
-					<Button basic color='red' inverted>
-						<Icon name='remove' /> No
-					</Button>
-					<Button color='green' inverted>
-						<Icon name='checkmark' /> Yes
-					</Button>
-				</Modal.Actions>
-			</Modal>
+			<div>{ selectiveLogin }</div>
 		);
+		// return (
+		// 	<Modal trigger={<Button>Login</Button>} basic size='small'>
+		// 		<Header icon='user' content='Login / Register' />
+		// 		<Modal.Content>
+		// 			<p>Log in to existing account or as a guest user</p>
+		// 			{ selectiveLogin }
+		// 		</Modal.Content>
+		// 		<Modal.Actions>
+		// 			<Button basic color='red' inverted>
+		// 				<Icon name='remove' /> No
+		// 			</Button>
+		// 			<Button color='green' inverted>
+		// 				<Icon name='checkmark' /> Yes
+		// 			</Button>
+		// 		</Modal.Actions>
+		// 	</Modal>
+		// );
 	}
 }
 
