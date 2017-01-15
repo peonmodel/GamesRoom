@@ -79,19 +79,21 @@ export class Connection {
 		});
 	}
 
-	static registerGuest(user, username, hashed) {
+	static registerGuest(user, username, hashed, email) {
 		// creating proper account from guest
 		Accounts.setUsername(user._id, username);  // may fail due to conflict with other usernames
 		Accounts.setPassword(user._id, hashed);
+		Accounts.addEmail(user._id, email);
 		return Accounts.users.update({ _id: user }, {
 			$set: { 'profile.isRegistered': true }
 		}, () => {});
 	}
 
-	static createUser(username, hashed) {
+	static createUser(username, hashed, email) {
 		return Accounts.createUser({
 			username: username,
 			password: hashed,
+			email: email,
 			profile: {  // stuff user can see itself
 				connections: [],
 				public: {  // stuff others can see user, can be further filtered

@@ -7,14 +7,16 @@ Meteor.methods({
 		check(username, String);
 		return Connection.createGuest(username);
 	},
-	[`${Connection.prefix}/registerGuest`]: function(username, hashed) {
+	[`${Connection.prefix}/registerGuest`]: function(username, hashed, email) {
 		check(username, String);
 		check(hashed, String);
-		return Connection.registerGuest(Meteor.user(), username, hashed);
+		check(email, String);
+		return Connection.registerGuest(Meteor.user(), username, hashed, email);
 	},
-	[`${Connection.prefix}/createUser`]: function(username, hashed) {
+	[`${Connection.prefix}/createUser`]: function(username, hashed, email) {
 		check(username, String);
 		check(hashed, String);
-		return Connection.createUser(username, hashed);
+		check(email, String);
+		return Connection.createUser(username, hashed, email);
 	},
 });

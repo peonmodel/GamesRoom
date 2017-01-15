@@ -106,6 +106,15 @@ export class Connection {
 		return promiseCall(Meteor.logout);
 	}
 
+	/**
+	 * createGuest - creates a guest user
+	 *
+	 * @static
+	 * @param {String} username - username
+	 * @returns {String} - id of user
+	 *
+	 * @memberOf Connection
+	 */
 	static async createGuest(username) {
 		// declaring this function to be async conveniently wraps all returns and throws
 		// as a promise resolve/reject
@@ -115,9 +124,21 @@ export class Connection {
 		return result;
 	}
 
-	static async registerGuest(username, password) {
+	/**
+	 * registerGuest - register a guest user
+	 *
+	 * @static
+	 * @param {String} username - new username
+	 * @param {String} password - password
+	 * @param {String} email - email address
+	 * @returns {Number} - update value
+	 *
+	 * @memberOf Connection
+	 */
+	static async registerGuest(username, password, email) {
 		check(username, String);
 		check(password, String);
+		check(email, String);
 		// if (username.length < 6) {
 		// 	throw new Meteor.Error('username-too-short', 'username is too short < 6');
 		// }
@@ -133,14 +154,26 @@ export class Connection {
 			throw new Meteor.Error('user-already-registered', 'user is not a guest user', 'only guest user needs can register');
 		}
 		const hashed = Accounts._hashPassword(password).digest;
-		const result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed);
+		const result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed, email);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;
 	}
 
-	static async createUser(username, password) {
+	/**
+	 * createUser - create a registered user
+	 *
+	 * @static
+	 * @param {String} username - username
+	 * @param {String} password - password
+	 * @param {String} email - email address
+	 * @returns {String} - id of user
+	 *
+	 * @memberOf Connection
+	 */
+	static async createUser(username, password, email) {
 		check(username, String);
 		check(password, String);
+		check(email, String);
 		// if (username.length < 6) {
 		// 	throw new Meteor.Error('username-too-short', 'username is too short < 6');
 		// }
@@ -148,7 +181,7 @@ export class Connection {
 		// 	throw new Meteor.Error('password-too-short', 'password is too short < 10');
 		// }
 		const hashed = Accounts._hashPassword(password).digest;
-		const result = await promiseCall(Meteor.call, `${Connection.prefix}/createUser`, username, hashed);
+		const result = await promiseCall(Meteor.call, `${Connection.prefix}/createUser`, username, hashed, email);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;
 	}
