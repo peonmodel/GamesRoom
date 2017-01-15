@@ -258,6 +258,80 @@ class LogInOrRegisterModal extends Component {
 	}
 }
 
+// for when logged in as guest
+class RegisterGuest extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			busy: false,
+			formData: {},
+			confirmPassword: '',
+			password: '',
+			email: '',
+			username: '',
+			placeholder: props.user.username,
+		};
+	}
+
+	async handleSubmit(event, { formData }) {
+		event.preventDefault();
+		this.setState({ busy: true });
+		try {
+			if (formData.password !== formData.confirmPassword) {
+				throw new Meteor.Error('password and password confirmation not the same');
+			}
+			await Connection.registerGuest((formData.username || this.state.placeholder), formData.password, formData.email);
+		} catch (e) {
+			console.error(e);
+			this.setState({ error: true, reason: e });
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	handleChange() {
+		this.setState({ error: false });
+	}
+
+	handleFieldChange(event, value) {
+		this.setState({ [value.name]: value.value });
+	}
+
+	render() {
+		Meteor.test = { Connection }
+		const isMatch = this.state.password === this.state.confirmPassword;
+		const isPasswordLong = this.state.password.length >= 10;  // check password for length & complexity
+		const isPasswordMatch = isPasswordLong && isMatch;
+		// TODO: checks for valid email, tags to inform user password/username length
+		// server check for duplicate usernames
+		const isUsernameLong = this.state.username.length >= 5;
+		const isValid = isPasswordMatch && (isUsernameLong || !this.state.username);  // either long enough or is empty
+		return (
+			<Form error={this.state.error} onSubmit={this.handleSubmit.bind(this)} onChange={this.handleChange.bind(this)}>
+				<Header as='h4'>Sign up</Header>
+				<Form.Field>
+					<label>Username</label>
+					<Form.Input name="username" placeholder={this.state.placeholder} onChange={this.handleFieldChange.bind(this)} error={!!this.state.username.length && !isUsernameLong}/>
+				</Form.Field>
+				<Form.Field>
+					<label>Email Address</label>
+					<Form.Input name="email" type="text" onChange={this.handleFieldChange.bind(this)} />
+				</Form.Field>
+				<Form.Field>
+					<label>Password</label>
+					<Form.Input name="password" type="password" onChange={this.handleFieldChange.bind(this)} icon={isPasswordLong ? 'checkmark' : null}/>
+				</Form.Field>
+				<Form.Field>
+					<label>Confirm password</label>
+					<Form.Input name="confirmPassword" type="password" onChange={this.handleFieldChange.bind(this)} error={!isMatch} icon={isPasswordMatch ? 'checkmark' : null}/>
+				</Form.Field>
+				<Message error header='Action Forbidden' content='username is used' />
+				<Button type='submit' loading={this.state.busy} disabled={!isValid}>Sign up</Button>
+			</Form>
+		);
+	}
+}
+
 class Login extends Component {
 	constructor(props) {
 		super(props);  // this.props is "reactive", the other this attributes are reused
@@ -296,7 +370,16 @@ class Login extends Component {
 						{user.profile.displayName || user.username}
 						<Label.Detail>guest</Label.Detail>
 					</Label>
-					<Button onClick={this.handleClick.bind(this)}>Register</Button>
+					<Modal
+						size="large" 
+						trigger={<Button size="mini" >Register</Button>} 
+						closeIcon='close'
+					>
+						<Header icon='user' content='Register Guest' />
+						<Modal.Content>
+							<RegisterGuest user={user} />
+						</Modal.Content>
+					</Modal>
 					<Button onClick={this.handleLogout.bind(this)}>Log out</Button>
 				</Container>
 			);
