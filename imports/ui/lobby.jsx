@@ -16,6 +16,7 @@ class RoomListItem extends Component {
 		try {
 			const room = this.props.room;
 			await room.joinRoom();
+			browserHistory.push(`room/${room._id}`);
 			console.log(`Room created, redirecting to room: ${room._id}`);
 		} catch (error) {
 			console.error(error);
@@ -58,6 +59,16 @@ export class Lobby extends Component {
 		}
 	}
 
+	async createPrivateRoom() {
+		try {
+			const roomId = await Room.createRoom(true);
+			browserHistory.push(`room/${roomId}`);
+		} catch (error) {
+			console.error(error);
+			// sAlert.error(error);
+		}
+	}
+
 	render() {
 		if (this.props.ready === false) { return (<div></div>); }
 		const publicRooms = this.props.publicRooms.map(room => (
@@ -67,8 +78,7 @@ export class Lobby extends Component {
 			<Container className="lobby">
 				<h1>Public Lobby</h1>
 				<Button onClick={this.createRoom.bind(this)}>Create Room</Button>
-				<Button>Create Private Room</Button>
-				<Button>Clear All Rooms</Button>
+				<Button onClick={this.createPrivateRoom.bind(this)}>Create Private Room</Button>
 				<h2>Public Room List</h2>
 				<ul>
 					{ publicRooms }
