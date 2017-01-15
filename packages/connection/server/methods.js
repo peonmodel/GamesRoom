@@ -9,13 +9,13 @@ Meteor.methods({
 	},
 	[`${Connection.prefix}/registerGuest`]: function(username, hashed, email) {
 		check(username, String);
-		check(hashed, String);
+		check(hashed, { algorithm: String, digest: String });
 		check(email, String);
 		return Connection.registerGuest(Meteor.user(), username, hashed, email);
 	},
 	[`${Connection.prefix}/createUser`]: function(username, hashed, email) {
 		check(username, String);
-		check(hashed, String);
+		check(hashed, { algorithm: String, digest: String });
 		check(email, String);
 		return Connection.createUser(username, hashed, email);
 	},

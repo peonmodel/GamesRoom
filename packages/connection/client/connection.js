@@ -93,7 +93,7 @@ export class Connection {
 	static async loginUser(username, password) {
 		check(username, String);
 		check(password, String);
-		if (!Meteor.user()) { throw new Meteor.Error('already-logged-in'); }
+		if (!!Meteor.user()) { throw new Meteor.Error('already-logged-in'); }
 		return promiseCall(Meteor.loginWithPassword, username, password);
 	}
 
@@ -150,10 +150,10 @@ export class Connection {
 		if (!user) {
 			throw new Meteor.Error('not-logged-in', 'user is not logged in', 'only logged-in guest user can register');
 		}
-		if (user.profile.isRegistered) {
+		if (user.profile.public.isRegistered) {
 			throw new Meteor.Error('user-already-registered', 'user is not a guest user', 'only guest user needs can register');
 		}
-		const hashed = Accounts._hashPassword(password).digest;
+		const hashed = Accounts._hashPassword(password);
 		const result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed, email);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;
@@ -180,7 +180,7 @@ export class Connection {
 		// if (password.length < 10) {
 		// 	throw new Meteor.Error('password-too-short', 'password is too short < 10');
 		// }
-		const hashed = Accounts._hashPassword(password).digest;
+		const hashed = Accounts._hashPassword(password);
 		const result = await promiseCall(Meteor.call, `${Connection.prefix}/createUser`, username, hashed, email);
 		await promiseCall(Meteor.loginWithPassword, username, password);
 		return result;

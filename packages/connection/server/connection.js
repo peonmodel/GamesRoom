@@ -74,7 +74,7 @@ export class Connection {
 			username: username,
 			password: username,  // TODO: change to no password + loginWithToken
 			profile: {
-				isRegistered: false,  // is guest user
+				public: { isRegistered: false },  // is guest user
 			},
 		});
 	}
@@ -85,7 +85,7 @@ export class Connection {
 		Accounts.setPassword(user._id, hashed);
 		Accounts.addEmail(user._id, email);
 		return Accounts.users.update({ _id: user }, {
-			$set: { 'profile.isRegistered': true }
+			$set: { 'profile.public.isRegistered': true }
 		}, () => {});
 	}
 
@@ -166,7 +166,8 @@ Accounts.onLogin(({
 Accounts.onLogout(({user, connection}) => {
 	// when browser closed when logged in, it trigger onClose but not onLogout
 	// will trigger login when browser reconnected
-	if (!user.profile.isRegistered) {
+	if (!user) { return; }
+	if (!user.profile.public.isRegistered) {
 		// delete guest users, event only trigger if user explictly logout
 		Accounts.users.remove({ _id: user._id }, () => {});
 	}

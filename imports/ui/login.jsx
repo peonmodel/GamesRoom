@@ -135,7 +135,7 @@ class RegisterUser extends Component {
 			if (formData.password !== formData.confirmPassword) {
 				throw new Meteor.Error('password and password confirmation not the same');
 			}
-			await Connection.createGuest(formData.username, formData.password, formData.email);
+			await Connection.createUser(formData.username, formData.password, formData.email);
 		} catch (e) {
 			console.error(e);
 			this.setState({ error: true, reason: e });
@@ -276,7 +276,7 @@ class Login extends Component {
 
 	render() {
 		const user = this.props.user;
-		const isRegistered = !!_.get(user, 'profile.isRegistered');
+		const isRegistered = !!_.get(user, 'profile.public.isRegistered');
 		let selectiveLogin = null;
 		if (!!user && isRegistered) {
 			selectiveLogin = (

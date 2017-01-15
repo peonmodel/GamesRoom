@@ -3,7 +3,7 @@
 		{{> sAlert}}
 		<br/>
 		{{#if currentUser}}
-			{{#unless currentUser.profile.isRegistered}}
+			{{#unless currentUser.profile.public.isRegistered}}
 			Logged in as Guest {{currentUser.username}}
 			{{> RegisterOrLogin}}
 			{{/unless}}
