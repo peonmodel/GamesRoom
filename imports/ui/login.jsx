@@ -199,7 +199,7 @@ class LogInOrRegisterModal extends Component {
 	}
 
 	handleClose() {
-		this.setState({ modalOpen: false });
+		this.setState({ modalOpen: false, selected: 'back' });
 	}
 
 	render() {
