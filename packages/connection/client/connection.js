@@ -154,8 +154,9 @@ export class Connection {
 			throw new Meteor.Error('user-already-registered', 'user is not a guest user', 'only guest user needs can register');
 		}
 		const hashed = Accounts._hashPassword(password);
-		const result = await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed, email);
+		await promiseCall(Meteor.call, `${Connection.prefix}/registerGuest`, username, hashed, email);
 		await promiseCall(Meteor.loginWithPassword, username, password);
+		const result = await promiseCall(Meteor.call, `${Connection.prefix}/checkRegisterGuest`, username, hashed, email);
 		return result;
 	}
 

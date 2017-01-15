@@ -84,9 +84,36 @@ export class Connection {
 		Accounts.setUsername(user._id, username);  // may fail due to conflict with other usernames
 		Accounts.setPassword(user._id, hashed);
 		Accounts.addEmail(user._id, email);
-		return Accounts.users.update({ _id: user }, {
+		return Accounts.users.update({ _id: user._id }, {
 			$set: { 'profile.public.isRegistered': true }
-		}, () => {});
+		});
+	}
+
+	/**
+	 * checkRegisterGuest - check that registerGuest is ran correctly
+	 * due to some behaviour with update meteor user causes connection to break
+	 * and meteor default behaviour of re-sending method request when connection break
+	 *
+	 * @static
+	 * @param {User} user - user
+	 * @param {String} username - username
+	 * @param {Object} hashed - password hash object
+	 * @param {String} email - email address
+	 * @returns {Number} - 1 if all is okay
+	 * 
+	 * @memberOf Connection
+	 */
+	static checkRegisterGuest(user, username, hashed, email) {
+		if (user.username !== username) {
+			throw new Meteor.Error('username not changed');
+		}
+		if (Accounts._checkPassword(user, hashed).error) {
+			throw new Meteor.Error('password not changed');
+		}
+		if (!(user.emails || []).find(o => o.address === email)) {
+			throw new Meteor.Error('email not changed');
+		}
+		return 1;
 	}
 
 	static createUser(username, hashed, email) {
@@ -108,7 +135,7 @@ export class Connection {
 	disconnect() {
 		if (this.userId) {
 			const user = Accounts.users.findOne({ _id: this.userId });
-			const modifier = { $pull: { 'profile.connections': this._id } };
+			const modifier = { $pull: { 'profile.connections': this.connectionId } };
 			if (user.profile.connections.length >= 1) {
 				modifier.$set = { 'profile.public.isOnline': true };
 			}
@@ -170,6 +197,8 @@ Accounts.onLogout(({user, connection}) => {
 	if (!user.profile.public.isRegistered) {
 		// delete guest users, event only trigger if user explictly logout
 		Accounts.users.remove({ _id: user._id }, () => {});
+	} else {
+		Accounts.users.update({ _id: user._id }, { $pull: { 'profile.connections': connection.id } }, () => {});
 	}
 	Connection.collection.update({ connectionId: connection.id }, {
 	  $set: { userId: null },
