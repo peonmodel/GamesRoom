@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Message, Container } from 'semantic-ui-react';
-// import { _ } from 'lodash';
+import { _ } from 'lodash';
 
 export class GlobalMessage extends Component {
 	constructor(props) {
@@ -21,8 +21,18 @@ export class GlobalMessage extends Component {
 		props.globalMessage.instance = this;
 	}
 
-	setMessage(message, show = true, expiry = this.state.expiry) {
-		this.setState({ message: message });
+	setMessage({
+		message,
+		show = true,
+		expiry = this.state.expiry,
+		title = '',
+		type = 'error',
+	}) {
+		if (!['error', 'info', 'warning', 'success'].includes(type)) { type = 'error'; }
+		const newState = { message, error: false, info: false, warning: false, success: false };
+		newState[type] = true;
+		newState.title = !!title ? _.upperFirst(title) : _.upperFirst(type);
+		this.setState(newState);
 		this.state.history.push(message);
 		this.state.history.shift();
 		if (show) { this.setState({ hidden: !show }); }
@@ -50,7 +60,6 @@ export class GlobalMessage extends Component {
 			position: 'fixed', padding: '10px', bottom: 0, width: '100%',
 			display: this.state.hidden ? 'none' : 'block',
 		};
-		console.log('rendered')
 		return (
 			<Container style={style}>
 				<Message
@@ -60,7 +69,6 @@ export class GlobalMessage extends Component {
 				warning={this.state.warning}
 				hidden={this.state.hidden}
 				onDismiss={this.handleDismiss.bind(this)}
-				className='bottom'
 			>
 				<Message.Header>{this.state.title}</Message.Header>
 				<p>{this.state.message}</p>

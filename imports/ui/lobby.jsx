@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { Container, Button, Card, Form } from 'semantic-ui-react';
-import { _ } from 'lodash';
+// import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { Room } from 'meteor/freelancecourtyard:gamesroom';
@@ -20,8 +20,7 @@ class RoomListItem extends Component {
 			browserHistory.push(`room/${room._id}`);
 			// console.log(`Room created, redirecting to room: ${room._id}`);
 		} catch (error) {
-			console.error(error);
-			globalMessage.instance.setMessage('error joining room' + error.error);
+			globalMessage.instance.setMessage({ message: error.error });
 		}
 	}
 
@@ -56,8 +55,7 @@ export class Lobby extends Component {
 			const roomId = await Room.createRoom(false);
 			browserHistory.push(`room/${roomId}`);
 		} catch (error) {
-			console.error(error);
-			// sAlert.error(error);
+			globalMessage.instance.setMessage({ message: error.error });
 		}
 	}
 
@@ -66,8 +64,7 @@ export class Lobby extends Component {
 			const roomId = await Room.createRoom(true);
 			browserHistory.push(`room/${roomId}`);
 		} catch (error) {
-			console.error(error);
-			// sAlert.error(error);
+			globalMessage.instance.setMessage({ message: error.error });
 		}
 	}
 
