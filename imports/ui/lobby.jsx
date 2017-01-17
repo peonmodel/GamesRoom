@@ -1,11 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { Container, Input, Button, Card, Form } from 'semantic-ui-react';
+import { Container, Button, Card, Form } from 'semantic-ui-react';
 import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { Room } from 'meteor/freelancecourtyard:gamesroom';
 import { browserHistory } from 'react-router';
+import { globalMessage } from './errormessage.jsx';
 
 class RoomListItem extends Component {
 	constructor(props) {
@@ -17,9 +18,10 @@ class RoomListItem extends Component {
 			const room = this.props.room;
 			await room.joinRoom();
 			browserHistory.push(`room/${room._id}`);
-			console.log(`Room created, redirecting to room: ${room._id}`);
+			// console.log(`Room created, redirecting to room: ${room._id}`);
 		} catch (error) {
 			console.error(error);
+			globalMessage.instance.setMessage('error joining room' + error.error);
 		}
 	}
 

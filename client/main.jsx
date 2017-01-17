@@ -9,20 +9,29 @@ import { LobbyContainer } from '../imports/ui/lobby.jsx';
 import { CurrentRoomContainer } from '../imports/ui/room.jsx';
 
 import { Router, Route, browserHistory, IndexRoute } from 'react-router';
+import { globalMessage } from '../imports/ui/errormessage.jsx';
 
 class App extends Component {
-	// 			<LobbyContainer />
 	render() {
 		return (
 			<div className="container">
 				<LoginContainer />
 				{this.props.children}
+				{globalMessage.component}
+			{/* <Sidebar.Pushable as={Segment} style={style}>
+				{ errorSideBar.component }
+				<Sidebar.Pusher>
+					<Segment basic>
+						<LoginContainer />
+						{this.props.children}
+					</Segment>
+				</Sidebar.Pusher>
+			</Sidebar.Pushable> */}
 			</div>
 		);
 	}
 }
-// <Route path=":room" component={}>
-			// </Route>
+
 const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/" component={App}>
