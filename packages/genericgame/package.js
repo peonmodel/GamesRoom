@@ -20,5 +20,5 @@ Package.onTest(function setupPkg(api) {
 	api.use('ecmascript');
 	api.use('tinytest');
 	api.use('freelancecourtyard:genericgame');
-	api.mainModule('genericgame-tests.js');
+	api.mainModule('test/genericgame-tests.js');
 });

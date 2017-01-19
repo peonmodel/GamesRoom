@@ -48,5 +48,5 @@ Package.onTest((api) => {
 	]);
 	// package to test
 	api.use('freelancecourtyard:gamesroom');
-	api.mainModule('tests/gamesroom-tests.js');
+	api.mainModule('test/gamesroom-tests.js');
 });
