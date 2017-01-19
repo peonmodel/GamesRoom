@@ -46,5 +46,6 @@ juliancwirko:s-alert
 freelancecourtyard:gamesroom
 freelancecourtyard:chatmessages
 freelancecourtyard:connection
-freelancecourtyard:genericgame
+#freelancecourtyard:genericgame
+freelancecourtyard:codenames
 shell-server@0.2.1
