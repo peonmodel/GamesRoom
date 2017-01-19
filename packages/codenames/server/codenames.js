@@ -19,7 +19,7 @@ export class CodeNames extends GenericGame {
 		return CodeNames.collection.insert({
 			name,
 			players: [{
-				userId: user._id, alias: alias || user.username,
+				userId: user._id, alias: alias || user.displayName,
 				team: Random.choice(['red', 'blue'])
 			}],
 			activePlayerId: '',

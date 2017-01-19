@@ -18,7 +18,7 @@ class PlayersOnline extends Component {
 				<List.Item>
 					<List.Icon name='user' size='large' verticalAlign='middle' />
 					<List.Content>
-						<List.Header as='a'>{player.username}</List.Header>
+						<List.Header as='a'>{player.displayName}</List.Header>
 						<List.Description as='a'>Last active {this.player.profile.lastActiveAt}</List.Description>
 					</List.Content>
 				</List.Item>

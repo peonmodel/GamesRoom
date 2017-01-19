@@ -3,6 +3,11 @@ import { check } from 'meteor/check';
 import { Connection } from './connection.js';
 
 Meteor.methods({
+	[`${Connection.prefix}/updateDisplayName`]: function updateDisplayName(name) {
+		check(name, String);
+		const user = Meteor.user();
+		return user.updateDisplayName(name);
+	},
 	[`${Connection.prefix}/createGuest`]: function(username) {
 		check(username, String);
 		return Connection.createGuest(username);

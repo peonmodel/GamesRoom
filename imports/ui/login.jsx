@@ -358,7 +358,7 @@ class Login extends Component {
 			selectiveLogin = (
 				<Container>
 					<Label>
-						{user.profile.displayName || user.username}
+						{user.displayName}
 						<Label.Detail>registered</Label.Detail>
 					</Label>
 					<Button onClick={this.handleLogout.bind(this)}>Log out</Button>
@@ -369,7 +369,7 @@ class Login extends Component {
 			selectiveLogin = (
 				<Container>
 					<Label>
-						{user.profile.displayName || user.username}
+						{user.displayName}
 						<Label.Detail>guest</Label.Detail>
 					</Label>
 					<Modal

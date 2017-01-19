@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Accounts } from 'meteor/accounts-base';
 import { check } from 'meteor/check';
+import { _ } from 'meteor/underscore';
 
 /**
  * promiseCall - function to wrap async Meteor functions into returning promises
@@ -17,6 +18,30 @@ function promiseCall(fn, ...params) {
 			return resolve(res);
 		});
 	});
+}
+
+/**
+ * get - helper function to get value in deeply nested objects
+ *
+ * @param  {object} obj       object to get value from
+ * @param  {string|array} params combination of strings and arrays to navigate to value
+ * @returns {*}           value to get
+ */
+function get(obj, ...params) {
+	function getObject(object, path) {
+		if (_.isUndefined(object)) { return undefined; }
+		if (!_.isEmpty(path)) {
+			const cur = path.shift(1);
+			return getObject(object[cur], path);
+		}
+		return object;
+	}
+
+	let path = _.flatten(params)
+							.filter(val => _.isString(val) || _.isNumber(val))
+							.map(val => val.toString().split(/\.|\[|\]|,/g));
+	path = _.flatten(path).filter(val => !!val);
+	return getObject(obj, path);
 }
 
 class User {
@@ -57,6 +82,30 @@ class User {
 	 */
 	get isOnline() {
 		return this.profile.public.isOnline;
+	}
+
+	/**
+	 * displayName - getter display name of player
+	 *
+	 * @readonly
+	 *
+	 * @memberOf User
+	 */
+	get displayName() {
+		return get(this, 'profile.public.displayName') || this.username;
+	}
+
+	/**
+	 * updateDisplayName
+	 *
+	 * @param {String} name - new display name
+	 * @returns {Number} - update result
+	 *
+	 * @memberOf User
+	 */
+	updateDisplayName(name) {
+		check(name, String);
+		return promiseCall(Meteor.call, `${Connection.prefix}/updateDisplayName`, name);  // eslint-disable-line no-use-before-define
 	}
 }
 
