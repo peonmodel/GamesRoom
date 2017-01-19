@@ -21,5 +21,5 @@ Package.onTest(function setupPkg(api) {
 	api.use('ecmascript');
 	api.use('tinytest');
 	api.use('freelancecourtyard:codenames');
-	api.mainModule('test/codenames-tests.js');
+	api.mainModule('tests/codenames-tests.js');
 });

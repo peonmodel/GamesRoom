@@ -24,5 +24,5 @@ Package.onTest((api) => {
 	api.use('ecmascript');
 	api.use('tinytest');
 	api.use('freelancecourtyard:connection');
-	api.mainModule('test/connection-tests.js');
+	api.mainModule('tests/connection-tests.js');
 });
