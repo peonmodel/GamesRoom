@@ -19,7 +19,6 @@ export class CurrentRoom extends Component {
 	render() {
 		if (!this.props.ready) { return (<div></div>); }
 		const room = this.props.currentRoom;
-		console.log(room, this.props)
 		return (
 			<Container className="currentRoom">
 				<h1>{room.title}</h1>

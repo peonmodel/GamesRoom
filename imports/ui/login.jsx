@@ -5,6 +5,7 @@ import { Container, Button, Form, Header, Message, Label, Input, Icon, Modal, Gr
 import { _ } from 'lodash';
 // import ReactDOM from 'react-dom';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
+import { globalMessage } from './errormessage.jsx';
 
 class GuestLogin extends Component {
 	constructor(props) {
@@ -41,8 +42,8 @@ class GuestLogin extends Component {
 		this.setState({ busy: true });
 		try {
 			await Connection.createGuest(formData.username || this.state.placeholder);
-		} catch (e) {
-			console.error(e);
+		} catch (error) {
+			globalMessage.instance.setMessage({ message: error.error });
 			this.setState({ error: true });
 		} finally {
 			this.setState({ busy: false });
@@ -83,9 +84,9 @@ class UserLogin extends Component {
 		this.setState({ busy: true });
 		try {
 			await Connection.loginUser(formData.username, formData.password);
-		} catch (e) {
-			console.error(e);
-			this.setState({ error: true, reason: e });
+		} catch (error) {
+			globalMessage.instance.setMessage({ message: error.error });
+			this.setState({ error: true, reason: error });
 		} finally {
 			this.setState({ busy: false });
 		}
@@ -136,9 +137,9 @@ class RegisterUser extends Component {
 				throw new Meteor.Error('password and password confirmation not the same');
 			}
 			await Connection.createUser(formData.username, formData.password, formData.email);
-		} catch (e) {
-			console.error(e);
-			this.setState({ error: true, reason: e });
+		} catch (error) {
+			globalMessage.instance.setMessage({ message: error.error });
+			this.setState({ error: true, reason: error });
 		} finally {
 			this.setState({ busy: false });
 		}
@@ -281,9 +282,9 @@ class RegisterGuest extends Component {
 				throw new Meteor.Error('password and password confirmation not the same');
 			}
 			await Connection.registerGuest((formData.username || this.state.placeholder), formData.password, formData.email);
-		} catch (e) {
-			console.error(e);
-			this.setState({ error: true, reason: e });
+		} catch (error) {
+			globalMessage.instance.setMessage({ message: error.error });
+			this.setState({ error: true, reason: error });
 		} finally {
 			this.setState({ busy: false });
 		}
@@ -298,7 +299,6 @@ class RegisterGuest extends Component {
 	}
 
 	render() {
-		Meteor.test = { Connection }
 		const isMatch = this.state.password === this.state.confirmPassword;
 		const isPasswordLong = this.state.password.length >= 10;  // check password for length & complexity
 		const isPasswordMatch = isPasswordLong && isMatch;
@@ -342,13 +342,15 @@ class Login extends Component {
 	async handleLogout() {
 		try {
 			await Connection.logoutUser();
-			console.log(`logged out`);
+			globalMessage.instance.setMessage({ message: `logged out`, type: 'info' });
 		} catch (error) {
-			console.error(`error logging out`);
+			globalMessage.instance.setMessage({ message: error.error });
 		}
 	}
 
 	render() {
+		// TODO: remove this
+		Meteor.test = { Connection }
 		const user = this.props.user;
 		const isRegistered = !!_.get(user, 'profile.public.isRegistered');
 		let selectiveLogin = null;

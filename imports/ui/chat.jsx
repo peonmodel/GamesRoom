@@ -6,6 +6,7 @@ import { _ } from 'lodash';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { Chat } from 'meteor/freelancecourtyard:chatmessages';
 import moment from 'moment';
+import { globalMessage } from './errormessage.jsx';
 
 class MessageItem extends Component {
 	constructor(props) {
@@ -66,9 +67,9 @@ export class Conversation extends Component {
 		if (!formData.chatText) { return; }
 		try {
 			return this.props.chat.createMessage(formData.chatText);
-		} catch (e) {
-			console.error(e);
-			this.setState({ error: true, reason: e });
+		} catch (error) {
+			globalMessage.instance.setMessage({ message: error.error });
+			this.setState({ error: true, reason: error });
 		} finally {
 			this.setState({ busy: false });
 		}
