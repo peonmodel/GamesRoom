@@ -13,7 +13,8 @@ Package.describe({
 Package.onUse(function setupPkg(api) {
 	api.versionsFrom('1.4.0.1');
 	api.use('ecmascript');
-	api.mainModule('genericgame.js');
+	api.mainModule('genericgame-client.js', 'client');
+	api.mainModule('genericgame-server.js', 'server');
 });
 
 Package.onTest(function setupPkg(api) {

@@ -1,4 +1,5 @@
-import { Mongo } from 'meteor/mongo';
+import { Meteor } from 'meteor/meteor';
+// import { Mongo } from 'meteor/mongo';
 
 import { genericGameSchema } from '../imports/schema.js';
 
@@ -41,9 +42,10 @@ export class GenericGame {
 		Object.defineProperty(this, '_suppressUpdate', { enumerable: false });
 	}
 
-	static createGame() {}
-
 	addPlayer({ userId, alias, team, role }) {
+		if (this.getPlayer(userId)) {
+			throw new Meteor.Error('player-already-joined');
+		}
 		const player = new Player({ userId, alias, team, role }, this);
 		this.players.push(player);
 		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
@@ -56,12 +58,18 @@ export class GenericGame {
 		return this.players.find(o => o.userId === id);
 	}
 
+	checkPlayerInGame(id) {
+		if (!this.getPlayer(id)) {
+			throw new Meteor.Error('player-not-in-game');
+		}
+		return true;
+	}
 }
 GenericGame.schema = genericGameSchema;
-GenericGame.prefix = `freelancecourtyard:genericgame`;
-GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
-	transform: function(item) {
-	  return new GenericGame(item);
-	},
-	defineMutationMethods: false,
-});
+// GenericGame.prefix = `freelancecourtyard:genericgame`;
+// GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
+// 	transform: function(item) {
+// 	  return new GenericGame(item);
+// 	},
+// 	defineMutationMethods: false,
+// });
