@@ -73,3 +73,18 @@ GenericGame.schema = genericGameSchema;
 // 	},
 // 	defineMutationMethods: false,
 // });
+// phase > round > turn > action
+// Action:
+// 1) before action interrupt FILO
+// 2) action itself
+// 3) side-effects
+// 4) after action interrupt FIFO
+// In-between Action interrupt - FIFO
+// this interrupt is before action is taken before knowing
+// what action is going to be played
+// interrupt priority options:
+// following pre-defined game sequence
+// 1) designated - start player / special effects etc
+// 2) action-taker
+// 3) current player (turn)
+// 4) right after action-taker

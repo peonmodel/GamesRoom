@@ -103,7 +103,7 @@ class User {
 	 *
 	 * @memberOf User
 	 */
-	updateDisplayName(name) {
+	async updateDisplayName(name) {
 		check(name, String);
 		return promiseCall(Meteor.call, `${Connection.prefix}/updateDisplayName`, name);  // eslint-disable-line no-use-before-define
 	}

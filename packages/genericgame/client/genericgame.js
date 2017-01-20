@@ -1,4 +1,4 @@
-// import { Meteor } from 'meteor/meteor';
+import { Meteor } from 'meteor/meteor';
 // import { Mongo } from 'meteor/mongo';
 // import { check } from 'meteor/check';
 
@@ -55,6 +55,15 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		this.players = this.players.map(o => { return new Player(o, this); });
+	}
+
+	get player() {
+		const user = Meteor.user() || {};
+		return this.getPlayer(user._id);
+	}
+
+	getPlayer(id) {
+		return this.players.find(o => o.userId === id);
 	}
 
 	// addPlayer({ userId, alias, team, role }) {
