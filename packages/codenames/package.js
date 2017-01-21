@@ -10,6 +10,11 @@ Package.describe({
 	documentation: 'README.md'
 });
 
+Npm.depends({
+	'react': '15.4.1',
+	'semantic-ui-react': '0.62.0',
+});
+
 Package.onUse(function setupPkg(api) {
 	api.versionsFrom('1.4.2.3');
 	api.use(['ecmascript', 'freelancecourtyard:genericgame@0.0.1']);
