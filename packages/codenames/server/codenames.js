@@ -11,6 +11,8 @@ export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
 		Object.assign(this, item);
+		this._collection = CodeNames.collection;
+		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
 	get isGameInProgress() {
@@ -32,18 +34,18 @@ export class CodeNames extends GenericGame {
 
 	get clueLimit() {
 		const last = _.last(this.state.clues);
-		if (!last.count) { return Infinity; }
+		if (!last || last.count) { return Infinity; }
 		return last.count + 1;
 	}
 
 	static createGame({
-		name = `Game${Random.id(4)}`,
+		name = `Game-${Random.id(4)}`,
 		alias,
 	} = {}, user = {}) {
 		const currentDate = new Date();
 		const start = Random.choice([true, false]) ? 'red' : 'blue';
 		const words = CodeNames.generateRandomWordsDistribution(start);
-		return CodeNames.collection.insert({
+		return this._collection.insert({
 			name,
 			players: [{
 				userId: user._id, alias: alias || user.displayName,
@@ -97,7 +99,7 @@ export class CodeNames extends GenericGame {
 			text: 'reset words',
 		};
 		this.log.push(logItem);
-		return CodeNames.collection.update(this._id, {
+		return this._collection.update(this._id, {
 			$set: { words: this.words },
 			$push: { log: logItem },
 		});
@@ -121,7 +123,7 @@ export class CodeNames extends GenericGame {
 			text: 'change word',
 		};
 		this.log.push(logItem);
-		return CodeNames.collection.update(this._id, {
+		return this._collection.update(this._id, {
 			$set: { [`words.${index}.word`]: this.words[index].word },
 			$push: { log: logItem },
 		});
@@ -179,7 +181,7 @@ export class CodeNames extends GenericGame {
 				}
 			}
 		}
-		return CodeNames.collection.update({
+		return this._collection.update({
 			_id: this._id,
 			[`words.word`]: word,
 		}, {
@@ -202,7 +204,7 @@ export class CodeNames extends GenericGame {
 		const clue = { clue: word, count: number, team: player.team };
 		this.state.clues.push(clue);
 		this.state.isClueGiven = true;
-		return CodeNames.collection.update(this._id, {
+		return this._collection.update(this._id, {
 			$set: { [`state.isClueGiven`]: true, [`state.guessCount`]: number },
 			$push: { [`state.clues`]: clue },
 		});
@@ -227,7 +229,7 @@ export class CodeNames extends GenericGame {
 			text: 'reset game',
 		};
 		this.log.push(logItem);
-		return CodeNames.collection.update({
+		return this._collection.update({
 			_id: this._id,
 		}, {
 			$set: {
@@ -244,14 +246,14 @@ export class CodeNames extends GenericGame {
 		}
 		this.state.activeTeam = this.state.startingTeam;
 		this.state.turnCount += 1;
-		return CodeNames.collection.update(this._id, {
+		return this._collection.update(this._id, {
 			$set: { state: this.state },
 		});
 	}
 
 	endGame() {
 		this.state.activeTeam = 'ended';
-		return CodeNames.collection.update(this._id, {
+		return this._collection.update(this._id, {
 			$set: { [`state.activeTeam`]: this.state.activeTeam },
 		});
 	}

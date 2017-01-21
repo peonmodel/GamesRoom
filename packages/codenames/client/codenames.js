@@ -24,11 +24,17 @@ export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
 		Object.assign(this, item);
+		this._collection = CodeNames.collection;
+		Object.defineProperty(this, '_collection', { enumerable: false });
+	}
+
+	get currentClue() {
+		return _.last(this.state.clues) || {};
 	}
 
 	get clueLimit() {
 		const last = _.last(this.state.clues);
-		if (!last.count) { return Infinity; }
+		if (!last || !last.count) { return Infinity; }
 		return last.count + 1;
 	}
 
@@ -113,14 +119,14 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/giveClue`, this._id, word, number);
 	}
 
-	startGame() {
+	async startGame() {
 		if (!this.player) {
 			throw new Meteor.Error('player-not-found');
 		}
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/startGame`, this._id);
 	}
 
-	resetGame() {
+	async resetGame() {
 		if (!this.player) {
 			throw new Meteor.Error('player-not-found');
 		}
@@ -130,12 +136,18 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/resetGame`, this._id);
 	}
 
-	endGame() {
+	async endGame() {
 		if (!this.player) {
 			throw new Meteor.Error('player-not-found');
 		}
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/endGame`, this._id);
 	}
+	// TODO: create invite and join
+	async join() {}
+
+	async leave() {}
+
+	async invite() {}
 }
 CodeNames.prefix = `freelancecourtyard:codenames`;
 CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {

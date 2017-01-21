@@ -8,7 +8,7 @@ Meteor.methods({
 		check(name, String);
 		check(alias, String);
 		const user = Meteor.user();
-		return CodeNames.createGame(name, alias, user);
+		return CodeNames.createGame({name, alias}, user);
 	},
 	[`${CodeNames.prefix}/resetWords`]: function resetWords(gameId) {
 		check(gameId, String);
