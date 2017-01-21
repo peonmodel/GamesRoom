@@ -55,6 +55,7 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		this.players = this.players.map(o => { return new Player(o, this); });
+		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
 	get player() {

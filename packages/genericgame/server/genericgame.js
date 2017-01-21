@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 // import { Mongo } from 'meteor/mongo';
+import { _ } from 'meteor/underscore';
 
 import { genericGameSchema } from '../imports/schema.js';
 
@@ -27,7 +28,7 @@ export class Player {
 
 	update() {
 		if (!this._game._suppressUpdate) {
-			return GenericGame.collection.update({ '_id': this._game._id, 'players.userId': this.userId }, {  // eslint-disable-line no-use-before-define
+			return this._game._collection.update({ '_id': this._game._id, 'players.userId': this.userId }, {  // eslint-disable-line no-use-before-define
 				$set: { 'players.$': this },
 			});
 		}
@@ -40,6 +41,7 @@ export class GenericGame {
 		this.players = this.players.map(o => { return new Player(o, this); });
 		this._suppressUpdate = false;
 		Object.defineProperty(this, '_suppressUpdate', { enumerable: false });
+		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
 	addPlayer({ userId, alias, team, role }) {
@@ -49,8 +51,15 @@ export class GenericGame {
 		const player = new Player({ userId, alias, team, role }, this);
 		this.players.push(player);
 		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
-		return GenericGame.collection.update(this._id, {
+		return this._collection.update(this._id, {
 			$push: { players: player, log: logitem },
+		});
+	}
+
+	removePlayer(userId) {
+		this.players = _.without(this.players, this.getPlayer(userId));
+		return this._collection.update(this._id, {
+			$set: { players: this.players }
 		});
 	}
 

@@ -15,8 +15,11 @@ export const logItem = {
 export const genericGameSchema = {
 	name: String, // name of game
 	players: [playerSchema],
-	activePlayerId: String,
+	// activePlayerId: String,
 	createdAt: Date,
 	updatedAt: Date,
 	log: [logItem],
+	state: Object,
+	minPlayers: Number,
+	maxPlayers: Number,
 };
