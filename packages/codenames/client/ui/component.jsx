@@ -1,12 +1,18 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { Container, Grid, Button, Header, Accordion, Icon } from 'semantic-ui-react';
+import { Container, Grid, Button, Header, Accordion, Icon, Dropdown } from 'semantic-ui-react';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { CodeNames } from '../codenames.js';
 
 export class CodeNamesUI extends Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			role: '',
+			roleChangeEnabled: true,
+			team: '',
+			teamChangeEnabled: true,
+		};
 	}
 
 	async handleClick(event, element) {
@@ -35,16 +41,38 @@ export class CodeNamesUI extends Component {
 
 	async handleResetGame() {}
 
+	async handleTeamChange(event, element) {
+		const game = this.props.game;
+		console.log(game.player);
+		if (element.value === game.player.team) { return 1; }
+		try {
+			this.setState({ teamChangeEnabled: false });
+			await game.player.updateTeam(element.value);
+		} catch (error) {
+			// setMessage(error);
+		} finally {
+			this.setState({ teamChangeEnabled: true });
+			this.setState({ team: game.player.team });
+		}
+	}
+
+	async handleRoleChange(event, element) {
+		this.setState({ role: element.value });
+	}
+
 	render() {
 		if (!this.props.ready) { return (<div>subscription not ready</div>); }
 		const game = this.props.game;
 		if (!game) { return (<div>error: game not found</div>); }
+		const teamOptions = [{ text: 'red', value: 'red' }, { text: 'blue', value: 'blue' }];
+		const roleOptions = [{ text: 'cluegiver', value: 'cluegiver' }, { text: 'others', value: 'others' }];
 		// NOTE: somehow exclusive={false} for accordion gives an error, unsure why, disabled for now
 		return (
 			<Container>
 				<Header>{game.name}</Header>
 				<p>current active team: {game.state.activeTeam}</p>
-				<p>current clue: {game.currentClue.clue} - {game.currentClue.count}</p>
+				<p>most recent clue: {game.currentClue.clue} - {game.currentClue.count} - {game.currentClue.team}</p>
+				<p>your team: {this.state.team} - {this.state.role}</p>
 				<p>{ game.state.winningTeam ? `winningTeam: ${game.state.winningTeam}` : '' }</p>
 				<Accordion>
 					<Accordion.Title><Icon name='dropdown'/> Team Info </Accordion.Title>
@@ -70,6 +98,8 @@ export class CodeNamesUI extends Component {
 				</Grid>
 				<Button onClick={this.handleStart.bind(this)}>Start game</Button>
 				<Button onClick={this.handleStart.bind(this)}>Reset words</Button>
+				<Dropdown placeholder="select team" fluid value={this.state.team} options={teamOptions} onChange={this.handleTeamChange.bind(this)}></Dropdown>
+				<Dropdown placeholder="select role" fluid value={this.state.role} options={roleOptions} onChange={this.handleRoleChange.bind(this)}></Dropdown>
 				{game.player ? (
 					<Button onClick={this.handleLeave.bind(this)}>Leave game</Button>
 				) : (
