@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { Message, Container } from 'semantic-ui-react';
 import { _ } from 'lodash';
@@ -23,11 +24,14 @@ export class GlobalMessage extends Component {
 
 	setMessage({
 		message,
-		show = true,
-		expiry = this.state.expiry,
 		title = '',
 		type = 'error',
-	}) {
+		error, reason, details,
+	}, show = true, expiry = this.state.expiry) {
+		if (error) {
+			type = 'error';
+			message = reason || error || message;
+		}
 		if (!['error', 'info', 'warning', 'success'].includes(type)) { type = 'error'; }
 		const newState = { message, error: false, info: false, warning: false, success: false };
 		newState[type] = true;
