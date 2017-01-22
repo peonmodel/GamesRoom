@@ -248,6 +248,7 @@ export class CodeNames extends GenericGame {
 		if (!this.getClueGiver('red') || !this.getClueGiver('blue')) {
 			throw new Meteor.Error('no-clue-giver');
 		}
+		// TODO: check guesser
 		this.state.activeTeam = this.state.startingTeam;
 		this.state.turnCount += 1;
 		return this._collection.update(this._id, {
