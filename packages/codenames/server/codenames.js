@@ -244,6 +244,10 @@ export class CodeNames extends GenericGame {
 		if (this.state.activeTeam !== 'setup') {
 			throw new Meteor.Error('can-only-start-after-setup');
 		}
+		// check the right player counts
+		if (!this.getClueGiver('red') || !this.getClueGiver('blue')) {
+			throw new Meteor.Error('no-clue-giver');
+		}
 		this.state.activeTeam = this.state.startingTeam;
 		this.state.turnCount += 1;
 		return this._collection.update(this._id, {
@@ -256,6 +260,21 @@ export class CodeNames extends GenericGame {
 		return this._collection.update(this._id, {
 			$set: { [`state.activeTeam`]: this.state.activeTeam },
 		});
+	}
+
+	getClueGiver(team) {
+		return this.players.find(o => o.team === team && o.role === 'cluegiver');
+	}
+
+	joinGame({ user, alias, team, role } = {}) {
+		alias = alias || user.username;
+		team = team || Random.choice(['red', 'blue']);
+		role = role || (this.getClueGiver(team) ? 'others' : 'cluegiver');
+		return this.addPlayer({ user, alias, team, role });
+	}
+
+	leaveGame(user) {
+		return this.removePlayer(user);
 	}
 }
 

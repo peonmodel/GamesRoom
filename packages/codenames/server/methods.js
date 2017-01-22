@@ -60,7 +60,7 @@ Meteor.methods({
 		if (!player) { throw new Meteor.Error('player-not-found'); }
 		if (!game.isActivePlayer) { throw new Meteor.Error('not-active-player'); }
 		if (this.isClueGiver) { throw new Meteor.Error('clue-giver-cannot-reveal'); }
-		return game.revealWord(word);
+		return game.revealWord(word, user);
 	},
 	[`${CodeNames.prefix}/giveClue`]: function giveClue(gameId, word, number) {
 		check(gameId, String);
@@ -73,5 +73,15 @@ Meteor.methods({
 		if (!game.isActivePlayer) { throw new Meteor.Error('not-active-player'); }
 		if (!this.isClueGiver) { throw new Meteor.Error('non-clue-giver-cannot-give-clue'); }
 		return game.giveClue(word, number);
+	},
+	[`${CodeNames.prefix}/joinGame`]: function joinGame(gameId, alias, team, role) {
+		check(gameId, String);
+		check(alias, String);
+		check(team, String);
+		check(role, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		const user = Meteor.user();
+		if (!user) { throw new Meteor.Error('not-logged-in'); }
+		return game.joinGame({ user, alias, team, role });
 	},
 });

@@ -44,11 +44,11 @@ export class GenericGame {
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
-	addPlayer({ userId, alias, team, role }) {
-		if (this.getPlayer(userId)) {
+	addPlayer({ user, alias, team, role }) {
+		if (this.getPlayer(user._id)) {
 			throw new Meteor.Error('player-already-joined');
 		}
-		const player = new Player({ userId, alias, team, role }, this);
+		const player = new Player({ userId: user._id, alias, team, role }, this);
 		this.players.push(player);
 		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
 		return this._collection.update(this._id, {
@@ -56,8 +56,8 @@ export class GenericGame {
 		});
 	}
 
-	removePlayer(userId) {
-		this.players = _.without(this.players, this.getPlayer(userId));
+	removePlayer(user) {
+		this.players = _.without(this.players, this.getPlayer(user._id));
 		return this._collection.update(this._id, {
 			$set: { players: this.players }
 		});

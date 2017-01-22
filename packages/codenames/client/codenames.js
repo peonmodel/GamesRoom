@@ -101,6 +101,7 @@ export class CodeNames extends GenericGame {
 		if (!this.words.find(o => o.word === word)) {
 			throw new Meteor.Error('word-not-found');
 		}
+		if (found.revealedTeam) { return 1; }  // already revealed
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/revealWord`, this._id, word);
 	}
 
@@ -143,7 +144,15 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/endGame`, this._id);
 	}
 	// TODO: create invite and join
-	async join() {}
+	async joinGame(alias = '', team = '', role = '') {
+		check(alias, String);
+		check(team, String);
+		check(role, String);
+		if (this.player) {
+			throw new Meteor.Error('already-in-game');
+		}
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/revealWord`, this._id, alias, team, role);
+	}
 
 	async leave() {}
 
