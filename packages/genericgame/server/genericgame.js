@@ -41,8 +41,12 @@ export class GenericGame {
 		this.players = this.players.map(o => { return new Player(o, this); });
 		this._suppressUpdate = false;
 		Object.defineProperty(this, '_suppressUpdate', { enumerable: false });
-		Object.defineProperty(this, '_collection', { enumerable: false });
+		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
+
+	// static createStuff(collection, ...params) {
+	// 	// need to take in collection as a params for static functions
+	// }
 
 	addPlayer({ user, alias, team, role }) {
 		if (this.getPlayer(user._id)) {
