@@ -45,7 +45,7 @@ export class CodeNames extends GenericGame {
 		const currentDate = new Date();
 		const start = Random.choice([true, false]) ? 'red' : 'blue';
 		const words = CodeNames.generateRandomWordsDistribution(start);
-		return this._collection.insert({
+		return CodeNames.collection.insert({
 			name,
 			players: [{
 				userId: user._id, alias: alias || user.displayName,
