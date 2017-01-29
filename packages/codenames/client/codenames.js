@@ -98,7 +98,8 @@ export class CodeNames extends GenericGame {
 		if (this.state.activeTeam === 'setup') {
 			throw new Meteor.Error('cannot-reveal-before-game-start');
 		}
-		if (!this.words.find(o => o.word === word)) {
+		const found = this.words.find(o => o.word === word);
+		if (!found) {
 			throw new Meteor.Error('word-not-found');
 		}
 		if (found.revealedTeam) { return 1; }  // already revealed

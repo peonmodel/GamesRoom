@@ -12,6 +12,7 @@ export class CodeNamesUI extends Component {
 			roleChangeEnabled: true,
 			team: '',
 			teamChangeEnabled: true,
+			alias: '',
 		};
 	}
 
@@ -37,7 +38,9 @@ export class CodeNamesUI extends Component {
 
 	}
 
-	async handleResetWords() {}
+	async handleResetWords() {
+		return this.props.game.resetWords();
+	}
 
 	async handleResetGame() {}
 
@@ -78,9 +81,9 @@ export class CodeNamesUI extends Component {
 					<Accordion.Title><Icon name='dropdown'/> Team Info </Accordion.Title>
 					<Accordion.Content>
 						<p>red team: { game.players.filter(o => o.team === 'red').map(o => o.alias) }</p>
-						<p>red cluegiver: { game.players.find(o => o.role === 'cluegiver' && o.team === 'red') }</p>
+						<p>red cluegiver: { game.players.filter(o => o.role === 'cluegiver' && o.team === 'red').map(o => o.alias) }</p>
 						<p>blue team: { game.players.filter(o => o.team === 'blue').map(o => o.alias) }</p>
-						<p>blue cluegiver: { game.players.find(o => o.role === 'cluegiver' && o.team === 'blue') }</p>
+						<p>blue cluegiver: { game.players.filter(o => o.role === 'cluegiver' && o.team === 'blue').map(o => o.alias) }</p>
 					</Accordion.Content>
 					<Accordion.Title><Icon name='dropdown'/> All Clues </Accordion.Title>
 					<Accordion.Content>
