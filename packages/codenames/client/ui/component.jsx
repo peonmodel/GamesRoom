@@ -13,6 +13,8 @@ export class CodeNamesUI extends Component {
 			team: '',
 			teamChangeEnabled: true,
 			alias: '',
+			aliasChangeEnabled: true,
+			resetWordsEnabled: true,
 		};
 	}
 
@@ -36,6 +38,7 @@ export class CodeNamesUI extends Component {
 		try {
 			await game.joinGame(this.state.alias, this.state.team, this.state.role);
 		} catch (error) {
+			console.error(error);
 			// setMessage(error);
 		} finally {
 			this.setState({ team: game.player.team });
@@ -48,7 +51,14 @@ export class CodeNamesUI extends Component {
 	}
 
 	async handleResetWords() {
-		return this.props.game.resetWords();
+		try {
+			this.setState({ resetWordsEnabled: false });
+			await this.props.game.resetWords();
+		} catch (error) {
+			console.error(error);
+		} finally {
+			this.setState({ resetWordsEnabled: true });
+		}
 	}
 
 	async handleResetGame() {}
@@ -104,6 +114,7 @@ export class CodeNamesUI extends Component {
 		if (game.player) {
 			this.state.team = game.player.team;
 			this.state.role = game.player.role;
+			this.state.alias = game.player.alias;
 		}
 		const teamOptions = [{ text: 'red', value: 'red' }, { text: 'blue', value: 'blue' }];
 		const roleOptions = [{ text: 'cluegiver', value: 'cluegiver' }, { text: 'others', value: 'others' }];
@@ -133,14 +144,26 @@ export class CodeNamesUI extends Component {
 				<Grid columns={5} padded>
 					{game.words.map(wordObj => (
 						<Grid.Column key={wordObj.word}>
-							<Button fluid={true} color={wordObj.revealedTeam || 'grey'} name={wordObj.word} onClick={this.handleClick.bind(this)}>{wordObj.word}</Button>
+							<Button fluid={true} color={wordObj.revealedTeam || 'grey'} name={wordObj.word} onClick={this.handleClick.bind(this)}>
+								{wordObj.word}
+							</Button>
 						</Grid.Column>
 					))}
 				</Grid>
 				<Button onClick={this.handleStart.bind(this)}>Start game</Button>
-				<Button onClick={this.handleStart.bind(this)}>Reset words</Button>
-				<Dropdown placeholder="select team" fluid value={this.state.team} options={teamOptions} onChange={this.handleTeamChange.bind(this)}></Dropdown>
-				<Dropdown placeholder="select role" fluid value={this.state.role} options={roleOptions} onChange={this.handleRoleChange.bind(this)}></Dropdown>
+				<Button onClick={this.handleResetWords.bind(this)}
+					loading={!this.state.resetWordsEnabled} disabled={!this.state.resetWordsEnabled}
+				>
+					Reset words
+				</Button>
+				<Dropdown placeholder="select team" fluid
+					loading={!this.state.teamChangeEnabled} disabled={!this.state.teamChangeEnabled}
+					value={this.state.team} options={teamOptions} onChange={this.handleTeamChange.bind(this)}
+				/>
+				<Dropdown placeholder="select role" fluid
+					loading={!this.state.roleChangeEnabled} disabled={!this.state.roleChangeEnabled}
+					value={this.state.role} options={roleOptions} onChange={this.handleRoleChange.bind(this)}
+				/>
 				{game.player ? (
 					<Button onClick={this.handleLeave.bind(this)}>Leave game</Button>
 				) : (
