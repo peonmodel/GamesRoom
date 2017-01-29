@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { GenericGame } from 'meteor/freelancecourtyard:genericgame';
+import { GenericGame, Player } from 'meteor/freelancecourtyard:genericgame';
 import { _ } from 'meteor/underscore';
 
 /**
@@ -20,10 +20,35 @@ function promiseCall(fn, ...params) {
 	});
 }
 
+export class CodeNamesPlayer extends Player {
+	constructor(item, game) {
+		super(item, game);
+	}
+
+	updateAlias(alias) {
+		check(alias, String);
+		this.alias = alias;
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/updateAlias`, { gameId: this._game._id, alias }); // eslint-disable-line no-use-before-define
+	}
+
+	updateTeam(team) {
+		check(team, String);
+		this.team = team;
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/updateTeam`, { gameId: this._game._id, team }); // eslint-disable-line no-use-before-define
+	}
+
+	updateRole(role) {
+		check(role, String);
+		this.role = role;
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/updateRole`, { gameId: this._game._id, role }); // eslint-disable-line no-use-before-define
+	}
+}
+
 export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
 		Object.assign(this, item);
+		this.players = this.players.map(o => { return new CodeNamesPlayer(o, this); });
 		this._collection = CodeNames.collection;
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
