@@ -88,6 +88,13 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/createGame`, name, alias);
 	}
 
+	async recreateGame() {
+		if (!this.player) {
+			throw new Meteor.Error('player-not-found');
+		}
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/recreateGame`, this._id);
+	}
+
 	async resetWords() {
 		if (!this.player) {
 			throw new Meteor.Error('player-not-found');

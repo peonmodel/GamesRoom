@@ -117,14 +117,17 @@ export class CodeNames extends GenericGame {
 				clues: [],
 				guessCount: 0,
 			},
+			hostedBy: user._id,
 			createdAt: currentDate,
 			updatedAt: currentDate,
-			log: [{ timestamp: currentDate, text: 'game created', user: user._id }],
+			log: [{ timestamp: currentDate, text: 'game created' }],
 		});
 	}
 
-	// TODO: change to new game with new id
 	recreateGame(user) {
+		// if (this.hostedBy !== user._id) {
+		// 	throw new Meteor.Error('only-host-may-recreate');
+		// }
 		return CodeNames.createGame({
 			name: this.name, players: this.players,
 		}, user);

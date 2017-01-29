@@ -11,6 +11,14 @@ Meteor.methods({
 		alias = alias || user.username;
 		return CodeNames.createGame({ name, players: [{ userId: user._id, alias }] }, user);
 	},
+	[`${CodeNames.prefix}/recreateGame`]: function recreateGame(gameId) {
+		check(gameId, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		const user = Meteor.user();
+		const player = game.getPlayer(user._id);
+		if (!player) { throw new Meteor.Error('player-not-found'); }
+		return game.recreateGame(user);
+	},
 	[`${CodeNames.prefix}/resetWords`]: function resetWords(gameId) {
 		check(gameId, String);
 		const game = CodeNames.collection.findOne({ _id: gameId });

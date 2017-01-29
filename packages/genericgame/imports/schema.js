@@ -16,6 +16,7 @@ export const genericGameSchema = {
 	name: String, // name of game
 	players: [playerSchema],
 	// activePlayerId: String,
+	hostedBy: String,
 	createdAt: Date,
 	updatedAt: Date,
 	log: [logItem],
