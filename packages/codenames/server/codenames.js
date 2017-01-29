@@ -241,13 +241,21 @@ export class CodeNames extends GenericGame {
 		});
 	}
 
+	get validPlayerCount() {
+		const haveRedGuesser = this.players.find(o => o.team === 'red' && o.role === 'others');
+		const haveRedClueGiver = this.players.find(o => o.team === 'red' && o.role === 'cluegiver');
+		const haveBlueGuesser = this.players.find(o => o.team === 'blue' && o.role === 'others');
+		const haveBlueClueGiver = this.players.find(o => o.team === 'blue' && o.role === 'cluegiver');
+		return haveRedGuesser && haveRedClueGiver && haveBlueGuesser && haveBlueClueGiver;
+	}
+
 	startGame() {
 		if (this.state.activeTeam !== 'setup') {
 			throw new Meteor.Error('can-only-start-after-setup');
 		}
 		// check the right player counts
-		if (!this.getClueGiver('red') || !this.getClueGiver('blue')) {
-			throw new Meteor.Error('no-clue-giver');
+		if (!this.validPlayerCount) {
+			throw new Meteor.Error('invalid-player-count');
 		}
 		// TODO: check guesser
 		this.state.activeTeam = this.state.startingTeam;
@@ -264,14 +272,10 @@ export class CodeNames extends GenericGame {
 		});
 	}
 
-	getClueGiver(team) {
-		return this.players.find(o => o.team === team && o.role === 'cluegiver');
-	}
-
 	joinGame({ user, alias, team, role } = {}) {
 		alias = alias || user.username;
 		team = team || Random.choice(['red', 'blue']);
-		role = role || (this.getClueGiver(team) ? 'others' : 'cluegiver');
+		role = role || (this.players.find(o => o.team === team && o.role === 'cluegiver') ? 'others' : 'cluegiver');
 		return this.addPlayer({ user, alias, team, role });
 	}
 

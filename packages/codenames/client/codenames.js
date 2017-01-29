@@ -146,9 +146,20 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/giveClue`, this._id, word, number);
 	}
 
+	get validPlayerCount() {
+		const haveRedGuesser = this.players.find(o => o.team === 'red' && o.role === 'others');
+		const haveRedClueGiver = this.players.find(o => o.team === 'red' && o.role === 'cluegiver');
+		const haveBlueGuesser = this.players.find(o => o.team === 'blue' && o.role === 'others');
+		const haveBlueClueGiver = this.players.find(o => o.team === 'blue' && o.role === 'cluegiver');
+		return haveRedGuesser && haveRedClueGiver && haveBlueGuesser && haveBlueClueGiver;
+	}
+
 	async startGame() {
 		if (!this.player) {
 			throw new Meteor.Error('player-not-found');
+		}
+		if (!this.validPlayerCount) {
+			throw new Meteor.Error('invalid-player-count');
 		}
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/startGame`, this._id);
 	}
@@ -180,7 +191,12 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/revealWord`, this._id, alias, team, role);
 	}
 
-	async leave() {}
+	async leaveGame() {
+		if (!this.player) {
+			throw new Meteor.Error('player-not-found');
+		}
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/leaveGame`, this._id);
+	}
 
 	async invite() {}
 }
