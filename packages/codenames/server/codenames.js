@@ -128,6 +128,10 @@ export class CodeNames extends GenericGame {
 		// if (this.hostedBy !== user._id) {
 		// 	throw new Meteor.Error('only-host-may-recreate');
 		// }
+		const expiry = new Date(new Date().getTime() + 1000 * 60 * 5);
+		CodeNames.collection.update(this._id, {
+			$set: { expiredAt: expiry }
+		}, () => {});
 		return CodeNames.createGame({
 			name: this.name, players: this.players,
 		}, user);
@@ -332,5 +336,6 @@ CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
 	},
 	defineMutationMethods: false,
 });
+CodeNames.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
 // using specific collection instead of generic collection
 // due to problems with specific transform for collection

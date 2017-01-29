@@ -19,6 +19,7 @@ export const genericGameSchema = {
 	hostedBy: String,
 	createdAt: Date,
 	updatedAt: Date,
+	expiredAt: Date,  // optional
 	log: [logItem],
 	state: Object,
 	minPlayers: Number,
