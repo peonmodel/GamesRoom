@@ -4,6 +4,22 @@ import { Meteor } from 'meteor/meteor';
 
 // import { genericGameSchema } from '../imports/schema.js';
 
+// /**
+//  * promiseCall - function to wrap async Meteor functions into returning promises
+//  *
+//  * @param  {Function} fn - async function to wrap
+//  * @param  {Array} params - array of params
+//  * @returns {Promise}           resolve if success
+//  */
+// function promiseCall(fn, ...params) {
+// 	return new Promise((resolve, reject) => {
+// 		fn(...params, (err, res) => {
+// 			if (err) { return reject(err); }
+// 			return resolve(res);
+// 		});
+// 	});
+// }
+
 export class Player {
 	constructor(item, game) {
 		Object.assign(this, item);
@@ -14,40 +30,19 @@ export class Player {
 	// updateAlias(alias) {
 	// 	check(alias, String);
 	// 	this.alias = alias;
-	// 	return new Promise((resolve, reject) => {
-	// 		Meteor.call(`${GenericGame.prefix}/updateAlias`, {  // eslint-disable-line no-use-before-define
-	// 			gameId: this._game._id, alias
-	// 		}, (err, res) => {
-	// 			if (err) { reject(err); }
-	// 			resolve(res);
-	// 		});
-	// 	});
+	// 	return promiseCall(Meteor.call, `${GenericGame.prefix}/updateAlias`, { gameId: this._game._id, alias });
 	// }
 
 	// updateTeam(team) {
 	// 	check(team, String);
 	// 	this.team = team;
-	// 	return new Promise(function(resolve, reject) {
-	// 		Meteor.call(`${GenericGame.prefix}/updateTeam`, {  // eslint-disable-line no-use-before-define
-	// 			gameId: this._game._id, team
-	// 		}, (err, res) => {
-	// 			if (err) { reject(err); }
-	// 			resolve(res);
-	// 		});
-	// 	});
+	// 	return promiseCall(Meteor.call, `${GenericGame.prefix}/updateTeam`, { gameId: this._game._id, team });
 	// }
 
 	// updateRole(role) {
 	// 	check(role, String);
 	// 	this.role = role;
-	// 	return new Promise(function(resolve, reject) {
-	// 		Meteor.call(`${GenericGame.prefix}/updateTeam`, {  // eslint-disable-line no-use-before-define
-	// 			gameId: this._game._id, role
-	// 		}, (err, res) => {
-	// 			if (err) { reject(err); }
-	// 			resolve(res);
-	// 		});
-	// 	});
+	// 	return promiseCall(Meteor.call, `${GenericGame.prefix}/updateRole`, { gameId: this._game._id, role });
 	// }
 }
 

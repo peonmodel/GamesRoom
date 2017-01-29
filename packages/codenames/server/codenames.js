@@ -93,7 +93,7 @@ export class CodeNames extends GenericGame {
 		if (this.state.activeTeam !== 'setup') {
 			throw new Meteor.Error('cannot-change-after-game-start');
 		}
-		const start = Random.choice([true, false]) ? 'red' : 'blue';
+		const start = Random.choice(['red', 'blue']);
 		this.words = CodeNames.generateRandomWordsDistribution(start);
 		const logItem = {
 			timestamp: new Date(),
