@@ -38,21 +38,77 @@ export class CodeNames extends GenericGame {
 		return last.count + 1;
 	}
 
+	static _playersDistribution(players = []) {
+		const playerDist = {
+			redcluegiver: 0,
+			bluecluegiver: 0,
+			redothers: 0,
+			blueothers: 0,
+		};
+		players.forEach(player => {
+			if (player.team === 'red') {
+				if (player.role === 'cluegiver') { playerDist.redcluegiver += 1; }
+				if (player.role === 'others') { playerDist.redothers += 1; }
+			}
+			if (player.team === 'blue') {
+				if (player.role === 'cluegiver') { playerDist.bluecluegiver += 1; }
+				if (player.role === 'others') { playerDist.blueothers += 1; }
+			}
+		});
+		return playerDist;
+	}
+
+	static _assignPlayers(players = []) {
+		const playerDist = CodeNames._playersDistribution(players);
+		players.forEach(player => {
+			if (player.team && player.role) { return; }
+			if (player.team) {
+				if (!playerDist[`${player.team}cluegiver`]) {
+					player.role = 'cluegiver';
+				} else {
+					player.role = 'others';
+				}
+			}
+			if (player.role) {
+				player.team = Random.choice(['red', 'blue']);
+			}
+			if (!player.team && !player.role) {
+				player.team = Random.choice(['red', 'blue']);
+				if (!playerDist[`${player.team}cluegiver`]) {
+					player.role = 'cluegiver';
+				} else {
+					player.role = 'others';
+				}
+			}
+			playerDist[`${player.team}${player.role}`] += 1;
+		});
+		return players;
+	}
+
+	/**
+	 * createGame - create a game
+	 *
+	 * @static
+	 * @param {Object} gameObj - properties of game
+	 * @param {String} [gameObj.name] - name of the game
+	 * @param {Player[]} [gameObj.players] - array of players in the game
+	 * @param {User} [user={}] - user
+	 * @param {String} [alias=''] - optional alias for first player
+	 * @returns {String} - id of game created
+	 * 
+	 * @memberOf CodeNames
+	 */
 	static createGame({
 		name = `Game-${Random.id(4)}`,
-		alias,
+		players,
 	} = {}, user = {}) {
 		const currentDate = new Date();
 		const start = Random.choice(['red', 'blue']);
 		const words = CodeNames.generateRandomWordsDistribution(start);
+		players = CodeNames._assignPlayers(players);
+
 		return CodeNames.collection.insert({
-			name,
-			players: [{
-				userId: user._id, alias: alias || user.displayName,
-				team: Random.choice(['red', 'blue']),
-				role: 'cluegiver',
-			}],
-			words,
+			name, players, words,
 			state: {
 				turnCount: 0,
 				startingTeam: start,
@@ -61,11 +117,17 @@ export class CodeNames extends GenericGame {
 				clues: [],
 				guessCount: 0,
 			},
-			activePlayerId: '',
 			createdAt: currentDate,
 			updatedAt: currentDate,
-			log: [{ timestamp: currentDate, text: 'game created' }],
+			log: [{ timestamp: currentDate, text: 'game created', user: user._id }],
 		});
+	}
+
+	// TODO: change to new game with new id
+	recreateGame(user) {
+		return CodeNames.createGame({
+			name: this.name, players: this.players,
+		}, user);
 	}
 
 	static generateRandomWordsDistribution(start, total = 25) {
@@ -211,51 +273,14 @@ export class CodeNames extends GenericGame {
 		});
 	}
 
-	resetGame() {
-		if (this.state.activeTeam !== 'ended') {
-			throw new Meteor.Error('cannot-reset-when-not-ended');
-		}
-		const start = Random.choice([true, false]) ? 'red' : 'blue';
-		this.state = {
-			turnCount: 0,
-			activeTeam: 'setup',
-			isClueGiven: false,
-			startingTeam: start,
-			guessCount: 0,
-			clues: [],
-		};
-		this.words = CodeNames.generateRandomWordsDistribution(start);
-		const logItem = {
-			timestamp: new Date(),
-			text: 'reset game',
-		};
-		this.log.push(logItem);
-		return this._collection.update({
-			_id: this._id,
-		}, {
-			$set: {
-				state: this.state,
-				words: this.words,
-			},
-			$push: { log: logItem },
-		});
-	}
-
-	get validPlayerCount() {
-		const haveRedGuesser = this.players.find(o => o.team === 'red' && o.role === 'others');
-		const haveRedClueGiver = this.players.find(o => o.team === 'red' && o.role === 'cluegiver');
-		const haveBlueGuesser = this.players.find(o => o.team === 'blue' && o.role === 'others');
-		const haveBlueClueGiver = this.players.find(o => o.team === 'blue' && o.role === 'cluegiver');
-		return haveRedGuesser && haveRedClueGiver && haveBlueGuesser && haveBlueClueGiver;
-	}
-
 	startGame() {
 		if (this.state.activeTeam !== 'setup') {
 			throw new Meteor.Error('can-only-start-after-setup');
 		}
 		// check the right player counts
-		if (!this.validPlayerCount) {
-			throw new Meteor.Error('invalid-player-count');
+		const playerDist = CodeNames._playersDistribution(this.players);
+		if (!_.every(playerDist)) {
+			throw new Meteor.Error('invalid-player-distribution', playerDist);
 		}
 		// TODO: check guesser
 		this.state.activeTeam = this.state.startingTeam;

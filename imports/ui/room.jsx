@@ -22,7 +22,7 @@ export class CurrentRoom extends Component {
 	}
 
 	async createGame() {
-		const gameId = await CodeNames.createGame('new game', 'alias');
+		const gameId = await CodeNames.createGame('new game');
 		this.setState({ activeGameId: gameId });
 	}
 

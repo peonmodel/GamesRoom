@@ -146,20 +146,33 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/giveClue`, this._id, word, number);
 	}
 
-	get validPlayerCount() {
-		const haveRedGuesser = this.players.find(o => o.team === 'red' && o.role === 'others');
-		const haveRedClueGiver = this.players.find(o => o.team === 'red' && o.role === 'cluegiver');
-		const haveBlueGuesser = this.players.find(o => o.team === 'blue' && o.role === 'others');
-		const haveBlueClueGiver = this.players.find(o => o.team === 'blue' && o.role === 'cluegiver');
-		return haveRedGuesser && haveRedClueGiver && haveBlueGuesser && haveBlueClueGiver;
+	static _playersDistribution(players = []) {
+		const playerDist = {
+			redClueGiver: 0,
+			blueClueGiver: 0,
+			redGuesser: 0,
+			blueGuesser: 0,
+		};
+		players.forEach(player => {
+			if (player.team === 'red') {
+				if (player.role === 'cluegiver') { playerDist.redClueGiver += 1; }
+				else { playerDist.redGuesser += 1; }
+			}
+			if (player.team === 'blue') {
+				if (player.role === 'cluegiver') { playerDist.blueClueGiver += 1; }
+				else { playerDist.blueGuesser += 1; }
+			}
+		});
+		return playerDist;
 	}
 
 	async startGame() {
 		if (!this.player) {
 			throw new Meteor.Error('player-not-found');
 		}
-		if (!this.validPlayerCount) {
-			throw new Meteor.Error('invalid-player-count');
+		const playerDist = CodeNames._playersDistribution(this.players);
+		if (!_.every(playerDist)) {
+			throw new Meteor.Error('invalid-player-distribution', playerDist);
 		}
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/startGame`, this._id);
 	}
@@ -180,7 +193,7 @@ export class CodeNames extends GenericGame {
 		}
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/endGame`, this._id);
 	}
-	// TODO: create invite and join
+
 	async joinGame(alias = '', team = '', role = '') {
 		check(alias, String);
 		check(team, String);
