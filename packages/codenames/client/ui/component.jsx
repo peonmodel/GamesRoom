@@ -31,7 +31,16 @@ export class CodeNamesUI extends Component {
 	}
 
 	async handleJoin() {
-
+		const game = this.props.game;
+		if (game.player) { return 1; }
+		try {
+			await game.joinGame(this.state.alias, this.state.team, this.state.role);
+		} catch (error) {
+			// setMessage(error);
+		} finally {
+			this.setState({ team: game.player.team });
+			this.setState({ role: game.player.role });
+		}
 	}
 
 	async handleLeave() {
@@ -46,27 +55,56 @@ export class CodeNamesUI extends Component {
 
 	async handleTeamChange(event, element) {
 		const game = this.props.game;
-		console.log(game.player);
-		if (element.value === game.player.team) { return 1; }
-		try {
-			this.setState({ teamChangeEnabled: false });
-			await game.player.updateTeam(element.value);
-		} catch (error) {
-			// setMessage(error);
-		} finally {
-			this.setState({ teamChangeEnabled: true });
-			this.setState({ team: game.player.team });
+		if (game.player) {
+			// if already joined game, update the player state
+			if (element.value === game.player.team) { return 1; }  // no change required
+			try {
+				// attempt to change team, disable element meanwhile
+				this.setState({ teamChangeEnabled: false });
+				await game.player.updateTeam(element.value);
+			} catch (error) {
+				console.error(error);
+				// setMessage(error);
+			} finally {
+				// update component state to align with server
+				this.setState({ teamChangeEnabled: true });
+				this.setState({ team: game.player.team });
+			}
+		} else {
+			// else not joined game, just change component state
+			this.setState({ team: element.value });
 		}
 	}
 
 	async handleRoleChange(event, element) {
-		this.setState({ role: element.value });
+		const game = this.props.game;
+		if (game.player) {
+			if (element.value === game.player.role) { return 1; }
+			try {
+				this.setState({ roleChangeEnabled: false });
+				await game.player.updateRole(element.value);
+			} catch (error) {
+				console.error(error);
+				// setMessage(error);
+			} finally {
+				// update component state to align with server
+				this.setState({ roleChangeEnabled: true });
+				this.setState({ role: game.player.role });
+			}
+		} else {
+			// else not joined game, just change component state
+			this.setState({ role: element.value });
+		}
 	}
 
 	render() {
 		if (!this.props.ready) { return (<div>subscription not ready</div>); }
 		const game = this.props.game;
 		if (!game) { return (<div>error: game not found</div>); }
+		if (game.player) {
+			this.state.team = game.player.team;
+			this.state.role = game.player.role;
+		}
 		const teamOptions = [{ text: 'red', value: 'red' }, { text: 'blue', value: 'blue' }];
 		const roleOptions = [{ text: 'cluegiver', value: 'cluegiver' }, { text: 'others', value: 'others' }];
 		// NOTE: somehow exclusive={false} for accordion gives an error, unsure why, disabled for now
