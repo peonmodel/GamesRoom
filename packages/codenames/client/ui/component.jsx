@@ -122,7 +122,7 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
-	async handleResetGame() {}
+	// async endGame() {}
 
 	/**
 	 * handleTeamChange - change team of joined player else just component state

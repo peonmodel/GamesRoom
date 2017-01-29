@@ -22,13 +22,23 @@ export class CurrentRoom extends Component {
 	}
 
 	async createGame() {
-		const gameId = await CodeNames.createGame('new game');
-		this.setState({ activeGameId: gameId });
+		try {
+			let gameId = null;
+			if (this.state.activeGameId) {
+				const game = CodeNames.collection.findOne(this.state.activeGameId);
+				gameId = await game.recreateGame();
+			} else {
+				gameId = await CodeNames.createGame('new game');
+			}
+			this.setState({ activeGameId: gameId });
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	render() {
 		// TODO: remove this
-		Object.assign(Meteor.test, {CodeNames})
+		Object.assign(Meteor.test, { CodeNames });
 		if (!this.props.ready) { return (<div></div>); }
 		const room = this.props.currentRoom;
 		return (
