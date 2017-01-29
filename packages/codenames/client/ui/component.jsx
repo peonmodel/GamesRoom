@@ -4,7 +4,23 @@ import { Container, Grid, Button, Header, Accordion, Icon, Dropdown } from 'sema
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { CodeNames } from '../codenames.js';
 
+// TODO: fix error messages
+
+/**
+ * CodeNamesUI - class for UI react component for CodeNames
+ *
+ * @export
+ * @class CodeNamesUI
+ * @extends {Component}
+ */
 export class CodeNamesUI extends Component {
+	/**
+	 * Creates an instance of CodeNamesUI.
+	 *
+	 * @param {any} props - react properties
+	 *
+	 * @memberOf CodeNamesUI
+	 */
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -18,13 +34,25 @@ export class CodeNamesUI extends Component {
 		};
 	}
 
-	async handleClick(event, element) {
-		// if (element.color !== 'grey') { return 1; }
+	/**
+	 * handleClickWord - handles when word is clicked, either reveal or change
+	 *
+	 * @param {Proxy} event - dom event proxy
+	 * @param {Object} element - properties of react element
+	 * @returns {Number} - update result
+	 *
+	 * @memberOf CodeNamesUI
+	 */
+	async handleClickWord(event, element) {
 		const game = this.props.game;
-		if (game.isGameInProgress) {
-			return game.revealWord(element.name);
-		} else {
-			return game.changeWord(element.name);
+		try {
+			if (game.isGameInProgress) {
+				return game.revealWord(element.name);
+			} else {
+				return game.changeWord(element.name);
+			}
+		} catch (error) {
+			console.error(error);
 		}
 	}
 
@@ -32,17 +60,21 @@ export class CodeNamesUI extends Component {
 
 	}
 
+	/**
+	 * handleJoin - handle joining game
+	 *
+	 * @returns {undefined} - no value
+	 * @memberOf CodeNamesUI
+	 */
 	async handleJoin() {
 		const game = this.props.game;
-		if (game.player) { return 1; }
 		try {
 			await game.joinGame(this.state.alias, this.state.team, this.state.role);
+			this.setState({ team: game.player.team });
+			this.setState({ role: game.player.role });
 		} catch (error) {
 			console.error(error);
 			// setMessage(error);
-		} finally {
-			this.setState({ team: game.player.team });
-			this.setState({ role: game.player.role });
 		}
 	}
 
@@ -50,6 +82,12 @@ export class CodeNamesUI extends Component {
 
 	}
 
+	/**
+	 * handleResetWords - handle resetting of all words
+	 *
+	 * @returns {undefined} - no return value
+	 * @memberOf CodeNamesUI
+	 */
 	async handleResetWords() {
 		try {
 			this.setState({ resetWordsEnabled: false });
@@ -63,6 +101,15 @@ export class CodeNamesUI extends Component {
 
 	async handleResetGame() {}
 
+	/**
+	 * handleTeamChange - change team of joined player else just component state
+	 *
+	 * @param {Proxy} event - proxy change event
+	 * @param {Object} element - element properties
+	 * @returns {undefined} - no return value
+	 *
+	 * @memberOf CodeNamesUI
+	 */
 	async handleTeamChange(event, element) {
 		const game = this.props.game;
 		if (game.player) {
@@ -86,6 +133,15 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
+	/**
+	 * handleRoleChange - change role of joined player else just component state
+	 *
+	 * @param {Proxy} event - proxy change event
+	 * @param {Object} element - element properties
+	 * @returns {undefined} - no return value
+	 *
+	 * @memberOf CodeNamesUI
+	 */
 	async handleRoleChange(event, element) {
 		const game = this.props.game;
 		if (game.player) {
@@ -144,18 +200,24 @@ export class CodeNamesUI extends Component {
 				<Grid columns={5} padded>
 					{game.words.map(wordObj => (
 						<Grid.Column key={wordObj.word}>
-							<Button fluid={true} color={wordObj.revealedTeam || 'grey'} name={wordObj.word} onClick={this.handleClick.bind(this)}>
+							<Button fluid={true} color={wordObj.revealedTeam || 'grey'} name={wordObj.word} onClick={this.handleClickWord.bind(this)}>
 								{wordObj.word}
 							</Button>
 						</Grid.Column>
 					))}
 				</Grid>
-				<Button onClick={this.handleStart.bind(this)}>Start game</Button>
-				<Button onClick={this.handleResetWords.bind(this)}
-					loading={!this.state.resetWordsEnabled} disabled={!this.state.resetWordsEnabled}
-				>
-					Reset words
-				</Button>
+				{/* can only start/resetwords when game in setup */}
+				{game.state.activeTeam === 'setup' ? (
+					<div>
+						<Button onClick={this.handleStart.bind(this)}>Start game</Button>
+						<Button onClick={this.handleResetWords.bind(this)}
+							loading={!this.state.resetWordsEnabled} disabled={!this.state.resetWordsEnabled}
+						>
+							Reset words
+						</Button>
+					</div>
+				) : ''}
+				{/* TODO: to make this thing appear when required, no team change in midst of game*/}
 				<Dropdown placeholder="select team" fluid
 					loading={!this.state.teamChangeEnabled} disabled={!this.state.teamChangeEnabled}
 					value={this.state.team} options={teamOptions} onChange={this.handleTeamChange.bind(this)}
