@@ -5,6 +5,7 @@ import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { CodeNames } from '../codenames.js';
 
 // TODO: fix error messages
+// low priority - the various loading/disabled component states
 
 /**
  * CodeNamesUI - class for UI react component for CodeNames
@@ -56,8 +57,19 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
+	/**
+	 * handleStart - start game
+	 *
+	 * @returns {undefined} - no return value
+	 * @memberOf CodeNamesUI
+	 */
 	async handleStart() {
-
+		const game = this.props.game;
+		try {
+			await game.startGame();
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	/**
@@ -78,8 +90,19 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
+	/**
+	 * handleLeave - leave game
+	 *
+	 * @returns {undefined} - no return value
+	 * @memberOf CodeNamesUI
+	 */
 	async handleLeave() {
-
+		const game = this.props.game;
+		try {
+			await game.leaveGame();
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	/**
