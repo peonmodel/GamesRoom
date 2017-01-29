@@ -84,4 +84,11 @@ Meteor.methods({
 		if (!user) { throw new Meteor.Error('not-logged-in'); }
 		return game.joinGame({ user, alias, team, role });
 	},
+	[`${CodeNames.prefix}/leaveGame`]: function leaveGame(gameId) {
+		check(gameId, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		const user = Meteor.user();
+		if (!user) { throw new Meteor.Error('not-logged-in'); }
+		return game.leaveGame({ user });
+	},
 });
