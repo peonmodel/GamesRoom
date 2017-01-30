@@ -100,4 +100,28 @@ Meteor.methods({
 		if (!user) { throw new Meteor.Error('not-logged-in'); }
 		return game.leaveGame({ user });
 	},
+	[`${CodeNames.prefix}/updateAlias`]: function updateAlias(gameId, alias) {
+		check(gameId, String);
+		check(alias, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		const player = game.player;
+		if (!player) { throw new Meteor.Error('player-not-found'); }
+		return player.updateAlias(alias);
+	},
+	[`${CodeNames.prefix}/updateTeam`]: function updateTeam(gameId, team) {
+		check(gameId, String);
+		check(team, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		const player = game.player;
+		if (!player) { throw new Meteor.Error('player-not-found'); }
+		return player.updateTeam(team);
+	},
+	[`${CodeNames.prefix}/updateRole`]: function updateRole(gameId, role) {
+		check(gameId, String);
+		check(role, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		const player = game.player;
+		if (!player) { throw new Meteor.Error('player-not-found'); }
+		return player.updateRole(role);
+	},
 });
