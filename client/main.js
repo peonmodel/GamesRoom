@@ -3,6 +3,9 @@ import { Meteor } from 'meteor/meteor';
 
 import { Chat, Message } from 'meteor/freelancecourtyard:chatmessages';
 import { Connection } from 'meteor/freelancecourtyard:connection';
+// import { Room } from 'meteor/freelancecourtyard:gamesroom';
+import { GenericGame } from 'meteor/freelancecourtyard:genericgame';
+import { CodeNames } from 'meteor/freelancecourtyard:codenames';
 
 /* global _Chat: true */
 /* global _Message: true */
@@ -13,17 +16,6 @@ if (Meteor.isDevelopment) {
 	_Connection = Connection;
 }
 
-// Template.Connections.events({
-// 	'something': async function test(event, instance) {
-// 		event.preventDefault();
-// 		try {
-// 			let x = instance.data.something.asyncFn();
-// 			console.log(x);
-// 		} catch (e) {
-// 			console.error(e);
-// 		} finally {
-// 			console.log('finally');
-// 		}
-//
-// 	},
-// });
+Meteor.startup(() => {
+	GenericGame.registerGame('CodeNames', CodeNames);
+});

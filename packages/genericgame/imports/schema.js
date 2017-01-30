@@ -14,6 +14,7 @@ export const logItem = {
 
 export const genericGameSchema = {
 	name: String, // name of game
+	type: String,
 	players: [playerSchema],
 	// activePlayerId: String,
 	hostedBy: String,

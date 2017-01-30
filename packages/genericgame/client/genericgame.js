@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
-// import { Mongo } from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 // import { check } from 'meteor/check';
 
-// import { genericGameSchema } from '../imports/schema.js';
+import { genericGameSchema } from '../imports/schema.js';
 
 // /**
 //  * promiseCall - function to wrap async Meteor functions into returning promises
@@ -53,6 +53,15 @@ export class GenericGame {
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
+	static registerGame(name, game) {
+		if (GenericGame.supportedGames[name]) {
+			throw new Meteor.Error('already-registered', name);
+		}
+		GenericGame.supportedGames[name] = {
+			name, game,
+		};
+	}
+
 	get player() {
 		const user = Meteor.user() || {};
 		return this.getPlayer(user._id);
@@ -72,11 +81,12 @@ export class GenericGame {
 	// }
 
 }
-// GenericGame.schema = genericGameSchema;
-// GenericGame.prefix = `freelancecourtyard:genericgame`;
-// GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
-// 	transform: function(item) {
-// 	  return new GenericGame(item);
-// 	},
-// 	defineMutationMethods: false,
-// });
+GenericGame.schema = genericGameSchema;
+GenericGame.prefix = `freelancecourtyard:genericgame`;
+GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
+	transform: function(item) {
+	  return new GenericGame(item);
+	},
+	defineMutationMethods: false,
+});
+GenericGame.supportedGames = {};

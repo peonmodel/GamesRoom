@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
+// import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
 import { GenericGame, genericGameSchema } from 'meteor/freelancecourtyard:genericgame';
 import { codeNamesWords } from '../imports/assets/words.js';
@@ -318,7 +318,7 @@ export class CodeNames extends GenericGame {
 
 CodeNames.teams = ['red', 'blue', 'yellow', 'black'];
 CodeNames.roles = ['cluegiver', 'others'];
-CodeNames.prefix = `freelancecourtyard:codenames`;
+// CodeNames.prefix = `freelancecourtyard:codenames`;
 CodeNames.schema = Object.assign(genericGameSchema, {
 	words: [{ word: String, hiddenTeam: String, revealedTeam: String, revealedBy: String }],
 	state: {
@@ -330,12 +330,12 @@ CodeNames.schema = Object.assign(genericGameSchema, {
 		clues: [{ clue: String, count: Number, team: String }],
 	},
 });
-CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
-	transform: function(item) {
-	  return new CodeNames(item);
-	},
-	defineMutationMethods: false,
-});
-CodeNames.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
+// CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
+// 	transform: function(item) {
+// 	  return new CodeNames(item);
+// 	},
+// 	defineMutationMethods: false,
+// });
+// CodeNames.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
 // using specific collection instead of generic collection
 // due to problems with specific transform for collection

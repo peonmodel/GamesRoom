@@ -19,8 +19,8 @@
 // 		label: 'The people in the room',
 // 		defaultValue: []
 // 	},
-// 	game_id: {
-// 		type: String,
+// 	games: {
+// 		type: [Object],  // need to be { _id, type: 'type of game' }
 // 		label: 'Current id of game being played in the room',
 // 		defaultValue: ''
 // 	},

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-// import { Mongo } from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 import { _ } from 'meteor/underscore';
 
 import { genericGameSchema } from '../imports/schema.js';
@@ -44,9 +44,14 @@ export class GenericGame {
 		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
-	// static createStuff(collection, ...params) {
-	// 	// need to take in collection as a params for static functions
-	// }
+	static registerGame(name, game) {
+		if (GenericGame.supportedGames[name]) {
+			throw new Meteor.Error('already-registered', name);
+		}
+		GenericGame.supportedGames[name] = {
+			name, game,
+		};
+	}
 
 	addPlayer({ user, alias, team, role }) {
 		if (this.getPlayer(user._id)) {
@@ -79,13 +84,17 @@ export class GenericGame {
 	}
 }
 GenericGame.schema = genericGameSchema;
-// GenericGame.prefix = `freelancecourtyard:genericgame`;
-// GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
-// 	transform: function(item) {
-// 	  return new GenericGame(item);
-// 	},
-// 	defineMutationMethods: false,
-// });
+GenericGame.prefix = `freelancecourtyard:genericgame`;
+GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
+	transform: function(item) {
+		const supported = GenericGame.supportedGames[item.type];
+		if (!supported || !supported.game) { return new GenericGame(item); }
+	  return new supported.game(item);
+	},
+	defineMutationMethods: false,
+});
+GenericGame.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
+GenericGame.supportedGames = {};
 // phase > round > turn > action
 // Action:
 // 1) before action interrupt FILO

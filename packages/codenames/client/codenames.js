@@ -220,9 +220,10 @@ export class CodeNames extends GenericGame {
 
 	async invite() {}
 }
-CodeNames.prefix = `freelancecourtyard:codenames`;
-CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
-	transform: function(item) {
-	  return new CodeNames(item);
-	},
-});
+// inherited prefix and collection from super class
+// CodeNames.prefix = `freelancecourtyard:codenames`;
+// CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
+// 	transform: function(item) {
+// 	  return new CodeNames(item);
+// 	},
+// });
