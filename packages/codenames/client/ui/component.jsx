@@ -49,11 +49,12 @@ export class CodeNamesUI extends Component {
 		const game = this.props.game;
 		try {
 			if (game.isGameInProgress) {
-				return game.revealWord(element.name);
+				await game.revealWord(element.name);
 			} else {
-				return game.changeWord(element.name);
+				await game.changeWord(element.name);
 			}
 		} catch (error) {
+			console.error(error);
 			this.message.setMessage(error);
 		}
 	}

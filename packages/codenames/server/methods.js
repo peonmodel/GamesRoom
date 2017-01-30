@@ -68,7 +68,7 @@ Meteor.methods({
 		const player = game.getPlayer(user._id);
 		if (!player) { throw new Meteor.Error('player-not-found'); }
 		if (!game.isActivePlayer) { throw new Meteor.Error('not-active-player'); }
-		if (this.isClueGiver) { throw new Meteor.Error('clue-giver-cannot-reveal'); }
+		if (game.isClueGiver) { console.log('boo3'); throw new Meteor.Error('clue-giver-cannot-reveal'); }
 		return game.revealWord(word, user);
 	},
 	[`${CodeNames.prefix}/giveClue`]: function giveClue(gameId, word, number) {
@@ -80,8 +80,8 @@ Meteor.methods({
 		const player = game.getPlayer(user._id);
 		if (!player) { throw new Meteor.Error('player-not-found'); }
 		if (!game.isActivePlayer) { throw new Meteor.Error('not-active-player'); }
-		if (!this.isClueGiver) { throw new Meteor.Error('non-clue-giver-cannot-give-clue'); }
-		return game.giveClue(word, number);
+		if (!game.isClueGiver) { throw new Meteor.Error('non-clue-giver-cannot-give-clue'); }
+		return game.giveClue(word, number, user);
 	},
 	[`${CodeNames.prefix}/joinGame`]: function joinGame(gameId, alias, team, role) {
 		check(gameId, String);
