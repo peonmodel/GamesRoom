@@ -73,8 +73,8 @@ export class GenericGame {
 	}
 
 	get player() {
-		// usable in meteor methods / publication
-		const user = Meteor.user() || { _id: this.userId };
+		// only usable in meteor methods
+		const user = Meteor.user() || {};
 		return this.getPlayer(user._id);
 	}
 

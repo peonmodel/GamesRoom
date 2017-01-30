@@ -10,7 +10,7 @@ import { _ } from 'meteor/underscore';
 export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
-		Object.assign(this, item);
+		// Object.assign(this, item);
 		this._collection = CodeNames.collection;
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}

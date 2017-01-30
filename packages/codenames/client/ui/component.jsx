@@ -83,8 +83,10 @@ export class CodeNamesUI extends Component {
 		const game = this.props.game;
 		try {
 			await game.joinGame(this.state.alias, this.state.team, this.state.role);
-			this.setState({ team: game.player.team });
-			this.setState({ role: game.player.role });
+			// problem is that at this point, the this.props.game is not updated yet
+			// is fixed indirectly since the state is set again every re-render
+			// this.setState({ team: this.props.game.player.team });
+			// this.setState({ role: this.props.game.player.role });
 		} catch (error) {
 			this.message.setMessage(error);
 			console.error(error);
@@ -151,7 +153,6 @@ export class CodeNamesUI extends Component {
 			} finally {
 				// update component state to align with server
 				this.setState({ teamChangeEnabled: true });
-				this.setState({ team: game.player.team });
 			}
 		} else {
 			// else not joined game, just change component state
