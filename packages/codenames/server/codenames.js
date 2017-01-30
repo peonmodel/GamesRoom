@@ -108,6 +108,7 @@ export class CodeNames extends GenericGame {
 		players = CodeNames._assignPlayers(players);
 
 		return CodeNames.collection.insert({
+			type: 'CodeNames',
 			name, players, words,
 			state: {
 				turnCount: 0,

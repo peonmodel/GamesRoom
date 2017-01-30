@@ -85,7 +85,9 @@ GenericGame.schema = genericGameSchema;
 GenericGame.prefix = `freelancecourtyard:genericgame`;
 GenericGame.collection = new Mongo.Collection(`${GenericGame.prefix}Collection`, {
 	transform: function(item) {
-	  return new GenericGame(item);
+		const supported = GenericGame.supportedGames[item.type];
+		if (!supported || !supported.game) { return new GenericGame(item); }
+	  return new supported.game(item);
 	},
 	defineMutationMethods: false,
 });

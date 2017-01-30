@@ -22,6 +22,7 @@ Package.onUse((api) => {
 	  'check',
 	  'random',
 	  'accounts-password',
+		'freelancecourtyard:genericgame',
 	]);
 	api.imply([
 	  'accounts-password',

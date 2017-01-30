@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Room } from './gamesroom.js';
 import { check } from 'meteor/check';
+import { GenericGame } from 'meteor/freelancecourtyard:genericgame';
 // import { Chat } from 'meteor/freelancecourtyard:chatmessages';
 
 // publication for all rooms that are public
@@ -22,11 +23,16 @@ Meteor.publish('ActiveRooms', function publishActive() {
 // includes room chat, other members etc
 Meteor.publish('CurrentRoom', function publishCurrent(roomId) {
 	check(roomId, String);
-	return Room.collection.find({ _id: roomId, members: this.userId });
-	// const roomCursor = Room.collection.find({ _id: roomId, members: this.userId });
+	// return Room.collection.find({ _id: roomId, members: this.userId });
+	const roomCursor = Room.collection.find({ _id: roomId, members: this.userId });
 	// const chatIds = roomCursor.map(o => o.chatId);
-	// return [
-	// 	roomCursor,
-	// 	...Chat.publishChat({ _id: { $in: chatIds } }),
-	// ];
+	const gameIds = roomCursor.map(room => room.games).reduce((memo, array) => {
+		memo.push(...array.map(obj => obj._id));
+		return memo;
+	}, []);
+	return [
+		roomCursor,
+		GenericGame.collection.find({ _id: { $in: gameIds } })
+		// ...Chat.publishChat({ _id: { $in: chatIds } }),
+	];
 });
