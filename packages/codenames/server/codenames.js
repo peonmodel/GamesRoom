@@ -319,7 +319,7 @@ export class CodeNames extends GenericGame {
 
 CodeNames.teams = ['red', 'blue', 'yellow', 'black'];
 CodeNames.roles = ['cluegiver', 'others'];
-// CodeNames.prefix = `freelancecourtyard:codenames`;
+CodeNames.prefix = `freelancecourtyard:codenames`;
 CodeNames.schema = Object.assign(genericGameSchema, {
 	words: [{ word: String, hiddenTeam: String, revealedTeam: String, revealedBy: String }],
 	state: {
@@ -338,5 +338,5 @@ CodeNames.schema = Object.assign(genericGameSchema, {
 // 	defineMutationMethods: false,
 // });
 // CodeNames.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
-// using specific collection instead of generic collection
-// due to problems with specific transform for collection
+// using generic collection instead of specific collection
+// due to problems with dependencies to get collection
