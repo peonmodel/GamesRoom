@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+// import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { Message, Container } from 'semantic-ui-react';
 import { _ } from 'lodash';

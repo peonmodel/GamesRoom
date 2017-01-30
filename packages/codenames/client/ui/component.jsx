@@ -24,6 +24,7 @@ export class CodeNamesUI extends Component {
 	 */
 	constructor(props) {
 		super(props);
+		this.message = props.message;
 		this.state = {
 			role: '',
 			roleChangeEnabled: true,
@@ -53,7 +54,7 @@ export class CodeNamesUI extends Component {
 				return game.changeWord(element.name);
 			}
 		} catch (error) {
-			console.error(error);
+			this.message.setMessage(error);
 		}
 	}
 
@@ -85,6 +86,7 @@ export class CodeNamesUI extends Component {
 			this.setState({ team: game.player.team });
 			this.setState({ role: game.player.role });
 		} catch (error) {
+			this.message.setMessage(error);
 			console.error(error);
 			// setMessage(error);
 		}
@@ -101,6 +103,7 @@ export class CodeNamesUI extends Component {
 		try {
 			await game.leaveGame();
 		} catch (error) {
+			this.message.setMessage(error);
 			console.error(error);
 		}
 	}
@@ -266,6 +269,7 @@ function reactiveMapper(props, onData) {
 		onData(null, {
 			ready: true,
 			game: CodeNames.collection.findOne(props.gameId),
+			message: props.message,
 		});
 	} else {
 		onData(null, { ready: false });

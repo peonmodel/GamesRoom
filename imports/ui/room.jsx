@@ -8,6 +8,7 @@ import { Room } from 'meteor/freelancecourtyard:gamesroom';
 import { ConversationContainer } from './chat.jsx';
 import { browserHistory } from 'react-router';
 import { CodeNames, CodeNamesUIContainer } from 'meteor/freelancecourtyard:codenames';
+import { globalMessage } from './errormessage.jsx';
 
 export class CurrentRoom extends Component {
 	constructor(props) {
@@ -37,23 +38,18 @@ export class CurrentRoom extends Component {
 		}
 	}
 
-	// TODO: need to fix the room to publish the right game collections
-	// need to have a register supported game types
-
 	async handleJoinGame(event, element) {
 		const gameId = element.name;
 		this.setState({ activeGameId: gameId });
 	}
 
 	render() {
-		// TODO: remove this
-		Object.assign(Meteor.test, { CodeNames });
 		if (!this.props.ready) { return (<div></div>); }
 		const room = this.props.currentRoom;
 		return (
 			<Container className="currentRoom">
 				<h1>{room.title}</h1>
-				<CodeNamesUIContainer gameId={this.state.activeGameId}/>
+				<CodeNamesUIContainer gameId={this.state.activeGameId} message={globalMessage.instance}/>
 				<Button onClick={this.createGame.bind(this)}>Create Game</Button>
 				<Button onClick={this.leaveRoom.bind(this)}>Leave Room</Button>
 				<ConversationContainer chatId={room.chatId} />

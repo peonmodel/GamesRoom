@@ -349,8 +349,6 @@ class Login extends Component {
 	}
 
 	render() {
-		// TODO: remove this
-		Meteor.test = { Connection }
 		const user = this.props.user;
 		const isRegistered = !!_.get(user, 'profile.public.isRegistered');
 		let selectiveLogin = null;
