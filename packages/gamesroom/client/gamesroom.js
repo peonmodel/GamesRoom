@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
+import { GenericGame } from 'meteor/freelancecourtyard:genericgame';
 // import { _ } from 'lodash';
 
 /**
@@ -19,10 +20,28 @@ function promiseCall(fn, ...params) {
 	});
 }
 
+class RoomGame {
+	constructor(item, room) {
+		Object.assign(this, item);
+		this._room = room;
+		Object.defineProperty(this, '_room', { enumerable: false });
+		this._materialised = undefined;
+		Object.defineProperty(this, '_materialised', { enumerable: false });
+	}
+
+	get materialised() {
+		if (!this._materialised) {
+			this._materialised = GenericGame.collection.findOne(this._id);
+		}
+		return this._materialised;
+	}
+}
+
 export class Room {
 
 	constructor(item) {
 		Object.assign(this, item);
+		this.games = this.games.map(game => new RoomGame(game, this));
 	}
 
 	async joinRoom(accessCode = '') {
@@ -36,6 +55,12 @@ export class Room {
 
 	async clear() {
 	  return promiseCall(Meteor.call, `${Room.prefix}/clear`, this._id);
+	}
+
+	async updateGameList(gameId, type) {
+		check(gameId, String);
+		check(type, String);
+		return promiseCall(Meteor.call, `${Room.prefix}/updateGameList`, this._id, gameId, type);
 	}
 
 	static async createRoom(isPrivate = true) {

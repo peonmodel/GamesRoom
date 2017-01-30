@@ -41,4 +41,16 @@ Meteor.methods({
 		// alternatively, make this publish, but rate limit it too
 		return Room.findRoomsByCode(user, accessCode);
 	},
+	[`${Room.prefix}/updateGameList`]: function updateGameList(roomId, gameId, type) {
+		check(roomId, String);
+		check(gameId, String);
+		check(type, String);
+		const user = Meteor.user();
+		if (!user) { throw new Meteor.Error('user-not-logged-in'); }
+		const room = Room.collection.findOne({ _id: roomId });
+		if (!room) {
+			throw new Meteor.Error(`room-not-found`);
+		}
+		return room.updateGameList(gameId, type);
+	},
 });

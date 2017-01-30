@@ -3,12 +3,31 @@ import { Mongo } from 'meteor/mongo';
 import { Match } from 'meteor/check';
 import { Random } from 'meteor/random';
 import { Chat } from 'meteor/freelancecourtyard:chatmessages';
+import { GenericGame } from 'meteor/freelancecourtyard:genericgame';
 // import { _ } from 'lodash';
+
+class RoomGame {
+	constructor(item, room) {
+		Object.assign(this, item);
+		this._room = room;
+		Object.defineProperty(this, '_room', { enumerable: false });
+		this._materialised = undefined;
+		Object.defineProperty(this, '_materialised', { enumerable: false });
+	}
+
+	get materialised() {
+		if (!this._materialised) {
+			this._materialised = GenericGame.collection.findOne(this._id);
+		}
+		return this._materialised;
+	}
+}
 
 export class Room {
 
 	constructor(item) {
 		Object.assign(this, item);
+		this.games = this.games.map(game => new RoomGame(game, this));
 	}
 
 	joinRoom(user) {
@@ -40,6 +59,21 @@ export class Room {
 	  return Room.collection.remove({_id: this._id});
 	}
 
+	/**
+	 * _materialiseGames - materialise all the games in one go to avoid multiple queries
+	 * purely server-side function since multiple queries isnt a problem client-side
+	 * @static
+	 * @param {RoomGame[]} [array=[]] - array to materialise
+	 * @returns {undefined} - no return value
+	 * 
+	 * @memberOf Room
+	 */
+	static _materialiseGames(array = []) {
+		const query = array.map(o => o._id);
+		const games = GenericGame.collection.find({ _id: { $in: query } }).fetch();
+		array.forEach(game => { game._materialised = games.find(o => o._id === game._id); });
+	}
+
 	static findRoomsByCode(user, accessCode) {
 		if (!accessCode) { return []; }
 		return Room.collection.find({ accessCode }, { 
@@ -60,6 +94,15 @@ export class Room {
 	    chatId: Chat.createChat('group', `Chat for ${title}`, members),
 			createdAt: new Date(),
 	  });
+	}
+
+	updateGameList(gameId, type) {
+		this.games.unshift(new RoomGame({ _id: gameId, type }, this));
+		Room._materialiseGames(this.games);
+		this.games = this.games.filter(o => !!o._materialised);
+		return Room.collection.update(this._id, {
+			$set: { games: this.games },
+		});
 	}
 
 	// static publishRoom(roomQuery, chatQuery, messageQuery) {
