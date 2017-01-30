@@ -48,7 +48,8 @@ export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
 		Object.assign(this, item);
-		this.players = this.players.map(o => { return new CodeNamesPlayer(o, this); });
+		// due to publication secrecy, players array may be undefined
+		this.players = (this.players || []).map(o => { return new CodeNamesPlayer(o, this); });
 		this._collection = CodeNames.collection;
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
@@ -73,12 +74,15 @@ export class CodeNames extends GenericGame {
 
 	get isActivePlayer() {
 		if (!this.isGameInProgress) { return false; }
-		if (this.team !== this.state.activeTeam) { return false; }
+		if (!this.player) { return false; }
+		if (this.player.team !== this.state.activeTeam) { return false; }
 		if (this.state.isClueGiven) { return !this.isClueGiver; }
 		return this.isClueGiver;
 	}
 
+	// TODO: this should be part of the Player class
 	get isClueGiver() {
+		if (!this.player) { return false; }
 		return this.player.role === 'cluegiver';
 	}
 

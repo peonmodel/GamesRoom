@@ -2,12 +2,14 @@
 
 ## TODO: 
 ### CodeNames
-- role/team updators & component
-- component to give clue!!!
-- test with 4 arbitary users
+- ~~role/team updators & component~~
+- ~~component to give clue~~
+- __test with 4 arbitary users (current)__
 - add chat to game 
 - jsdoc the various functions
 - document the package
+- should not subscribe to hiddenTeam at the start, 
+only after game start and is cluegiver is confirmed
 
 ### Chat
 - react ui component for chat, some sort of 
@@ -17,6 +19,8 @@ scrollable collapseable component
 - component to select different games
 - cleanup display of various stuff
 
+### App
+- unable to render when visiting the url directly
 
 
 ## TODO (OLD, may still be relevant, to be reviewed):

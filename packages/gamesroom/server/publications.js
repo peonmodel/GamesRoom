@@ -32,7 +32,17 @@ Meteor.publish('CurrentRoom', function publishCurrent(roomId) {
 	}, []);
 	return [
 		roomCursor,
-		GenericGame.collection.find({ _id: { $in: gameIds } })
+		GenericGame.collection.find({ _id: { $in: gameIds } }, {
+			// only the bare essential info is published
+			fields: {
+				name: 1,
+				type: 1,
+				hostedBy: 1,
+				createdAt: 1,
+				updatedAt: 1,
+				state: 1,
+			}
+		}),
 		// ...Chat.publishChat({ _id: { $in: chatIds } }),
 	];
 });

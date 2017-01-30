@@ -27,9 +27,15 @@ export class CodeNames extends GenericGame {
 		return this.isClueGiver;
 	}
 
-	isClueGiver(user) {
+	// this is for publish function with no Meteor.user
+	_isClueGiver(user) {
 		const player = this.getPlayer(user._id) || {};
 		return player.role === 'cluegiver';
+	}
+
+	get isClueGiver() {
+		if (!this.player) { return false; }
+		return this.player.role === 'cluegiver';
 	}
 
 	get clueLimit() {
@@ -261,7 +267,7 @@ export class CodeNames extends GenericGame {
 				[`words.$.revealedTeam`]: item.hiddenTeam,
 				[`words.$.revealedBy`]: item.revealedBy
 			},
-		});
+		}, () => {});
 	}
 
 	giveClue(word, number, user) {
