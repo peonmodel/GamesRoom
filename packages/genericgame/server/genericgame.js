@@ -65,11 +65,17 @@ export class GenericGame {
 		});
 	}
 
-	removePlayer(user) {
+	removePlayer({ user }) {
 		this.players = _.without(this.players, this.getPlayer(user._id));
 		return this._collection.update(this._id, {
 			$set: { players: this.players }
 		});
+	}
+
+	get player() {
+		// usable in meteor methods / publication
+		const user = Meteor.user() || { _id: this.userId };
+		return this.getPlayer(user._id);
 	}
 
 	getPlayer(id) {
