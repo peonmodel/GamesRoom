@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { Container, Grid, Button, Header, Accordion, Icon, Dropdown } from 'semantic-ui-react';
+import { Container, Grid, Button, Header, Accordion, Icon, Dropdown, Input, Select } from 'semantic-ui-react';
 import { reactify } from 'meteor/freelancecourtyard:reactivecomponent';
 import { CodeNames } from '../codenames.js';
 
@@ -33,6 +33,8 @@ export class CodeNamesUI extends Component {
 			alias: '',
 			aliasChangeEnabled: true,
 			resetWordsEnabled: true,
+			clue: '',
+			clueNumber: 3,
 		};
 	}
 
@@ -128,6 +130,17 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
+	async handleGiveClue() {
+		const game = this.props.game;
+		try {
+			await game.giveClue(this.state.clue, this.state.clueNumber);
+			this.setState({ clue: '', clueNumber: 3 });
+		} catch (error) {
+			console.error(error);
+			this.message.setMessage(error);
+		}
+	}
+
 	// async endGame() {}
 
 	/**
@@ -191,6 +204,14 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
+	handleClueChange(event, element) {
+		this.setState({ clue: element.value });
+	}
+
+	handleClueNumberChange(event, element) {
+		this.setState({ clueNumber: element.value });
+	}
+
 	render() {
 		if (!this.props.ready) { return (<div>subscription not ready</div>); }
 		const game = this.props.game;
@@ -203,6 +224,11 @@ export class CodeNamesUI extends Component {
 		const teamOptions = [{ text: 'red', value: 'red' }, { text: 'blue', value: 'blue' }];
 		const roleOptions = [{ text: 'cluegiver', value: 'cluegiver' }, { text: 'others', value: 'others' }];
 		// NOTE: somehow exclusive={false} for accordion gives an error, unsure why, disabled for now
+		const numberRange = [
+			{ key: 0, text: 0, value: 0 },
+			{ key: Infinity, text: Infinity, value: Infinity },
+			...game.words.map((val, idx) => ({ key: (idx + 1), text: (idx + 1), value: (idx + 1) })),
+		];
 		return (
 			<Container>
 				<Header>{game.name}</Header>
@@ -234,6 +260,14 @@ export class CodeNamesUI extends Component {
 						</Grid.Column>
 					))}
 				</Grid>
+				{game.isClueGiver ? (
+					<Input type='text' placeholder='clue...' value={this.state.clue} onChange={this.handleClueChange.bind(this)} action>
+						<input />
+						{/* somehow Dropdown dont work to merge into the input but Select does */}
+						<Select compact options={numberRange} value={this.state.clueNumber} onChange={this.handleClueNumberChange.bind(this)} />
+						<Button onClick={this.handleGiveClue.bind(this)} disabled={!game.isActivePlayer}>Give Clue</Button>
+					</Input>
+				) : ''}
 				{/* can only start/resetwords when game in setup */}
 				{game.state.activeTeam === 'setup' ? (
 					<div>
