@@ -8,8 +8,12 @@
 - add chat to game 
 - jsdoc the various functions
 - document the package
-- should not subscribe to hiddenTeam at the start, 
-only after game start and is cluegiver is confirmed
+- ~~should not subscribe to hiddenTeam at the start, 
+only after game start and is cluegiver is confirmed~~
+- ~~cluegiver is to see the colours~~
+- confirm box for giving clues
+- confirm box for changing team after game start
+- ~~refactor schema due to DDP MergeBox limitations~~ https://github.com/meteor/meteor/issues/998
 
 ### Chat
 - react ui component for chat, some sort of 

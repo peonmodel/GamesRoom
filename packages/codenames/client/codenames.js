@@ -20,6 +20,23 @@ function promiseCall(fn, ...params) {
 	});
 }
 
+class CodeNamesWord {
+	constructor(item, index, game) {
+		Object.assign(this, item);
+		Object.defineProperty(this, '_index', { enumerable: false, value: index });
+		Object.defineProperty(this, '_game', { enumerable: false, value: game });
+		Object.defineProperty(this, '_hiddenTeams', { enumerable: false, value: game.hiddenTeams || [] });
+	}
+
+	get hiddenTeam() {
+		return this._hiddenTeams[this._index];
+	}
+
+	set hiddenTeam(value) {
+		this._hiddenTeams[this._index] = value;
+	}
+}
+
 export class CodeNamesPlayer extends Player {
 	constructor(item, game) {
 		super(item, game);
@@ -48,6 +65,7 @@ export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
 		Object.assign(this, item);
+		this.words = (this.words || []).map((word, idx) => new CodeNamesWord(word, idx, this));
 		// due to publication secrecy, players array may be undefined
 		this.players = (this.players || []).map(o => { return new CodeNamesPlayer(o, this); });
 		this._collection = CodeNames.collection;

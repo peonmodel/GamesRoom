@@ -35,6 +35,8 @@ export class CodeNamesUI extends Component {
 			resetWordsEnabled: true,
 			clue: '',
 			clueNumber: 3,
+			showColours: false,
+			clueGiverSubscription: undefined,
 		};
 	}
 
@@ -185,6 +187,7 @@ export class CodeNamesUI extends Component {
 	 */
 	async handleRoleChange(event, element) {
 		const game = this.props.game;
+		this.setState({ showColours: false });  // just in case, always hide answers
 		if (game.player) {
 			if (element.value === game.player.role) { return 1; }
 			try {
@@ -212,14 +215,27 @@ export class CodeNamesUI extends Component {
 		this.setState({ clueNumber: element.value });
 	}
 
+	handleShowColours() {
+		this.setState({ showColours: !this.state.showColours });
+	}
+
 	render() {
 		if (!this.props.ready) { return (<div>subscription not ready</div>); }
 		const game = this.props.game;
 		if (!game) { return (<div>error: game not found</div>); }
-		if (game.player) {
-			this.state.team = game.player.team;
-			this.state.role = game.player.role;
-			this.state.alias = game.player.alias;
+		const player = game.player;
+		if (player) {
+			this.state.team = player.team;
+			this.state.role = player.role;
+			this.state.alias = player.alias;
+		}
+		if (game.isClueGiver && game.isGameInProgress) {
+			if (!this.state.clueGiverSubscription) {
+				this.state.clueGiverSubscription = Meteor.subscribe('CodeNamesClueGiver', game._id);
+			}
+		} else {
+			!!this.state.clueGiverSubscription && this.state.clueGiverSubscription.stop();
+			this.state.clueGiverSubscription = undefined;
 		}
 		const teamOptions = [{ text: 'red', value: 'red' }, { text: 'blue', value: 'blue' }];
 		const roleOptions = [{ text: 'cluegiver', value: 'cluegiver' }, { text: 'others', value: 'others' }];
@@ -229,12 +245,13 @@ export class CodeNamesUI extends Component {
 			{ key: Infinity, text: Infinity, value: Infinity },
 			...game.words.map((val, idx) => ({ key: (idx + 1), text: (idx + 1), value: (idx + 1) })),
 		];
+
 		return (
 			<Container>
 				<Header>{game.name}</Header>
 				<p>current active team: {game.state.activeTeam}</p>
 				<p>most recent clue: {game.currentClue.clue} - {game.currentClue.count} - {game.currentClue.team}</p>
-				<p>your team: {this.state.team} - {this.state.role}</p>
+				{player ? (<p>your team: {player.team} - {player.role}</p>) : ''}
 				<p>{ game.state.winningTeam ? `winningTeam: ${game.state.winningTeam}` : '' }</p>
 				<Accordion>
 					<Accordion.Title><Icon name='dropdown'/> Team Info </Accordion.Title>
@@ -252,21 +269,28 @@ export class CodeNamesUI extends Component {
 					</Accordion.Content>
 				</Accordion>
 				<Grid columns={5} padded>
-					{game.words.map(wordObj => (
-						<Grid.Column key={wordObj.word}>
-							<Button fluid={true} color={wordObj.revealedTeam || 'grey'} name={wordObj.word} onClick={this.handleClickWord.bind(this)}>
-								{wordObj.word}
-							</Button>
-						</Grid.Column>
-					))}
+					{game.words.map(wordObj => {
+						let colour = wordObj.revealedTeam || undefined;
+						if (game.isClueGiver && this.state.showColours) { colour = wordObj.hiddenTeam; }
+						return (
+							<Grid.Column key={wordObj.word}>
+								<Button fluid={true} color={colour} name={wordObj.word} onClick={this.handleClickWord.bind(this)}>
+									{wordObj.word}
+								</Button>
+							</Grid.Column>
+						);
+					})}
 				</Grid>
 				{game.isClueGiver ? (
+					<div>
+					<Button onClick={this.handleShowColours.bind(this)}>Show Colours</Button>
 					<Input type='text' placeholder='clue...' value={this.state.clue} onChange={this.handleClueChange.bind(this)} action>
 						<input />
 						{/* somehow Dropdown dont work to merge into the input but Select does */}
 						<Select compact options={numberRange} value={this.state.clueNumber} onChange={this.handleClueNumberChange.bind(this)} />
 						<Button onClick={this.handleGiveClue.bind(this)} disabled={!game.isActivePlayer}>Give Clue</Button>
 					</Input>
+					</div>
 				) : ''}
 				{/* can only start/resetwords when game in setup */}
 				{game.state.activeTeam === 'setup' ? (
@@ -288,7 +312,7 @@ export class CodeNamesUI extends Component {
 					loading={!this.state.roleChangeEnabled} disabled={!this.state.roleChangeEnabled}
 					value={this.state.role} options={roleOptions} onChange={this.handleRoleChange.bind(this)}
 				/>
-				{game.player ? (
+				{player ? (
 					<Button onClick={this.handleLeave.bind(this)}>Leave game</Button>
 				) : (
 					<Button onClick={this.handleJoin.bind(this)}>Join game</Button>

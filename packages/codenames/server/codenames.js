@@ -6,11 +6,28 @@ import { codeNamesWords } from '../imports/assets/words.js';
 import { _ } from 'meteor/underscore';
 // import { CodeNamesSchema } from '../imports/schema.js';
 
+class CodeNamesWord {
+	constructor(item, index, game) {
+		Object.assign(this, item);
+		Object.defineProperty(this, '_index', { enumerable: false, value: index });
+		Object.defineProperty(this, '_game', { enumerable: false, value: game });
+	}
+
+	get hiddenTeam() {
+		return this._game.hiddenTeams[this._index];
+	}
+
+	set hiddenTeam(value) {
+		this._game.hiddenTeams[this._index] = value;
+	}
+}
+
 // extends generic game class?
 export class CodeNames extends GenericGame {
 	constructor(item) {
 		super(item);
 		// Object.assign(this, item);
+		this.words = (this.words || []).map((word, idx) => new CodeNamesWord(word, idx, this));
 		this._collection = CodeNames.collection;
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
@@ -111,11 +128,13 @@ export class CodeNames extends GenericGame {
 		const currentDate = new Date();
 		const start = Random.choice(['red', 'blue']);
 		const words = CodeNames.generateRandomWordsDistribution(start);
+		const hiddenTeams = words.map(o => o.hiddenTeam);
+		words.forEach(o => { delete o.hiddenTeam; });
 		players = CodeNames._assignPlayers(players);
 
 		return CodeNames.collection.insert({
 			type: 'CodeNames',
-			name, players, words,
+			name, players, words, hiddenTeams,
 			state: {
 				turnCount: 0,
 				startingTeam: start,
@@ -170,14 +189,17 @@ export class CodeNames extends GenericGame {
 			throw new Meteor.Error('cannot-change-after-game-start');
 		}
 		const start = Random.choice(['red', 'blue']);
-		this.words = CodeNames.generateRandomWordsDistribution(start);
+		const words = CodeNames.generateRandomWordsDistribution(start);
+		// workaround, hiddenTeams need to be a separate top level field
+		this.hiddenTeams = words.map(o => o.hiddenTeam);
+		this.words = words.map(o => { delete o.hiddenTeam; return o; });
 		const logItem = {
 			timestamp: new Date(),
 			text: 'reset words',
 		};
 		this.log.push(logItem);
 		return this._collection.update(this._id, {
-			$set: { words: this.words },
+			$set: { words: this.words, hiddenTeams: this.hiddenTeams },
 			$push: { log: logItem },
 		});
 	}
@@ -207,6 +229,7 @@ export class CodeNames extends GenericGame {
 	}
 
 	_changeActiveTeam() {
+		this.state.isClueGiven = false;
 		this.state.guessCount = 0;
 		this.state.activeTeam = this.state.activeTeam === 'red' ? 'blue' : 'red';
 		this.state.turnCount += 1;
@@ -224,7 +247,7 @@ export class CodeNames extends GenericGame {
 	_countWords(team) {
 		let max = 0;
 		let current = 0;
-		this.words.forEach(o => {
+		this.words.forEach((o) => {
 			if (o.revealedTeam === team) { current += 1; }
 			if (o.hiddenTeam === team) { max += 1; }
 		});
@@ -327,7 +350,7 @@ CodeNames.teams = ['red', 'blue', 'yellow', 'black'];
 CodeNames.roles = ['cluegiver', 'others'];
 CodeNames.prefix = `freelancecourtyard:codenames`;
 CodeNames.schema = Object.assign(genericGameSchema, {
-	words: [{ word: String, hiddenTeam: String, revealedTeam: String, revealedBy: String }],
+	words: [{ word: String, revealedTeam: String, revealedBy: String }],
 	state: {
 		turnCount: Number,
 		activeTeam: String,  // setup, red, blue, ended
@@ -336,6 +359,7 @@ CodeNames.schema = Object.assign(genericGameSchema, {
 		guessCount: Number,
 		clues: [{ clue: String, count: Number, team: String }],
 	},
+	hiddenTeams: [String],
 });
 // CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
 // 	transform: function(item) {
