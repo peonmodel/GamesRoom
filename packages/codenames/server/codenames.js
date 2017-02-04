@@ -57,7 +57,7 @@ export class CodeNames extends GenericGame {
 
 	get clueLimit() {
 		const last = _.last(this.state.clues);
-		if (!last || last.count) { return Infinity; }
+		if (!last || !last.count) { return Infinity; }
 		return last.count + 1;
 	}
 
@@ -293,6 +293,21 @@ export class CodeNames extends GenericGame {
 		}, () => {});
 	}
 
+	passTurn() {
+		if (!this.isActivePlayer) { throw new Meteor.Error('not-active-player'); }
+		if (this.isClueGiver) {
+			throw new Meteor.Error('clue-giver-cannot-pass-turn');
+		}
+		this._changeActiveTeam();
+		return this._collection.update({
+			_id: this._id,
+		}, {
+			$set: {
+				[`state`]: this.state,
+			},
+		}, () => {});
+	}
+
 	giveClue(word, number, user) {
 		if (this.state.isClueGiven) {
 			throw new Meteor.Error('clue-already-given');
@@ -305,7 +320,7 @@ export class CodeNames extends GenericGame {
 		this.state.clues.push(clue);
 		this.state.isClueGiven = true;
 		return this._collection.update(this._id, {
-			$set: { [`state.isClueGiven`]: true, [`state.guessCount`]: number },
+			$set: { [`state.isClueGiven`]: true },
 			$push: { [`state.clues`]: clue },
 		});
 	}

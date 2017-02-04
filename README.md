@@ -14,6 +14,8 @@ only after game start and is cluegiver is confirmed~~
 - confirm box for giving clues
 - confirm box for changing team after game start
 - ~~refactor schema due to DDP MergeBox limitations~~ https://github.com/meteor/meteor/issues/998
+- ~~change team when clues run out, pass turn~~
+- ~~cluegiver cannot pass turn~~
 
 ### Chat
 - react ui component for chat, some sort of 
@@ -23,8 +25,12 @@ scrollable collapseable component
 - component to select different games
 - cleanup display of various stuff
 
-### App
+### Router
 - unable to render when visiting the url directly
+- update react router
+
+### App
+- more tablet/phone friendly
 
 
 ## TODO (OLD, may still be relevant, to be reviewed):

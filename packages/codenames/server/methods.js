@@ -124,4 +124,9 @@ Meteor.methods({
 		if (!player) { throw new Meteor.Error('player-not-found'); }
 		return player.updateRole(role);
 	},
+	[`${CodeNames.prefix}/passTurn`]: function passTurn(gameId) {
+		check(gameId, String);
+		const game = CodeNames.collection.findOne({ _id: gameId });
+		return game.passTurn();
+	},
 });

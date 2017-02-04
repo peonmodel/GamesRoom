@@ -160,6 +160,16 @@ export class CodeNames extends GenericGame {
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/revealWord`, this._id, word);
 	}
 
+	async passTurn() {
+		if (!this.isActivePlayer) {
+			throw new Meteor.Error('not-active-player');
+		}
+		if (this.isClueGiver) {
+			throw new Meteor.Error('clue-giver-cannot-pass-turn');
+		}
+		return promiseCall(Meteor.call, `${CodeNames.prefix}/passTurn`, this._id);
+	}
+
 	async giveClue(word, number) {
 		check(word, String);
 		check(number, Number);
