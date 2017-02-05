@@ -25,6 +25,8 @@ export class CurrentRoom extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		// only re-subscribe if the game list changes
+		// there is no need actually, meteor subscribe will check for
+		// whether params are the same and not resub
 		const newRoom = nextProps.currentRoom;
 		if (newRoom) {
 			const gameIds = newRoom.games.map(o => o._id);

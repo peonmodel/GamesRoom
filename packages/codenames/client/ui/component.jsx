@@ -37,6 +37,7 @@ export class CodeNamesUI extends Component {
 			clueNumber: 3,
 			showColours: false,
 			clueGiverSubscription: undefined,
+			hiddenReady: false,
 		};
 	}
 
@@ -227,24 +228,36 @@ export class CodeNamesUI extends Component {
 		}
 	}
 
+	componentWillReceiveProps(nextProps) {
+		// is called when data changes
+		const game = nextProps.game || {};
+		const player = game.player;
+		if (player) {
+			this.setState({
+				team: player.team,
+				role: player.role,
+				alias: player.alias,
+			});
+		}
+		// not stopping subscription manually since meteor is supposed to not resub if params remains same
+		this.state.clueGiverSubscription = Meteor.subscribe('CodeNamesClueGiver', (game._id || ''), ((player || {}).role || ''), {
+			onReady: () => {
+				this.setState({ hiddenReady: true });
+			},
+		});
+	}
+
+	componentWillUpdate(nextProps, nextState) {
+		// console.log('nextProps, nextState', nextProps, nextState)
+		// const game = this.props.game;
+	}
+
 	render() {
 		if (!this.props.ready) { return (<div>subscription not ready</div>); }
 		const game = this.props.game;
 		if (!game) { return (<div>error: game not found</div>); }
 		const player = game.player;
-		if (player) {
-			this.state.team = player.team;
-			this.state.role = player.role;
-			this.state.alias = player.alias;
-		}
-		if (game.isClueGiver && game.isGameInProgress) {
-			if (!this.state.clueGiverSubscription) {
-				this.state.clueGiverSubscription = Meteor.subscribe('CodeNamesClueGiver', game._id);
-			}
-		} else {
-			!!this.state.clueGiverSubscription && this.state.clueGiverSubscription.stop();
-			this.state.clueGiverSubscription = undefined;
-		}
+
 		const teamOptions = [{ text: 'red', value: 'red' }, { text: 'blue', value: 'blue' }];
 		const roleOptions = [{ text: 'cluegiver', value: 'cluegiver' }, { text: 'others', value: 'others' }];
 		// NOTE: somehow exclusive={false} for accordion gives an error, unsure why, disabled for now
@@ -294,7 +307,7 @@ export class CodeNamesUI extends Component {
 				) : ''}
 				{game.isClueGiver ? (
 					<div>
-					<Button onClick={this.handleShowColours.bind(this)}>Show Colours</Button>
+					<Button onClick={this.handleShowColours.bind(this)} loading={!this.state.hiddenReady} >Show Colours</Button>
 					<Input type='text' placeholder='clue...' value={this.state.clue} onChange={this.handleClueChange.bind(this)} action>
 						<input />
 						{/* somehow Dropdown dont work to merge into the input but Select does */}

@@ -16,8 +16,10 @@ only after game start and is cluegiver is confirmed~~
 - ~~refactor schema due to DDP MergeBox limitations~~ https://github.com/meteor/meteor/issues/998
 - ~~change team when clues run out, pass turn~~
 - ~~cluegiver cannot pass turn~~
-- (unsure whats wrong, doesnt occur all the time) fix subscription cluegiver not available, not reactive
-when game is just started, but fine if role is changed
+- ~~fix subscription cluegiver not available, not reactive~~ (reason is due to meteor
+annoying clearing the hidden data despite receiving it on client-side)(fixed it by 
+manually creating the collection publication)
+- fix the loading for show hiddenReady show colours
 
 ### Chat
 - react ui component for chat, some sort of 
@@ -49,6 +51,8 @@ with respect to the primary collection item since secondary collections are not 
 i.e. room & chat is fine, but room & games are not
 - for publication of collection with restricted fields, fields MUST be top level due to DDP
 MergeBox limitations https://github.com/meteor/meteor/issues/998
+- componentWillReceiveProps only change when data changes
+- componentWillUpdate changes lower down the line, right before render
 
 
 
