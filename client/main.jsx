@@ -31,7 +31,7 @@ class App extends Component {
 		);
 	}
 }
-
+// <Route path="lobby" component={LobbyContainer} />
 const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/" component={App}>

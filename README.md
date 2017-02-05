@@ -16,6 +16,8 @@ only after game start and is cluegiver is confirmed~~
 - ~~refactor schema due to DDP MergeBox limitations~~ https://github.com/meteor/meteor/issues/998
 - ~~change team when clues run out, pass turn~~
 - ~~cluegiver cannot pass turn~~
+- (unsure whats wrong, doesnt occur all the time) fix subscription cluegiver not available, not reactive
+when game is just started, but fine if role is changed
 
 ### Chat
 - react ui component for chat, some sort of 
@@ -24,13 +26,30 @@ scrollable collapseable component
 ### Room
 - component to select different games
 - cleanup display of various stuff
+- add session for currently active game
+- ~~allow public rooms to be accessible directly via url, publication~~
+- add a go back/lobby for room not found
+- ~~add a join room if not inside~~
+- disable room functions unless joined room
+- ~~when in room, then somewhere else game is created, ui doesnt update new game list~~
+(subscription issue)
 
 ### Router
-- unable to render when visiting the url directly
+- ~~unable to render when visiting the url directly~~
+ (reason is simply because publication checks for whether user is supposed to be inside
+ for privacy reasons, routing is fine)
 - update react router
 
 ### App
 - more tablet/phone friendly
+
+### Note
+- publication of array of collections is only safe if the secondary collections are static
+with respect to the primary collection item since secondary collections are not tracked
+i.e. room & chat is fine, but room & games are not
+- for publication of collection with restricted fields, fields MUST be top level due to DDP
+MergeBox limitations https://github.com/meteor/meteor/issues/998
+
 
 
 ## TODO (OLD, may still be relevant, to be reviewed):

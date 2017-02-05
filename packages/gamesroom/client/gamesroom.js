@@ -44,6 +44,13 @@ export class Room {
 		this.games = this.games.map(game => new RoomGame(game, this));
 	}
 
+	get member() {
+		if (this.members.includes(Meteor.userId())) {
+			return Meteor.user();
+		}
+		return undefined;
+	}
+
 	async joinRoom(accessCode = '') {
 		check(accessCode, String);
 	  return promiseCall(Meteor.call, `${Room.prefix}/joinRoom`, this._id, accessCode);

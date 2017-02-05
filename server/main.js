@@ -28,6 +28,8 @@ Meteor.startup(() => {
 				Chat.collection.remove({});
 				Message.collection.remove({});
 				Accounts.users.remove({});
+				Room.collection.remove({});
+				GenericGame.collection.remove({});
 				console.log('all cleared');
 			},
 		});
