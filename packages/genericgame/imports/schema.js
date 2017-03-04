@@ -1,5 +1,9 @@
 import { Match } from 'meteor/check';
 
+// note that these schema are purely for reference, there is no validation
+// of schema on the collection, since mongodb is supposed to be schemaless
+// checks if needed should be done upon insertion or other updates
+
 export const playerSchema = {
 	userId: String,  // 1 player per user per game
 	alias: String,  // a different alias for each game

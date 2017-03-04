@@ -54,6 +54,10 @@ MergeBox limitations https://github.com/meteor/meteor/issues/998
 - componentWillReceiveProps only change when data changes
 - componentWillUpdate changes lower down the line, right before render
 
+### Question
+- publishing array of cursors dont work, what happened if the secondary cursor is dependent
+parentId or something
+
 
 
 ## TODO (OLD, may still be relevant, to be reviewed):

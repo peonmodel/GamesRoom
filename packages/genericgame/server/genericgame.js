@@ -91,8 +91,8 @@ export class GenericGame {
 	}
 }
 GenericGame.schema = genericGameSchema;
-GenericGame.collectionName = `freelancecourtyard:genericgame`;
-GenericGame.collection = new Mongo.Collection(`${GenericGame.collectionName}Collection`, {
+GenericGame.collectionName = `freelancecourtyard:genericgame/Collection`;
+GenericGame.collection = new Mongo.Collection(`${GenericGame.collectionName}`, {
 	transform: function(item) {
 		const supported = GenericGame.supportedGames[item.type];
 		if (!supported || !supported.game) { return new GenericGame(item); }

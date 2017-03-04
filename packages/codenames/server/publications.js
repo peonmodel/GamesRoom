@@ -18,12 +18,12 @@ Meteor.publish('CodeNamesClueGiver', function publishGame(id, role) {
 	check(role, String);
 	const game = CodeNames.collection.findOne({ _id: id });
 	if (!game) { return this.stop(); }
-	this.added(`${CodeNames.collectionName}Collection`, id, { hiddenTeams: undefined });
+	this.added(`${CodeNames.collectionName}`, id, { hiddenTeams: undefined });
 	this.ready();
 	if (!game._isClueGiver({ _id: this.userId }) || !game.isGameInProgress) {
-		this.changed(`${CodeNames.collectionName}Collection`, id, { hiddenTeams: undefined });
+		this.changed(`${CodeNames.collectionName}`, id, { hiddenTeams: undefined });
 	} else {
-		this.changed(`${CodeNames.collectionName}Collection`, id, { hiddenTeams: game.hiddenTeams });
+		this.changed(`${CodeNames.collectionName}`, id, { hiddenTeams: game.hiddenTeams });
 	}
 	// return CodeNames.collection.find({ _id: id }, { hiddenTeams: true });
 });
