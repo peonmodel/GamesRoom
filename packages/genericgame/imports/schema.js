@@ -31,9 +31,11 @@ export const genericGameSchema = {
 	maxPlayers: Number,
 };
 
+// assign the game specific info over
+// specific game should also handle how this info is accessed from the game
 export const genericGameInfoSchema = {
 	_id: String,
 	gameId: String,  // id of game that this is info of
-	allowedUserIds: [String],  // optional, ids of users privy to this piece of info
+	userIds: [String],  // optional, ids of users privy to this piece of info
 	team: [String],  // optional, may classify info by team instead
 };
