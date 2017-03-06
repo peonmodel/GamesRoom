@@ -220,9 +220,9 @@ export class CodeNamesUI extends Component {
 		this.setState({ showColours: !this.state.showColours });
 	}
 
-	async handlePassTurn() {
+	async handleEndTurn() {
 		try {
-			await this.props.game.passTurn();
+			await this.props.game.endTurn();
 		} catch (error) {
 			console.error(error);
 		}
@@ -303,7 +303,7 @@ export class CodeNamesUI extends Component {
 					})}
 				</Grid>
 				{(game.isActivePlayer && !game.isClueGiver) ? (
-					<Button onClick={this.handlePassTurn.bind(this)}>Pass</Button>
+					<Button onClick={this.handleEndTurn.bind(this)}>Pass</Button>
 				) : ''}
 				{game.isClueGiver ? (
 					<div>

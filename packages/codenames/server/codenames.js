@@ -293,7 +293,7 @@ export class CodeNames extends GenericGame {
 		}, () => {});
 	}
 
-	passTurn() {
+	endTurn() {
 		if (!this.isActivePlayer) { throw new Meteor.Error('not-active-player'); }
 		if (this.isClueGiver) {
 			throw new Meteor.Error('clue-giver-cannot-pass-turn');
