@@ -1,24 +1,24 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-// import { check } from 'meteor/check';
+import { check } from 'meteor/check';
 
 import { genericGameSchema } from '../imports/schema.js';
 
-// /**
-//  * promiseCall - function to wrap async Meteor functions into returning promises
-//  *
-//  * @param  {Function} fn - async function to wrap
-//  * @param  {Array} params - array of params
-//  * @returns {Promise}           resolve if success
-//  */
-// function promiseCall(fn, ...params) {
-// 	return new Promise((resolve, reject) => {
-// 		fn(...params, (err, res) => {
-// 			if (err) { return reject(err); }
-// 			return resolve(res);
-// 		});
-// 	});
-// }
+/**
+ * promiseCall - function to wrap async Meteor functions into returning promises
+ *
+ * @param  {Function} fn - async function to wrap
+ * @param  {Array} params - array of params
+ * @returns {Promise}           resolve if success
+ */
+function promiseCall(fn, ...params) {
+	return new Promise((resolve, reject) => {
+		fn(...params, (err, res) => {
+			if (err) { return reject(err); }
+			return resolve(res);
+		});
+	});
+}
 
 export class Player {
 	constructor(item, game) {
@@ -27,23 +27,23 @@ export class Player {
 		Object.defineProperty(this, '_game', { enumerable: false });
 	}
 
-	// updateAlias(alias) {
-	// 	check(alias, String);
-	// 	this.alias = alias;
-	// 	return promiseCall(Meteor.call, `${GenericGame.prefix}/updateAlias`, { gameId: this._game._id, alias });
-	// }
+	updateAlias(alias) {
+		check(alias, String);
+		this.alias = alias;
+		return promiseCall(Meteor.call, `${GenericGame.prefix}/updateAlias`, { gameId: this._game._id, alias });
+	}
 
-	// updateTeam(team) {
-	// 	check(team, String);
-	// 	this.team = team;
-	// 	return promiseCall(Meteor.call, `${GenericGame.prefix}/updateTeam`, { gameId: this._game._id, team });
-	// }
+	updateTeam(team) {
+		check(team, String);
+		this.team = team;
+		return promiseCall(Meteor.call, `${GenericGame.prefix}/updateTeam`, { gameId: this._game._id, team });
+	}
 
-	// updateRole(role) {
-	// 	check(role, String);
-	// 	this.role = role;
-	// 	return promiseCall(Meteor.call, `${GenericGame.prefix}/updateRole`, { gameId: this._game._id, role });
-	// }
+	updateRole(role) {
+		check(role, String);
+		this.role = role;
+		return promiseCall(Meteor.call, `${GenericGame.prefix}/updateRole`, { gameId: this._game._id, role });
+	}
 }
 
 export class GenericGame {
@@ -54,14 +54,14 @@ export class GenericGame {
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
-	static registerGame(name, game) {
-		if (GenericGame.supportedGames[name]) {
-			throw new Meteor.Error('already-registered', name);
-		}
-		GenericGame.supportedGames[name] = {
-			name, game,
-		};
-	}
+	// static registerGame(name, game) {
+	// 	if (GenericGame.supportedGames[name]) {
+	// 		throw new Meteor.Error('already-registered', name);
+	// 	}
+	// 	GenericGame.supportedGames[name] = {
+	// 		name, game,
+	// 	};
+	// }
 
 	get player() {
 		const user = Meteor.user() || {};
@@ -86,9 +86,10 @@ GenericGame.schema = genericGameSchema;
 GenericGame.collectionName = `freelancecourtyard:genericgame/Collection`;
 GenericGame.collection = new Mongo.Collection(`${GenericGame.collectionName}`, {
 	transform: function(item) {
-		const supported = GenericGame.supportedGames[item.type];
-		if (!supported || !supported.game) { return new GenericGame(item); }
-	  return new supported.game(item);
+		return new GenericGame(item);
+		// const supported = GenericGame.supportedGames[item.type];
+		// if (!supported || !supported.game) { return new GenericGame(item); }
+	  // return new supported.game(item);
 	},
 	defineMutationMethods: false,
 });
