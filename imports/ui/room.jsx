@@ -57,7 +57,7 @@ export class CurrentRoom extends Component {
 		try {
 			let gameId = null;
 			if (this.state.activeGameId) {
-				const game = CodeNames.collection.findOne(this.state.activeGameId);
+				const game = CodeNames.findOne(this.state.activeGameId);
 				gameId = await game.recreateGame();
 			} else {
 				gameId = await CodeNames.createGame('new game');

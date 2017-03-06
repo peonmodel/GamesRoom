@@ -68,8 +68,8 @@ export class CodeNames extends GenericGame {
 		this.words = (this.words || []).map((word, idx) => new CodeNamesWord(word, idx, this));
 		// due to publication secrecy, players array may be undefined
 		this.players = (this.players || []).map(o => { return new CodeNamesPlayer(o, this); });
-		this._collection = CodeNames.collection;
-		Object.defineProperty(this, '_collection', { enumerable: false });
+		// this._collection = CodeNames.collection;
+		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
 	get currentClue() {

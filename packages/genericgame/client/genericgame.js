@@ -54,6 +54,24 @@ export class GenericGame {
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
+	static find(selector, options = {}) {
+		if (options.transform === void 0) {
+			options.transform = function(item) {
+				return new this(item);
+			};
+		}
+		return this.collection.find(selector, options);
+	}
+
+	static findOne(selector, options = {}) {
+		if (options.transform === void 0) {
+			options.transform = function(item) {
+				return new this(item);
+			};
+		}
+		return this.collection.findOne(selector, options);
+	}
+
 	// static registerGame(name, game) {
 	// 	if (GenericGame.supportedGames[name]) {
 	// 		throw new Meteor.Error('already-registered', name);

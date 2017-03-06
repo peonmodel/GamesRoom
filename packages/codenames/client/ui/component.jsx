@@ -352,7 +352,7 @@ function reactiveMapper(props, onData) {
 	if (activeSub.ready()) {
 		onData(null, {
 			ready: true,
-			game: CodeNames.collection.findOne(props.gameId),
+			game: CodeNames.findOne(props.gameId),
 			message: props.message,
 		});
 	} else {

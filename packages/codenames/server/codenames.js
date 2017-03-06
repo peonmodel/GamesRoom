@@ -28,8 +28,8 @@ export class CodeNames extends GenericGame {
 		super(item);
 		// Object.assign(this, item);
 		this.words = (this.words || []).map((word, idx) => new CodeNamesWord(word, idx, this));
-		this._collection = CodeNames.collection;
-		Object.defineProperty(this, '_collection', { enumerable: false });
+		// this._collection = CodeNames.collection;
+		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
 	get isGameInProgress() {
@@ -198,7 +198,7 @@ export class CodeNames extends GenericGame {
 			text: 'reset words',
 		};
 		this.log.push(logItem);
-		return this._collection.update(this._id, {
+		return CodeNames.collection.update(this._id, {
 			$set: { words: this.words, hiddenTeams: this.hiddenTeams },
 			$push: { log: logItem },
 		});
@@ -222,7 +222,7 @@ export class CodeNames extends GenericGame {
 			text: 'change word',
 		};
 		this.log.push(logItem);
-		return this._collection.update(this._id, {
+		return CodeNames.collection.update(this._id, {
 			$set: { [`words.${index}.word`]: this.words[index].word },
 			$push: { log: logItem },
 		});
@@ -281,7 +281,7 @@ export class CodeNames extends GenericGame {
 				}
 			}
 		}
-		return this._collection.update({
+		return CodeNames.collection.update({
 			_id: this._id,
 			[`words.word`]: word,
 		}, {
@@ -299,7 +299,7 @@ export class CodeNames extends GenericGame {
 			throw new Meteor.Error('clue-giver-cannot-pass-turn');
 		}
 		this._changeActiveTeam();
-		return this._collection.update({
+		return CodeNames.collection.update({
 			_id: this._id,
 		}, {
 			$set: {
@@ -319,7 +319,7 @@ export class CodeNames extends GenericGame {
 		const clue = { clue: word, count: number, team: player.team };
 		this.state.clues.push(clue);
 		this.state.isClueGiven = true;
-		return this._collection.update(this._id, {
+		return CodeNames.collection.update(this._id, {
 			$set: { [`state.isClueGiven`]: true },
 			$push: { [`state.clues`]: clue },
 		});
@@ -337,14 +337,14 @@ export class CodeNames extends GenericGame {
 		// TODO: check guesser
 		this.state.activeTeam = this.state.startingTeam;
 		this.state.turnCount += 1;
-		return this._collection.update(this._id, {
+		return CodeNames.collection.update(this._id, {
 			$set: { state: this.state },
 		});
 	}
 
 	endGame() {
 		this.state.activeTeam = 'ended';
-		return this._collection.update(this._id, {
+		return CodeNames.collection.update(this._id, {
 			$set: { [`state.activeTeam`]: this.state.activeTeam },
 		});
 	}

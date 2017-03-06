@@ -7,7 +7,7 @@ Meteor.methods({
 	[`${CodeNames.prefix}/revealWord`]: function revealWord(gameId, word) {
 		check(gameId, String);
 		check(word, String);
-		const game = CodeNames.collection.findOne({ _id: gameId });
+		const game = CodeNames.findOne({ _id: gameId });
 		const user = Meteor.user();
 		const player = game.getPlayer(user._id);
 		if (!player) { throw new Meteor.Error('player-not-found'); }
@@ -19,7 +19,7 @@ Meteor.methods({
 		check(gameId, String);
 		check(word, String);
 		check(number, Number);
-		const game = CodeNames.collection.findOne({ _id: gameId });
+		const game = CodeNames.findOne({ _id: gameId });
 		const user = Meteor.user();
 		const player = game.getPlayer(user._id);
 		if (!player) { throw new Meteor.Error('player-not-found'); }
