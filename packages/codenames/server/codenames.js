@@ -146,6 +146,7 @@ export class CodeNames extends GenericGame {
 			hostedBy: user._id,
 			createdAt: currentDate,
 			updatedAt: currentDate,
+			expiredAt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000),
 			log: [{ timestamp: currentDate, text: 'game created' }],
 		});
 	}
