@@ -54,18 +54,18 @@ export class GenericGame {
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
-	static find(selector, options = {}) {
+	static find(selector = {}, options = {}) {
 		if (options.transform === void 0) {
-			options.transform = function(item) {
+			options.transform = (item) => {
 				return new this(item);
 			};
 		}
 		return this.collection.find(selector, options);
 	}
 
-	static findOne(selector, options = {}) {
+	static findOne(selector = {}, options = {}) {
 		if (options.transform === void 0) {
-			options.transform = function(item) {
+			options.transform = (item) => {
 				return new this(item);
 			};
 		}
