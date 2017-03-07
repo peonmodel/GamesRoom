@@ -21,5 +21,5 @@ if (Meteor.isDevelopment) {
 }
 
 Meteor.startup(() => {
-	GenericGame.registerGame('CodeNames', CodeNames);
+	// GenericGame.registerGame('CodeNames', CodeNames);
 });

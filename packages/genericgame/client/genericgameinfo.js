@@ -16,7 +16,7 @@ GenericGameInfo.collectionName = `freelancecourtyard:genericgame/InfoCollection`
 GenericGameInfo.collection = new Mongo.Collection(`${GenericGameInfo.collectionName}`, {
 	transform: null,
 });
-GenericGameInfo.collection._ensureIndex({ gameId: 1 });
-GenericGameInfo.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
+// GenericGameInfo.collection._ensureIndex({ gameId: 1 });
+// GenericGameInfo.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
 
 GenericGameInfo.schema = genericGameInfoSchema;
