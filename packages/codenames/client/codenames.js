@@ -45,19 +45,19 @@ export class CodeNamesPlayer extends Player {
 	updateAlias(alias) {
 		check(alias, String);
 		this.alias = alias;
-		return promiseCall(Meteor.call, `${CodeNames.prefix}/updateAlias`, this._game._id, alias); // eslint-disable-line no-use-before-define
+		return promiseCall(Meteor.call, `${GenericGame.prefix}/updateAlias`, this._game._id, alias); // eslint-disable-line no-use-before-define
 	}
 
 	updateTeam(team) {
 		check(team, String);
 		this.team = team;
-		return promiseCall(Meteor.call, `${CodeNames.prefix}/updateTeam`, this._game._id, team); // eslint-disable-line no-use-before-define
+		return promiseCall(Meteor.call, `${GenericGame.prefix}/updateTeam`, this._game._id, team); // eslint-disable-line no-use-before-define
 	}
 
 	updateRole(role) {
 		check(role, String);
 		this.role = role;
-		return promiseCall(Meteor.call, `${CodeNames.prefix}/updateRole`, this._game._id, role); // eslint-disable-line no-use-before-define
+		return promiseCall(Meteor.call, `${GenericGame.prefix}/updateRole`, this._game._id, role); // eslint-disable-line no-use-before-define
 	}
 }
 
@@ -68,8 +68,6 @@ export class CodeNames extends GenericGame {
 		this.words = (this.words || []).map((word, idx) => new CodeNamesWord(word, idx, this));
 		// due to publication secrecy, players array may be undefined
 		this.players = (this.players || []).map(o => { return new CodeNamesPlayer(o, this); });
-		// this._collection = CodeNames.collection;
-		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
 	get currentClue() {
@@ -165,7 +163,7 @@ export class CodeNames extends GenericGame {
 			throw new Meteor.Error('not-active-player');
 		}
 		if (this.isClueGiver) {
-			throw new Meteor.Error('clue-giver-cannot-pass-turn');
+			throw new Meteor.Error('clue-giver-cannot-end-turn');
 		}
 		return promiseCall(Meteor.call, `${CodeNames.prefix}/endTurn`, this._id);
 	}
@@ -255,8 +253,3 @@ export class CodeNames extends GenericGame {
 // inherited collection from super class
 // however, prefix and meteor methods are unique to this
 CodeNames.prefix = `freelancecourtyard:codenames`;
-// CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
-// 	transform: function(item) {
-// 	  return new CodeNames(item);
-// 	},
-// });

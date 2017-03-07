@@ -101,6 +101,7 @@ export class GenericGame {
 
 }
 GenericGame.schema = genericGameSchema;
+GenericGame.prefix = `freelancecourtyard:genericgame`;
 GenericGame.collectionName = `freelancecourtyard:genericgame/Collection`;
 GenericGame.collection = new Mongo.Collection(`${GenericGame.collectionName}`, {
 	transform: function(item) {

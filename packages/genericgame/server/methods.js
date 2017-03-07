@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { GenericGame } from '/genericgame.js';
+import { GenericGame } from './genericgame.js';
 
 Meteor.methods({
 	[`${GenericGame.prefix}/createGame`]: function createGame(name, alias) {
@@ -59,6 +59,13 @@ Meteor.methods({
 		if (!user) { throw new Meteor.Error('not-logged-in'); }
 		return game.leaveGame({ user });
 	},
+	[`${GenericGame.prefix}/endTurn`]: function endTurn(gameId) {
+		check(gameId, String);
+		const game = GenericGame.collection.findOne({ _id: gameId });
+		return game.endTurn();
+	},
+
+	// GenericPlayer
 	[`${GenericGame.prefix}/updateAlias`]: function updateAlias(gameId, alias) {
 		check(gameId, String);
 		check(alias, String);
@@ -82,10 +89,5 @@ Meteor.methods({
 		const player = game.player;
 		if (!player) { throw new Meteor.Error('player-not-found'); }
 		return player.updateRole(role);
-	},
-	[`${GenericGame.prefix}/endTurn`]: function endTurn(gameId) {
-		check(gameId, String);
-		const game = GenericGame.collection.findOne({ _id: gameId });
-		return game.endTurn();
 	},
 });

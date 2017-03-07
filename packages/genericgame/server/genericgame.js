@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
+import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
 
 import { genericGameSchema } from '../imports/schema.js';
@@ -40,8 +41,7 @@ export class GenericGame {
 	  Object.assign(this, item);
 		// due to publication secrecy, players array may be undefined
 		this.players = (this.players || []).map(o => { return new Player(o, this); });
-		this._suppressUpdate = false;
-		Object.defineProperty(this, '_suppressUpdate', { enumerable: false });
+		Object.defineProperty(this, '_suppressUpdate', { enumerable: false, writable: true, value: false });
 		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
@@ -63,13 +63,34 @@ export class GenericGame {
 		return this.collection.findOne(selector, options);
 	}
 
-	static registerGame(name, game) {
-		if (GenericGame.supportedGames[name]) {
-			throw new Meteor.Error('already-registered', name);
-		}
-		GenericGame.supportedGames[name] = {
-			name, game,
-		};
+	/**
+	 * createGame - create a game
+	 *
+	 * @static
+	 * @param {Object} gameObj - properties of game
+	 * @param {String} [gameObj.name] - name of the game
+	 * @param {Player[]} [gameObj.players] - array of players in the game
+	 * @param {User} [user={}] - user
+	 * @param {String} [alias=''] - optional alias for first player
+	 * @returns {String} - id of game created
+	 * 
+	 * @memberOf GenericGame
+	 */
+	static createGame({
+		name = `Game-${Random.id(4)}`,
+		players,
+	} = {}, user = {}) {
+		const currentDate = new Date();
+
+		return this.collection.insert({
+			type: 'GenericGame',
+			name, players,
+			state: {},
+			hostedBy: user._id,
+			createdAt: currentDate,
+			updatedAt: currentDate,
+			log: [{ timestamp: currentDate, text: 'game created' }],
+		});
 	}
 
 	addPlayer({ user, alias, team, role }) {
@@ -92,7 +113,6 @@ export class GenericGame {
 	}
 
 	get player() {
-		// only usable in meteor methods
 		const user = Meteor.user() || {};
 		return this.getPlayer(user._id);
 	}
@@ -109,17 +129,16 @@ export class GenericGame {
 	}
 }
 GenericGame.schema = genericGameSchema;
+GenericGame.prefix = `freelancecourtyard:genericgame`;
 GenericGame.collectionName = `freelancecourtyard:genericgame/Collection`;
 GenericGame.collection = new Mongo.Collection(`${GenericGame.collectionName}`, {
 	transform: function(item) {
-		const supported = GenericGame.supportedGames[item.type];
-		if (!supported || !supported.game) { return new GenericGame(item); }
-	  return new supported.game(item);
+		return new GenericGame(item);
 	},
 	defineMutationMethods: false,
 });
 GenericGame.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
-GenericGame.supportedGames = {};
+
 // phase > round > turn > action
 // Action:
 // 1) before action interrupt FILO
