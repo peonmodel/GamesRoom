@@ -5,7 +5,7 @@ import { _ } from 'meteor/underscore';
 
 import { genericGameSchema } from '../imports/schema.js';
 
-export class Player {
+export class GenericPlayer {
 	constructor(item, game) {
 		Object.assign(this, item);
 		this._game = game;
@@ -40,7 +40,7 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		// due to publication secrecy, players array may be undefined
-		this.players = (this.players || []).map(o => { return new Player(o, this); });
+		this.players = (this.players || []).map(o => { return new GenericPlayer(o, this); });
 		Object.defineProperty(this, '_suppressUpdate', { enumerable: false, writable: true, value: false });
 		// Object.defineProperty(this, '_collection', { enumerable: false });
 	}
@@ -69,7 +69,7 @@ export class GenericGame {
 	 * @static
 	 * @param {Object} gameObj - properties of game
 	 * @param {String} [gameObj.name] - name of the game
-	 * @param {Player[]} [gameObj.players] - array of players in the game
+	 * @param {GenericPlayer[]} [gameObj.players] - array of players in the game
 	 * @param {User} [user={}] - user
 	 * @param {String} [alias=''] - optional alias for first player
 	 * @returns {String} - id of game created
@@ -97,7 +97,7 @@ export class GenericGame {
 		if (this.getPlayer(user._id)) {
 			throw new Meteor.Error('player-already-joined');
 		}
-		const player = new Player({ userId: user._id, alias, team, role }, this);
+		const player = new GenericPlayer({ userId: user._id, alias, team, role }, this);
 		this.players.push(player);
 		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
 		return this._collection.update(this._id, {

@@ -114,7 +114,7 @@ export class CodeNames extends GenericGame {
 	 * @static
 	 * @param {Object} gameObj - properties of game
 	 * @param {String} [gameObj.name] - name of the game
-	 * @param {Player[]} [gameObj.players] - array of players in the game
+	 * @param {GenericPlayer[]} [gameObj.players] - array of players in the game
 	 * @param {User} [user={}] - user
 	 * @param {String} [alias=''] - optional alias for first player
 	 * @returns {String} - id of game created

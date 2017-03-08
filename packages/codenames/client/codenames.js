@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 // import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { GenericGame, Player } from 'meteor/freelancecourtyard:genericgame';
+import { GenericGame, GenericPlayer } from 'meteor/freelancecourtyard:genericgame';
 import { _ } from 'meteor/underscore';
 
 /**
@@ -37,7 +37,7 @@ class CodeNamesWord {
 	}
 }
 
-export class CodeNamesPlayer extends Player {
+export class CodeNamesPlayer extends GenericPlayer {
 	constructor(item, game) {
 		super(item, game);
 	}
@@ -96,7 +96,7 @@ export class CodeNames extends GenericGame {
 		return this.isClueGiver;
 	}
 
-	// TODO: this should be part of the Player class
+	// TODO: this should be part of the GenericPlayer class
 	get isClueGiver() {
 		if (!this.player) { return false; }
 		return this.player.role === 'cluegiver';

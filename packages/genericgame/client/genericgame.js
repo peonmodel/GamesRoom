@@ -20,7 +20,7 @@ function promiseCall(fn, ...params) {
 	});
 }
 
-export class Player {
+export class GenericPlayer {
 	constructor(item, game) {
 		Object.assign(this, item);
 		this._game = game;
@@ -50,7 +50,7 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		// due to publication secrecy, players array may be undefined
-		this.players = (this.players || []).map(o => { return new Player(o, this); });
+		this.players = (this.players || []).map(o => { return new GenericPlayer(o, this); });
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
@@ -91,7 +91,7 @@ export class GenericGame {
 	}
 
 	// addPlayer({ userId, alias, team, role }) {
-	// 	const player = new Player({ userId, alias, team, role }, this);
+	// 	const player = new GenericPlayer({ userId, alias, team, role }, this);
 	// 	this.players.push(player);
 	// 	const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
 	// 	return GenericGame.collection.update(this._id, {
