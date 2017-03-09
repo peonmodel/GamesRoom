@@ -93,25 +93,6 @@ export class GenericGame {
 		});
 	}
 
-	addPlayer({ user, alias, team, role }) {
-		if (this.getPlayer(user._id)) {
-			throw new Meteor.Error('player-already-joined');
-		}
-		const player = new GenericPlayer({ userId: user._id, alias, team, role }, this);
-		this.players.push(player);
-		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
-		return this._collection.update(this._id, {
-			$push: { players: player, log: logitem },
-		});
-	}
-
-	removePlayer({ user }) {
-		this.players = _.without(this.players, this.getPlayer(user._id));
-		return this._collection.update(this._id, {
-			$set: { players: this.players }
-		});
-	}
-
 	get player() {
 		const user = Meteor.user() || {};
 		return this.getPlayer(user._id);

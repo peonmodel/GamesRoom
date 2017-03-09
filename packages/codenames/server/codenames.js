@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 // import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
-import { GenericGame, genericGameSchema } from 'meteor/freelancecourtyard:genericgame';
+import { GenericGame, genericGameSchema, GenericPlayer } from 'meteor/freelancecourtyard:genericgame';
 import { codeNamesWords } from '../imports/assets/words.js';
 import { _ } from 'meteor/underscore';
 // import { CodeNamesSchema } from '../imports/schema.js';
@@ -351,14 +351,25 @@ export class CodeNames extends GenericGame {
 	}
 
 	joinGame({ user, alias, team, role } = {}) {
+		if (this.getPlayer(user._id)) {
+			throw new Meteor.Error('player-already-joined');
+		}
 		alias = alias || user.username;
 		team = team || Random.choice(['red', 'blue']);
 		role = role || (this.players.find(o => o.team === team && o.role === 'cluegiver') ? 'others' : 'cluegiver');
-		return this.addPlayer({ user, alias, team, role });
+		const player = new GenericPlayer({ userId: user._id, alias, team, role }, this);
+		this.players.push(player);
+		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
+		return CodeNames.collection.update(this._id, {
+			$push: { players: player, log: logitem },
+		});
 	}
 
 	leaveGame(user) {
-		return this.removePlayer(user);
+		this.players = _.without(this.players, this.getPlayer(user._id));
+		return CodeNames.collection.update(this._id, {
+			$set: { players: this.players }
+		});
 	}
 }
 
@@ -377,12 +388,3 @@ CodeNames.schema = Object.assign(genericGameSchema, {
 	},
 	hiddenTeams: [String],
 });
-// CodeNames.collection = new Mongo.Collection(`${CodeNames.prefix}Collection`, {
-// 	transform: function(item) {
-// 	  return new CodeNames(item);
-// 	},
-// 	defineMutationMethods: false,
-// });
-// CodeNames.collection._ensureIndex({ expiredAt: 1 }, { expireAfterSeconds: 3600 });
-// using generic collection instead of specific collection
-// due to problems with dependencies to get collection
