@@ -38,8 +38,8 @@ class CodeNamesWord {
 }
 
 export class CodeNamesPlayer extends GenericPlayer {
-	constructor(item, game) {
-		super(item, game);
+	constructor(item, index, game) {
+		super(item, index, game);
 	}
 
 	updateAlias(alias) {
@@ -67,7 +67,7 @@ export class CodeNames extends GenericGame {
 		Object.assign(this, item);
 		this.words = (this.words || []).map((word, idx) => new CodeNamesWord(word, idx, this));
 		// due to publication secrecy, players array may be undefined
-		this.players = (this.players || []).map(o => { return new CodeNamesPlayer(o, this); });
+		this.players = (this.players || []).map((o, idx) => { return new CodeNamesPlayer(o, idx, this); });
 	}
 
 	get currentClue() {

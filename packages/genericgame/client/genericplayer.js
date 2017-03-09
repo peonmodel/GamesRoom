@@ -20,10 +20,11 @@ function promiseCall(fn, ...params) {
 }
 
 export class GenericPlayer {
-	constructor(item, game) {
+	constructor(item, index, game) {
 		Object.assign(this, item);
 		this._game = game;
 		Object.defineProperty(this, '_game', { enumerable: false });
+		Object.defineProperty(this, '_index', { enumerable: false, writable: true, value: index });
 	}
 
 	updateAlias(alias) {

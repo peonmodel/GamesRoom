@@ -1,15 +1,26 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { Random } from 'meteor/random';
+// import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
 
 import { genericGameSchema } from '../imports/schema.js';
 
+// function hasConflict(mod1, mod2) {
+// 	// not very interested in operators that is not used; [ $min, $max, $rename, $inc, $mul ]
+// 	// only interested in [ $set, $unset, $push, $pop ]
+
+// 	// cannot set & push the same field at the same time
+
+// 	// return true if any fields are the same between $push & set
+// 	// return true if any field is subfield
+// 	return true;
+// }
+
 export class GenericPlayer {
-	constructor(item, game) {
+	constructor(item, index, game) {
 		Object.assign(this, item);
-		this._game = game;
-		Object.defineProperty(this, '_game', { enumerable: false });
+		Object.defineProperty(this, '_game', { enumerable: false, value: game });
+		Object.defineProperty(this, '_index', { enumerable: false, writable: true, value: index });
 	}
 
 	updateAlias(alias) {
@@ -40,9 +51,9 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		// due to publication secrecy, players array may be undefined
-		this.players = (this.players || []).map(o => { return new GenericPlayer(o, this); });
+		this.players = (this.players || []).map((o, idx) => { return new GenericPlayer(o, idx, this); });
 		Object.defineProperty(this, '_suppressUpdate', { enumerable: false, writable: true, value: false });
-		// Object.defineProperty(this, '_collection', { enumerable: false });
+		Object.defineProperty(this, '_modifiers', { enumerable: false, writable: true, value: [] });
 	}
 
 	static find(selector = {}, options = {}) {
@@ -63,35 +74,62 @@ export class GenericGame {
 		return this.collection.findOne(selector, options);
 	}
 
-	/**
-	 * createGame - create a game
-	 *
-	 * @static
-	 * @param {Object} gameObj - properties of game
-	 * @param {String} [gameObj.name] - name of the game
-	 * @param {GenericPlayer[]} [gameObj.players] - array of players in the game
-	 * @param {User} [user={}] - user
-	 * @param {String} [alias=''] - optional alias for first player
-	 * @returns {String} - id of game created
-	 * 
-	 * @memberOf GenericGame
-	 */
-	static createGame({
-		name = `Game-${Random.id(4)}`,
-		players,
-	} = {}, user = {}) {
-		const currentDate = new Date();
-
-		return this.collection.insert({
-			type: 'GenericGame',
-			name, players,
-			state: {},
-			hostedBy: user._id,
-			createdAt: currentDate,
-			updatedAt: currentDate,
-			log: [{ timestamp: currentDate, text: 'game created' }],
+	updateCollections() {
+		const promises = this._modifiers.map(mod => {
+			return new Promise((resolve, reject) => {
+				GenericGame.collection.update({ _id: this._id }, mod, (error, result) => {
+					return !!error ? reject(error) : resolve(result);
+				});
+			});
 		});
+		return Promise.all(promises);
 	}
+
+	// batchUpdates() {
+	// 	const batchArray = [];
+	// 	let lastbatch = {};
+	// 	this._modifiers.forEach(operation => {
+	// 		if (!hasConflict(lastbatch.modifier, operation.modifier)) {
+	// 			Object.assign(lastbatch.modifier, operation.modifier);
+	// 		} else {
+	// 			// new batch
+	// 			lastbatch = operation;
+	// 			batchArray.push(lastbatch);
+	// 		}
+	// 	});
+	// 	this._modifiers = batchArray;
+	// 	return this._modifiers;
+	// }
+
+	// /**
+	//  * createGame - create a game
+	//  *
+	//  * @static
+	//  * @param {Object} gameObj - properties of game
+	//  * @param {String} [gameObj.name] - name of the game
+	//  * @param {GenericPlayer[]} [gameObj.players] - array of players in the game
+	//  * @param {User} [user={}] - user
+	//  * @param {String} [alias=''] - optional alias for first player
+	//  * @returns {String} - id of game created
+	//  *
+	//  * @memberOf GenericGame
+	//  */
+	// static createGame({
+	// 	name = `Game-${Random.id(4)}`,
+	// 	players,
+	// } = {}, user = {}) {
+	// 	const currentDate = new Date();
+
+	// 	return this.collection.insert({
+	// 		type: 'GenericGame',
+	// 		name, players,
+	// 		state: {},
+	// 		hostedBy: user._id,
+	// 		createdAt: currentDate,
+	// 		updatedAt: currentDate,
+	// 		log: [{ timestamp: currentDate, text: 'game created' }],
+	// 	});
+	// }
 
 	get player() {
 		const user = Meteor.user() || {};

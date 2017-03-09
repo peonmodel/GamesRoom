@@ -357,7 +357,7 @@ export class CodeNames extends GenericGame {
 		alias = alias || user.username;
 		team = team || Random.choice(['red', 'blue']);
 		role = role || (this.players.find(o => o.team === team && o.role === 'cluegiver') ? 'others' : 'cluegiver');
-		const player = new GenericPlayer({ userId: user._id, alias, team, role }, this);
+		const player = new GenericPlayer({ userId: user._id, alias, team, role }, this.players.length, this);
 		this.players.push(player);
 		const logitem = { timestamp: new Date(), text: `player (${alias}) joined the game` };
 		return CodeNames.collection.update(this._id, {

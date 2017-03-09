@@ -8,7 +8,7 @@ export class GenericGame {
 	constructor(item) {
 	  Object.assign(this, item);
 		// due to publication secrecy, players array may be undefined
-		this.players = (this.players || []).map(o => { return new GenericPlayer(o, this); });
+		this.players = (this.players || []).map((o, idx) => { return new GenericPlayer(o, idx, this); });
 		Object.defineProperty(this, '_collection', { enumerable: false });
 	}
 
