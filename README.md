@@ -5,6 +5,9 @@
 ### General
 - now that all games share the same collection, it would make sense to put in super class methods like updateAlias, start game, join game etc, overwrite as necessary
 
+- add expiredAt to all collections for deployment, users & connections too
+- add notice to app
+
 ### CodeNames
 - ~~role/team updators & component~~
 - ~~component to give clue~~

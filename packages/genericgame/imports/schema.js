@@ -4,7 +4,7 @@ import { Match } from 'meteor/check';
 // of schema on the collection, since mongodb is supposed to be schemaless
 // checks if needed should be done upon insertion or other updates
 
-export const playerSchema = {
+export const genericPlayerSchema = {
 	userId: String,  // 1 player per user per game
 	alias: String,  // a different alias for each game
 	team: Match.Maybe(String),
@@ -19,7 +19,7 @@ export const logItem = {
 export const genericGameSchema = {
 	name: String, // name of game
 	type: String,
-	players: [playerSchema],
+	players: [genericPlayerSchema],
 	// activePlayerId: String,
 	hostedBy: String,
 	createdAt: Date,
